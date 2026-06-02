@@ -91,25 +91,18 @@ function handleKeydown(event: KeyboardEvent) {
     chooseWinner(duel.players[1], rightButton);
 }
 
-// Each tournament uses a random sample of the category so the quiz stays short —
-// a full category is 40-80+ fonts (far too many rounds). The complete catalog
-// still powers Browse. Bump this to lengthen the bracket (16 → 4 rounds / 15
-// picks; 32 matches the original Coding Font).
+// Each tournament uses a FIXED top-N slice of the category so the quiz stays
+// short AND every play is the same comparable bracket (catalog order = Bunny
+// popularity, so this is the N most popular). A full category is 40-80+ fonts
+// (too many rounds); the complete catalog still powers Browse. Bump to lengthen
+// (16 → 4 rounds / 15 picks; 32 matches the original Coding Font).
 const BRACKET_SIZE = 16;
-
-// Fisher-Yates shuffle, then take the first n — an unbiased random subset.
-function sampleFonts(pool: Font[], n: number): Font[] {
-  const a = [...pool];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a.slice(0, n);
-}
 
 function startGame() {
   const pool = data.fonts.filter((font) => font.category === selectedCategory);
-  const players = sampleFonts(pool, BRACKET_SIZE);
+  // Same contestants every time → brackets are comparable across plays.
+  // createGame still shuffles first-round pairings, so the path stays fresh.
+  const players = pool.slice(0, BRACKET_SIZE);
   poolSize = players.length;
   game = createGame(players);
   currentBracket = game.startGame();
