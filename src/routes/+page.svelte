@@ -171,7 +171,7 @@ function scrollToBracket() {
     {#if currentBracket?.players?.length}
       <!-- MOBILE / TABLET: tap-to-pick duel — both fonts on screen, no scroll -->
       <div class="flex h-full flex-col gap-2 p-3 lg:hidden">
-        <div class="flex items-center gap-2 overflow-x-auto pb-1">
+        <div class="flex shrink-0 items-center gap-2 overflow-x-auto pb-1">
           <div
             class="btn-group preset-outlined-surface-500 shrink-0 [&>*+*]:border-surface-400-500">
             {#each categories as category (category.id)}

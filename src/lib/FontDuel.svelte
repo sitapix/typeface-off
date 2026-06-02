@@ -4,8 +4,10 @@ import FontPreview from './FontPreview.svelte';
 
 // Mobile/tablet head-to-head: both fonts fill the screen (top vs bottom), tap
 // the half you prefer to pick it. No scrolling, one tap, both visible at once.
-// The specimen is display-only (pointer-events: none) so the whole half is the
-// tap target.
+// The specimen fills the whole half and is display-only (pointer-events: none)
+// so the entire half is the tap target. The only chrome is a small "Tap to
+// choose" chip tucked into the window's title-bar strip, clear of the article
+// body.
 let {
   players,
   fontSize = 20,
@@ -47,18 +49,13 @@ function pick(i: number, event: MouseEvent) {
 <div class="font-duel" style="touch-action: manipulation;">
   {#key pairKey}
     {#each players as font, i (font.family)}
-      {#if i === 1}
-        <div class="duel-vs" aria-hidden="true"><span>VS</span></div>
-      {/if}
       <button
         type="button"
         class="duel-half"
         class:picking={picking === i}
         class:dimmed={picking !== null && picking !== i}
         onclick={(e) => pick(i, e)}
-        aria-label={showName
-          ? `Choose ${font.family}`
-          : 'Choose this font'}>
+        aria-label={showName ? `Choose ${font.family}` : 'Choose this font'}>
         <FontPreview
           class="duel-specimen"
           family={font.family}
@@ -66,22 +63,17 @@ function pick(i: number, event: MouseEvent) {
           {fontSize}
           {ligatures} />
 
-        {#if showName}
-          <span class="duel-name" style="font-family: '{font.family}'"
-            >{font.family}</span>
-        {/if}
-
         <span class="duel-cta bg-primary-500 text-white">
           <svg
-            width="16"
-            height="16"
+            width="14"
+            height="14"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             stroke-width="3"
             stroke-linecap="round"
             stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-          Tap to choose
+          {showName ? font.family : 'Tap to choose'}
         </span>
       </button>
     {/each}
@@ -92,9 +84,11 @@ function pick(i: number, event: MouseEvent) {
 .font-duel {
   position: relative;
   display: flex;
+  flex: 1 1 0%;
+  min-height: 0;
   height: 100%;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.55rem;
 }
 
 .duel-half {
@@ -108,7 +102,7 @@ function pick(i: number, event: MouseEvent) {
   background: transparent;
   text-align: left;
   cursor: pointer;
-  border-radius: 0.5rem;
+  border-radius: 0.6rem;
   animation: duel-enter 0.26s ease backwards;
   transition:
     transform 0.18s ease,
@@ -131,73 +125,31 @@ function pick(i: number, event: MouseEvent) {
   transform: scale(0.95);
 }
 
-/* specimen is purely visual; the whole half captures the tap */
+/* specimen fills the half and is display-only; the half captures the tap */
 .duel-half :global(.duel-specimen) {
   height: 100%;
   pointer-events: none;
-  -webkit-mask-image: linear-gradient(to bottom, #000 74%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 74%, transparent 100%);
 }
 
-.duel-name {
-  position: absolute;
-  top: 0.6rem;
-  left: 0.6rem;
-  z-index: 2;
-  max-width: 70%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 0.15rem 0.55rem;
-  border-radius: 0.4rem;
-  font-size: 0.85rem;
-  background: color-mix(in srgb, var(--color-surface-50) 80%, transparent);
-  backdrop-filter: blur(4px);
-}
-:global(.dark) .duel-name {
-  background: color-mix(in srgb, var(--color-surface-950) 80%, transparent);
-}
-
+/* compact cue tucked into the window title-bar, right of the URL — out of the
+   article body entirely */
 .duel-cta {
   position: absolute;
-  left: 50%;
-  bottom: 0.75rem;
-  transform: translateX(-50%);
-  z-index: 3;
+  top: 0.5rem;
+  right: 0.6rem;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.9rem;
+  gap: 0.3rem;
+  max-width: calc(100% - 1.2rem);
+  padding: 0.25rem 0.65rem;
   border-radius: 9999px;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 600;
   white-space: nowrap;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-}
-
-.duel-vs {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 6;
-  display: flex;
-  height: 2.6rem;
-  width: 2.6rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  color: var(--color-surface-50);
-  background: var(--color-surface-950);
-  box-shadow: 0 0 0 4px var(--color-surface-50);
-}
-:global(.dark) .duel-vs {
-  color: var(--color-surface-950);
-  background: var(--color-surface-50);
-  box-shadow: 0 0 0 4px var(--color-surface-950);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes duel-enter {

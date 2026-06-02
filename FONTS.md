@@ -15,8 +15,15 @@ type filters.
 | Source | Where it's hosted | How it loads | Add it by |
 |--------|-------------------|--------------|-----------|
 | `bunny` | [Bunny Fonts](https://fonts.bunny.net) (privacy-friendly Google Fonts mirror) | one combined `<link>` to `fonts.bunny.net/css?family=…` | the generator (`npm run fonts:generate`) |
-| `fontsource` | [Fontsource](https://fontsource.org) via jsDelivr CDN | one `<link>` per font to `cdn.jsdelivr.net/fontsource/css/<id>@latest/index.css` | the generator |
-| `local` | **self-hosted** in `static/fonts/` | a generated `@font-face` rule | hand-edit `src/lib/localFonts.ts` |
+| `fontsource` | [Fontsource](https://fontsource.org) via jsDelivr CDN | inline `@font-face` → jsDelivr **static** woff2 (`cdn.jsdelivr.net/fontsource/fonts/<id>@latest/<subset>-<weight>-<style>.woff2`), built from the font's `faces` — **no per-font stylesheet request** | the generator |
+| `local` | **self-hosted** in `static/fonts/` | inline `@font-face` from its `faces` | hand-edit `src/lib/localFonts.ts` |
+
+**Why no per-font Fontsource stylesheets?** Loading 80+ `<link>`s in `<head>` is
+render-blocking and delays first paint by seconds. Instead the generator records a
+static woff2 URL in each Fontsource font's `faces`, and the layout emits all of
+them as one inline `<style>` of `@font-face` rules. Result: **one** blocking
+stylesheet (Bunny), zero Fontsource stylesheet requests, and each woff2 is fetched
+lazily by the browser only when its font is actually rendered.
 
 All loading happens in **`src/routes/+layout.svelte`**, which reads the merged font
 list and emits the right tag for each source. The preview/Game/Browse code never

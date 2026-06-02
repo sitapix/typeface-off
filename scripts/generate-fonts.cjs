@@ -32,6 +32,34 @@ function fsBucket(cat) {
   if (cat === 'monospace') return 'mono';
   return null;
 }
+
+// Build one @font-face `src` (static jsDelivr woff2) for a Fontsource font, so we
+// can inline @font-face instead of fetching a stylesheet per font. Variable fonts
+// use the :vf weight-axis file (covers all weights); static fonts use the 400
+// file (or the nearest available weight).
+function fsFaces(f) {
+  const sub = f.defSubset || 'latin';
+  const ws = f.weights && f.weights.length ? f.weights : [400];
+  // Most fonts have 'normal'; some (e.g. Syne Italic) are italic-only.
+  const style = (f.styles || ['normal']).includes('normal') ? 'normal' : 'italic';
+  let face;
+  if (f.variable) {
+    const min = Math.min(...ws);
+    const max = Math.max(...ws);
+    face = {
+      src: `https://cdn.jsdelivr.net/fontsource/fonts/${f.id}:vf@latest/${sub}-wght-${style}.woff2`,
+      weight: min === max ? String(min) : `${min} ${max}`
+    };
+  } else {
+    const w = ws.includes(400) ? 400 : ws[0];
+    face = {
+      src: `https://cdn.jsdelivr.net/fontsource/fonts/${f.id}@latest/${sub}-${w}-${style}.woff2`,
+      weight: String(w)
+    };
+  }
+  if (style === 'italic') face.style = 'italic';
+  return [face];
+}
 // Skip non-text / brand / CJK fonts that would bloat or break the stylesheet.
 function excluded(family) {
   if (/^Google Sans/.test(family)) return true;
@@ -98,6 +126,7 @@ function gVariants(f) {
       category: b,
       source: 'fontsource',
       id: f.id,
+      faces: fsFaces(f),
       variants: variants.length ? variants : ['regular']
     });
     seen.add(f.family.toLowerCase());
@@ -109,7 +138,8 @@ function gVariants(f) {
   const seedLines = seeds
     .map((s) => {
       const idPart = s.source === 'fontsource' ? `, id: ${JSON.stringify(s.id)}` : '';
-      return `  { family: ${JSON.stringify(s.family)}, category: '${s.category}', source: '${s.source}'${idPart}, variants: ${JSON.stringify(s.variants)} }`;
+      const facesPart = s.faces ? `, faces: ${JSON.stringify(s.faces)}` : '';
+      return `  { family: ${JSON.stringify(s.family)}, category: '${s.category}', source: '${s.source}'${idPart}${facesPart}, variants: ${JSON.stringify(s.variants)} }`;
     })
     .join(',\n');
 
@@ -141,6 +171,7 @@ interface FontSeed {
   category: FontCategory;
   source: FontSource;
   id?: string;
+  faces?: FontFace[];
   variants: string[];
 }
 

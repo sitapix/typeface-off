@@ -4,10 +4,14 @@ import { fonts } from '$lib';
 
 let { children } = $props();
 
-// Each source loads its own way; fonts.ts is the single source of truth.
-// Bunny Fonts (privacy-friendly Google Fonts mirror) → one combined stylesheet.
-// Fontsource → one jsDelivr stylesheet per font. Add a font in fonts.ts and it
-// loads automatically.
+// Loading strategy (fonts.ts is the single source of truth):
+//  • Bunny  → ONE combined stylesheet (covers the popular families, uses
+//             unicode-range so each woff2 is fetched lazily).
+//  • Fontsource & local → inline @font-face pointing at static files (jsDelivr
+//             for Fontsource via its `faces`, /static for local). This means
+//             ZERO extra stylesheet requests, and the browser lazy-loads each
+//             woff2 only when that font is actually rendered. Scales to any
+//             number of fonts without slowing first paint.
 const bunnyHref =
   'https://fonts.bunny.net/css?' +
   fonts
@@ -16,19 +20,15 @@ const bunnyHref =
     .join('&') +
   '&display=swap';
 
-const fontsourceHrefs = fonts
-  .filter((f) => f.source === 'fontsource' && f.id)
-  .map((f) => `https://cdn.jsdelivr.net/fontsource/css/${f.id}@latest/index.css`);
-
-// Self-hosted (local) fonts: generate @font-face rules from their `faces`.
 function faceFormat(src: string): string {
   if (src.endsWith('.woff2')) return 'woff2';
   if (src.endsWith('.woff')) return 'woff';
   if (src.endsWith('.otf')) return 'opentype';
   return 'truetype';
 }
-const localFaceCss = fonts
-  .filter((f) => f.source === 'local' && f.faces)
+
+const faceCss = fonts
+  .filter((f) => f.faces)
   .flatMap((f) =>
     f.faces!.map(
       (face) =>
@@ -42,12 +42,9 @@ const localFaceCss = fonts
   <link rel="preconnect" href="https://fonts.bunny.net" crossorigin="anonymous" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
   <link rel="stylesheet" href={bunnyHref} />
-  {#each fontsourceHrefs as href (href)}
-    <link rel="stylesheet" href={href} />
-  {/each}
-  {#if localFaceCss}
+  {#if faceCss}
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html `<style>${localFaceCss}</style>`}
+    {@html `<style>${faceCss}</style>`}
   {/if}
 </svelte:head>
 
