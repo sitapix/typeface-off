@@ -4,11 +4,13 @@ Abril Fatface
 Adwaita Mono
 Adwaita Sans
 Aileron
+Alegreya
 Alfa Slab One
 Allura
 Amiri
 Angkor
 Anonymous Pro
+Anton
 Apfel Grotezk
 Architects Daughter
 Archivo
@@ -16,7 +18,10 @@ Archivo Black
 Argentum Sans
 Arimo
 Arvo
+Atkinson Hyperlegible
 Azeret Mono
+B612 Mono
+Bagel Fat One
 Bagnard
 Bagnard Sans
 Baloo 2
@@ -35,23 +40,28 @@ Bravura
 Bravura Text
 Bricolage Grotesque
 Bungee
+Cal Sans
+Cardo
 Caveat
 Changa One
 Chivo Mono
 Chunk Five
 Cinzel
 Clear Sans
+Climate Crisis
 Comfortaa
 Comic Mono
 Comic Neue
 Commit Mono
 Cooper Hewitt
+Corben
 Cormorant
 Cormorant Garamond
 Courgette
 Courier Prime
 Cousine
 Creepster
+Crimson Pro
 Crimson Text
 Cutive Mono
 Dancing Script
@@ -60,6 +70,7 @@ DejaVu Mono
 DejaVu Sans
 DejaVu Serif
 Delius
+Departure Mono
 DM Mono
 DM Sans
 DM Serif Display
@@ -76,6 +87,7 @@ Forum
 Fragment Mono
 Frank Ruhl Libre
 Fraunces
+Fredoka
 Fugaz One
 Fusion Kai G
 Fusion Kai J
@@ -84,9 +96,12 @@ Gabarito
 Geist Mono
 Geist Sans
 Genjyuu Gothic
+Gentium Plus
 Goldman
 Gravitas One
 Great Vibes
+Hanken Grotesk
+Hanken Round
 Hauora Sans
 Heebo
 Homemade Apple
@@ -99,6 +114,7 @@ IBM Plex Serif
 Inconsolata
 Indie Flower
 Instrument Serif
+Intel One Mono
 Inter
 Iosevka
 Iosevka Aile
@@ -112,15 +128,19 @@ Kalam
 Kanit
 Karla
 Karmilla
+Karrik
 Kaushan Script
 Lato
 League Mono
+League Spartan
 Lextrall
 Libre Barcode 39
 Libre Baskerville
 Libre Caslon Condensed
 Libre Franklin
 Lilita One
+LINE Seed Sans
+Literata
 Lobster
 Lobster Two
 Lora
@@ -129,6 +149,7 @@ LXGW WenKai
 Manrope
 Maple Mono
 Marcellus
+Martian Mono
 Merriweather
 Metropolis
 Monaspace Argon
@@ -144,6 +165,7 @@ Nanum Gothic Coding
 Nanum Myeongjo
 Nebula Sans
 Newsreader
+Nimbus Sans L
 Norwester
 Noto Mono
 Noto Sans
@@ -188,6 +210,7 @@ Public Sans
 Quicksand
 Raleway
 Rammetto One
+Rampart One
 Red Hat Mono
 Redaction
 Redaction 10
@@ -209,12 +232,16 @@ Rubik One
 Sacramento
 Saira
 Satisfy
+Serious Shanns
 Shadows Into Light
 Share Tech
 Share Tech Mono
+Shrikhand
+Sixtyfour
 Slabo 27px
 Smooch Sans
 Sometype Mono
+Sorts Mill Goudy
 Source Code Pro
 Source Sans 3
 Source Serif 4
@@ -222,8 +249,11 @@ Space Grotesk
 Space Mono
 Special Elite
 Spectral
+Spline Sans Mono
 Syne Italic
 Tangerine
+Techna Sans
+Tinos
 Titan One
 Titillium Web
 Ubuntu
@@ -231,6 +261,8 @@ Ubuntu Mono
 Uncut Sans
 Unifont
 UnifontEX
+UnifrakturMaguntia
+Victor Mono
 Vollkorn
 VT323
 WIN95FA

@@ -347,32 +347,34 @@ async function shareImage() {
             width="395"
             height="440" />
           <div
-            class="relative mx-auto flex max-w-5xl flex-col gap-12 p-4 md:p-10">
+            class="relative mx-auto flex max-w-5xl flex-col gap-8 p-4 md:p-10">
             <div
-              class="flex flex-col gap-3 border-t-2 border-surface-700-300 pt-10">
+              class="flex flex-col gap-2 border-t-2 border-surface-700-300 pt-8">
               <h2 class="h2 text-balance">Certificate of Distinction</h2>
               <h3 class="h4">Hereby crowned champion</h3>
             </div>
-            <div
-              class="my-4 text-4xl md:text-6xl"
-              style="font-family: '{champion.family}'">
-              {champion.family}
+            <div class="flex flex-col items-center gap-4">
+              <div
+                class="text-4xl md:text-6xl"
+                style="font-family: '{champion.family}'">
+                {champion.family}
+              </div>
+              <!-- Labelled font actions: bare icons here read as "download the
+                   image" next to the share card, so always show the text. -->
+              <FontLinks
+                font={champion}
+                size={20}
+                showLabels
+                labelClass=""
+                detailLabel="Details"
+                groupClass="preset-tonal-surface text-sm" />
             </div>
-            <FontLinks
-              font={champion}
-              size={24}
-              showLabels
-              detailLabel="View Font Detail"
-              groupClass="preset-tonal-surface self-center" />
 
-            <!-- Shareable Top-10 placement card -->
+            <!-- Shareable Top-10 placement card. The Save/Share actions are the
+                 finish-and-share spine, so they sit above the (tall) poster
+                 where they're reachable without scrolling past it. -->
             {#if tiers.length}
-              <div class="flex flex-col items-center gap-3">
-                <div bind:this={resultsCardEl} class="mx-auto w-full max-w-xl">
-                  <ResultsCard
-                    tiers={tiers}
-                    categoryLabel={categoryLabel(selectedCategory)} />
-                </div>
+              <div class="flex flex-col items-center gap-4">
                 <div class="flex flex-wrap justify-center gap-2">
                   <button
                     class="btn preset-filled-primary-500"
@@ -390,6 +392,11 @@ async function shareImage() {
                     </button>
                   {/if}
                 </div>
+                <div bind:this={resultsCardEl} class="mx-auto w-full max-w-xl">
+                  <ResultsCard
+                    tiers={tiers}
+                    categoryLabel={categoryLabel(selectedCategory)} />
+                </div>
               </div>
             {/if}
 
@@ -398,7 +405,7 @@ async function shareImage() {
               counters stand heroic and triumphant in the tumultuous tournament
               of type.
             </h4>
-            <div class="mt-20 hidden justify-between md:flex">
+            <div class="mt-10 hidden justify-between md:flex">
               <div>
                 <p class="mb-2">__________________________</p>
                 <p class="text-center">Head of Kerning</p>
