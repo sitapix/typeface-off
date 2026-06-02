@@ -128,7 +128,7 @@ function scrollToBracket() {
                   </WinnerBadge>
                 </div>
               {:else}
-                <div class={`round-${index + 1}`}>
+                <div class="bracket-round" class:first-round={index === 0}>
                   {#each round as bracket (bracket)}
                     <div
                       class="font-bracket"
