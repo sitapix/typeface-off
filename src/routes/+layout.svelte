@@ -1,5 +1,6 @@
 <script lang="ts">
 import '../app.css';
+import { base } from '$app/paths';
 import { fonts } from '$lib';
 import { buildFontFaceCss } from '$lib/fontFaces';
 
@@ -21,7 +22,7 @@ const bunnyHref =
     .join('&') +
   '&display=swap';
 
-const faceCss = buildFontFaceCss(fonts);
+const faceCss = buildFontFaceCss(fonts, base);
 </script>
 
 <svelte:head>
@@ -44,4 +45,5 @@ const faceCss = buildFontFaceCss(fonts);
 
 <canvas
   id="canvas"
+  aria-hidden="true"
   class="pointer-events-none fixed inset-0 z-[100] h-full w-full"></canvas>

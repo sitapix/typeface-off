@@ -24,28 +24,31 @@ function slug(family: string) {
         <th>Actions</th>
       </tr>
     </thead>
-    <tbody class="[&>tr]:cursor-pointer">
+    <tbody>
       {#each fonts as font (font.family)}
         <tr
           class="hover:preset-tonal-surface {fontFamily.value === font.family
             ? 'preset-tonal-primary'
-            : ''}"
-          onclick={() => {
-            menuOpen.value = false;
-            fontFamily.value = font.family;
-          }}>
-          <td
-            style="font-family: '{font.family}'"
-            class="max-w-[9rem] truncate !whitespace-nowrap"
-            >{showName.value ? font.family : 'ABC abc 123'}</td>
+            : ''}">
+          <td class="max-w-[9rem] !whitespace-nowrap p-0">
+            <button
+              type="button"
+              style="font-family: '{font.family}'"
+              class="block w-full cursor-pointer truncate px-4 py-2 text-left"
+              aria-pressed={fontFamily.value === font.family}
+              onclick={() => {
+                menuOpen.value = false;
+                fontFamily.value = font.family;
+              }}>{showName.value ? font.family : 'ABC abc 123'}</button>
+          </td>
           <td class="hidden md:table-cell">
             <button
               class="btn btn-sm preset-outlined-surface-500 {font.family ===
               fontFamilyRight.value
                 ? 'preset-tonal-primary'
                 : ''}"
-              onclick={(e) => {
-                e.stopPropagation();
+              aria-pressed={font.family === fontFamilyRight.value}
+              onclick={() => {
                 fontFamilyRight.value = font.family;
               }}>
               <Icon name="compare" size={16} />
@@ -55,13 +58,24 @@ function slug(family: string) {
           <td>
             <div
               class="btn-group preset-outlined-surface-500 [&>*+*]:border-surface-400-500">
-              <a class="btn !p-2 !pl-3" href={font.siteUrl} target="_blank">
+              <a
+                class="btn !p-2 !pl-3"
+                href={font.siteUrl}
+                target="_blank"
+                rel="noopener"
+                aria-label="Visit {font.family} website">
                 <Icon name="external" size={16} />
               </a>
-              <a class="btn !p-2" href={font.downloadUrl}>
+              <a
+                class="btn !p-2"
+                href={font.downloadUrl}
+                aria-label="Download {font.family}">
                 <Icon name="download" size={16} />
               </a>
-              <a class="btn !p-2 !pr-3" href="/{slug(font.family)}">
+              <a
+                class="btn !p-2 !pr-3"
+                href="/{slug(font.family)}"
+                aria-label="View {font.family} details">
                 <Icon name="maximize" size={16} />
               </a>
             </div>

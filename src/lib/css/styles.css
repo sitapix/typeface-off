@@ -3,7 +3,9 @@
   height: 21px;
   text-align: center;
   text-decoration: none;
-  transition: all 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
   position: relative;
   @apply rounded px-2 whitespace-nowrap;
 }

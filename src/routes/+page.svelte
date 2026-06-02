@@ -14,17 +14,14 @@ import {
   createGame,
   createConfetti
 } from '$lib';
-import {
-  showName,
-  fontSize,
-  ligatures,
-  topCollapsed
-} from '$lib/store.svelte';
+import { showName, fontSize, ligatures, topCollapsed } from '$lib/store.svelte';
 
 let { data } = $props();
 
+// No "All" here: a tournament only makes sense within a category — pitting a
+// script face against a coding mono isn't a real preference. ("All" stays on
+// Browse, where it's just a table filter.)
 const categories = [
-  { id: 'all', label: 'All' },
   { id: 'sans', label: 'Sans' },
   { id: 'serif', label: 'Serif' },
   { id: 'display', label: 'Display' },
@@ -33,7 +30,7 @@ const categories = [
 ] as const;
 type Category = (typeof categories)[number]['id'];
 
-let selectedCategory = $state<Category>('all');
+let selectedCategory = $state<Category>('sans');
 let game = $state<any>(null);
 let currentBracket = $state<any>(null);
 let leftButton = $state<HTMLButtonElement>();
@@ -51,9 +48,7 @@ const picksMade = $derived.by(() => {
     for (const m of round) if (m.winner && m.players.length === 2) n++;
   return n;
 });
-const progress = $derived(
-  totalPicks ? Math.min(1, picksMade / totalPicks) : 0
-);
+const progress = $derived(totalPicks ? Math.min(1, picksMade / totalPicks) : 0);
 
 onMount(() => {
   startGame();
@@ -70,10 +65,7 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 function startGame() {
-  const pool =
-    selectedCategory === 'all'
-      ? data.fonts
-      : data.fonts.filter((font) => font.category === selectedCategory);
+  const pool = data.fonts.filter((font) => font.category === selectedCategory);
   poolSize = pool.length;
   // copy the pool so createGame's in-place shuffle doesn't mutate shared data
   game = createGame([...pool]);
@@ -135,6 +127,7 @@ function scrollToBracket() {
               class="btn btn-sm {selectedCategory === category.id
                 ? 'preset-filled-primary-500'
                 : 'preset-outlined-surface-500'}"
+              aria-pressed={selectedCategory === category.id}
               onclick={() => selectCategory(category.id)}
               >{category.label}</button>
           {/each}
@@ -193,6 +186,7 @@ function scrollToBracket() {
   {/snippet}
 
   <div class="h-full overflow-hidden bg-surface-50-950">
+    <h1 class="sr-only">Font Face-Off — pick your favorite font</h1>
     {#if currentBracket?.players?.length}
       <!-- MOBILE / TABLET: tap-to-pick duel — both fonts on screen, no scroll -->
       <div class="flex h-full flex-col p-3 pt-2 lg:hidden">
@@ -211,6 +205,7 @@ function scrollToBracket() {
               stroke-width="2.5"
               stroke-linecap="round"
               stroke-linejoin="round"
+              aria-hidden="true"
               style="transition: transform 0.2s; transform: rotate({topCollapsed.value
                 ? 180
                 : 0}deg);"><path d="m18 15-6-6-6 6" /></svg>
@@ -223,7 +218,8 @@ function scrollToBracket() {
             aria-valuemax={totalPicks}>
             <div
               class="h-full rounded-full bg-primary-500 transition-[width] duration-300 ease-out"
-              style="width: {Math.round(progress * 100)}%"></div>
+              style="width: {Math.round(progress * 100)}%">
+            </div>
           </div>
           <span class="shrink-0 text-xs tabular-nums opacity-60"
             >{picksMade}/{totalPicks}</span>
@@ -242,6 +238,7 @@ function scrollToBracket() {
                   class="btn btn-sm {selectedCategory === category.id
                     ? 'preset-filled-primary-500'
                     : ''}"
+                  aria-pressed={selectedCategory === category.id}
                   onclick={() => selectCategory(category.id)}
                   >{category.label}</button>
               {/each}
@@ -299,13 +296,14 @@ function scrollToBracket() {
             class="absolute bottom-0 left-0 right-0 mx-auto max-w-full opacity-60"
             src="/trophy.png"
             alt="Trophy of Font"
-            width="400" />
+            width="395"
+            height="440" />
           <div
             class="relative mx-auto flex max-w-5xl flex-col gap-12 p-4 md:p-10">
             <div
               class="flex flex-col gap-6 border-t-2 border-surface-700-200 pt-10 tracking-widest">
               <h2 class="h2">CERTIFICATE OF ABSOLUTE AWESOMENESS</h2>
-              <h4 class="h4">HEREBY UNLEASHED UPON</h4>
+              <h3 class="h4">HEREBY UNLEASHED UPON</h3>
             </div>
             <div
               class="my-4 text-4xl md:text-6xl"

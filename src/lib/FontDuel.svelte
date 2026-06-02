@@ -72,7 +72,8 @@ function pick(i: number, event: MouseEvent) {
             stroke="currentColor"
             stroke-width="3"
             stroke-linecap="round"
-            stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+            stroke-linejoin="round"
+            aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
           {showName ? font.family : 'Tap to choose'}
         </span>
       </button>
@@ -103,11 +104,16 @@ function pick(i: number, event: MouseEvent) {
   text-align: left;
   cursor: pointer;
   border-radius: 0.6rem;
+  -webkit-tap-highlight-color: transparent;
   animation: duel-enter 0.26s ease backwards;
   transition:
     transform 0.18s ease,
     opacity 0.18s ease,
     filter 0.18s ease;
+}
+.duel-half:focus-visible {
+  outline: 3px solid var(--color-primary-500);
+  outline-offset: 2px;
 }
 .duel-half:nth-of-type(2) {
   animation-delay: 0.06s;

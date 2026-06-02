@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { faceFormat, buildFontFaceCss } from './fontFaces';
+import { faceFormat, buildFontFaceCss, resolveFaceSrc } from './fontFaces';
 import type { Font } from './fonts';
 
 const base = (over: Partial<Font>): Font => ({
@@ -23,7 +23,9 @@ describe('faceFormat', () => {
 
 describe('buildFontFaceCss', () => {
   it('ignores fonts without faces (e.g. bunny)', () => {
-    expect(buildFontFaceCss([base({ source: 'bunny', faces: undefined })])).toBe('');
+    expect(
+      buildFontFaceCss([base({ source: 'bunny', faces: undefined })])
+    ).toBe('');
   });
 
   it('emits an @font-face with sensible defaults', () => {
@@ -50,5 +52,34 @@ describe('buildFontFaceCss', () => {
       base({ faces: [{ src: '/a.woff2' }, { src: '/b.woff2' }] })
     ]);
     expect(css.match(/@font-face/g)).toHaveLength(2);
+  });
+
+  it('prefixes root-relative (local) srcs with the base path', () => {
+    const css = buildFontFaceCss(
+      [base({ faces: [{ src: '/fonts/m.woff2' }] })],
+      '/coding-font'
+    );
+    expect(css).toContain("url('/coding-font/fonts/m.woff2')");
+  });
+
+  it('leaves absolute (Fontsource/CDN) srcs untouched under a base path', () => {
+    const url = 'https://cdn.jsdelivr.net/fontsource/fonts/x@latest/latin-400-normal.woff2';
+    const css = buildFontFaceCss(
+      [base({ source: 'fontsource', faces: [{ src: url }] })],
+      '/coding-font'
+    );
+    expect(css).toContain(`url('${url}')`);
+  });
+});
+
+describe('resolveFaceSrc', () => {
+  it('prefixes root-relative paths with base', () => {
+    expect(resolveFaceSrc('/fonts/x.woff2', '/repo')).toBe('/repo/fonts/x.woff2');
+  });
+  it('no-ops with empty base', () => {
+    expect(resolveFaceSrc('/fonts/x.woff2')).toBe('/fonts/x.woff2');
+  });
+  it('never touches absolute URLs', () => {
+    expect(resolveFaceSrc('https://cdn/x.woff2', '/repo')).toBe('https://cdn/x.woff2');
   });
 });

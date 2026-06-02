@@ -24,13 +24,15 @@ const links = [
         <Icon name="menu" size={24} />
       </button>
     {/if}
-    <a href="/"><Logo class="h-[2.25rem] w-auto sm:h-[3rem]" /></a>
+    <a href="/" aria-label="Font Face-Off home"
+      ><Logo class="h-[2.25rem] w-auto sm:h-[3rem]" /></a>
   </div>
 
   <nav class="hidden items-center gap-2 md:flex">
     {#each links as link (link.href)}
       <a
         href={link.href}
+        aria-current={page.url.pathname === link.href ? 'page' : undefined}
         class="btn {page.url.pathname === link.href
           ? 'preset-tonal-primary'
           : 'hover:preset-tonal-surface'}">{link.label}</a>

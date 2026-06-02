@@ -150,6 +150,42 @@ Skipped, NOT FOUND on Google Fonts — check spelling (1): Inteer
 
 ---
 
+## Performance & deploying to GitHub Pages
+
+**Performance.** Local/Fontsource fonts use inline `@font-face`, and the browser
+only downloads a `woff2` when that font is actually rendered — so adding hundreds
+of fonts doesn't slow first paint. The catch: **Browse and the desktop bracket
+render every font's specimen**, so on those views every font's `woff2` downloads
+(non-blocking; text shows immediately and swaps in via `font-display: swap`).
+For a large self-hosted library:
+
+- **Ship subset `woff2`, not raw `.ttf`/`.otf`.** A Latin-subset woff2 is ~15–40 KB;
+  a full-unicode TTF can be 200 KB–1 MB. Convert with
+  [`fonttools`](https://github.com/fonttools/fonttools):
+  ```bash
+  pip install fonttools brotli
+  pyftsubset MyFont.ttf --output-file=MyFont.woff2 --flavor=woff2 \
+    --unicodes=U+0000-00FF,U+2018-201F  # basic Latin + common punctuation
+  ```
+- If you ever need it to scale to *thousands*, ask for the optional
+  IntersectionObserver lazy-load (each specimen fetches only when scrolled into view).
+
+**GitHub Pages.** The app builds static via `@sveltejs/adapter-static`.
+
+- **User/org page (`you.github.io`) or custom domain** → root path, build normally:
+  `npm run build`.
+- **Project page (`you.github.io/REPO`)** → it's served under `/REPO`, so build with:
+  ```bash
+  BASE_PATH=/REPO npm run build
+  ```
+  This is wired in `svelte.config.js` (`paths.base`), and local-font `@font-face`
+  URLs are base-aware — so a `local` font's `src` **must be root-relative**
+  (`/fonts/MyFont.woff2`), and it gets the `/REPO` prefix automatically.
+- A `static/.nojekyll` file is included so GitHub Pages serves SvelteKit's `_app/`
+  directory.
+
+---
+
 ## Tests
 
 ```bash

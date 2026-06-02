@@ -291,9 +291,13 @@ export default fonts;
 
   // Report on scripts/extra-fonts.txt processing.
   if (report.added.length)
-    console.log(`Extra fonts added (${report.added.length}): ${report.added.join(', ')}`);
+    console.log(
+      `Extra fonts added (${report.added.length}): ${report.added.join(', ')}`
+    );
   if (report.duplicate.length)
-    console.log(`Skipped, duplicate (${report.duplicate.length}): ${report.duplicate.join(', ')}`);
+    console.log(
+      `Skipped, duplicate (${report.duplicate.length}): ${report.duplicate.join(', ')}`
+    );
   if (report.notFound.length)
     console.log(
       `Skipped, NOT FOUND on Google Fonts — check spelling (${report.notFound.length}): ${report.notFound.join(', ')}`

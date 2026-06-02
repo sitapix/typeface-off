@@ -23,6 +23,10 @@ let {
 </script>
 
 <div class="flex h-full flex-col overflow-hidden">
+  <a
+    href="#main-content"
+    class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-primary-500 focus:px-4 focus:py-2 focus:text-primary-contrast-500"
+    >Skip to content</a>
   {#if header}
     <header class="z-30 shrink-0 {headerClass}">{@render header()}</header>
   {/if}
@@ -38,7 +42,9 @@ let {
           {@render pageHeader()}
         </div>
       {/if}
-      <main class="min-h-0 flex-1 overflow-auto">{@render children()}</main>
+      <main id="main-content" class="min-h-0 flex-1 overflow-auto">
+        {@render children()}
+      </main>
     </div>
   </div>
 </div>

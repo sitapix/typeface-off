@@ -1,5 +1,4 @@
 <script lang="ts">
-import { goto } from '$app/navigation';
 import {
   Icon,
   Header,
@@ -62,7 +61,7 @@ function slug(family: string) {
             <span aria-hidden="true">&rsaquo;</span>
             <span>{currentFont.family}</span>
           </nav>
-          <h2 class="h2">{currentFont.family}</h2>
+          <h1 class="h2">{currentFont.family}</h1>
           <p>{`${currentFont.variants.length} styles`}</p>
           <div class="flex flex-wrap gap-2">
             {#each currentFont.variants as variant (variant)}
@@ -92,7 +91,11 @@ function slug(family: string) {
                 <tr>
                   <th>Website URL</th>
                   <td>
-                    <a class="btn" href={currentFont.siteUrl} target="_blank">
+                    <a
+                      class="btn"
+                      href={currentFont.siteUrl}
+                      target="_blank"
+                      rel="noopener">
                       <Icon name="external" size={16} />
                       <span class="max-w-[16rem] truncate"
                         >{currentFont.siteUrl}</span>
@@ -108,26 +111,30 @@ function slug(family: string) {
       <SearchBar />
       <div class="table-wrap !rounded-none">
         <table class="table !whitespace-nowrap !rounded-none text-left">
-          <tbody class="[&>tr]:cursor-pointer">
+          <tbody>
             {#each fonts as font (font.family)}
               <tr
                 class="hover:preset-tonal-surface {currentFont?.family ===
                 font.family
                   ? 'preset-tonal-primary'
-                  : ''}"
-                onclick={() => goto(`/${slug(font.family)}`)}>
-                <td
-                  style="font-family: '{font.family}'"
-                  class="max-w-[9rem] truncate !whitespace-nowrap"
-                  >{font.family}</td>
+                  : ''}">
+                <td class="max-w-[9rem] !whitespace-nowrap p-0">
+                  <a
+                    href="/{slug(font.family)}"
+                    style="font-family: '{font.family}'"
+                    aria-current={currentFont?.family === font.family
+                      ? 'page'
+                      : undefined}
+                    class="block truncate px-3 py-2">{font.family}</a>
+                </td>
                 <td class="hidden md:table-cell">
                   <button
                     class="btn btn-sm preset-outlined-surface-500 {font.family ===
                     fontFamilyRight.value
                       ? 'preset-tonal-primary'
                       : ''}"
-                    onclick={(e) => {
-                      e.stopPropagation();
+                    aria-pressed={font.family === fontFamilyRight.value}
+                    onclick={() => {
                       fontFamilyRight.value = font.family;
                     }}>
                     <Icon name="compare" size={16} />
@@ -140,10 +147,15 @@ function slug(family: string) {
                     <a
                       class="btn !p-2 !pl-3"
                       href={font.siteUrl}
-                      target="_blank">
+                      target="_blank"
+                      rel="noopener"
+                      aria-label="Visit {font.family} website">
                       <Icon name="external" size={16} />
                     </a>
-                    <a class="btn !p-2 !pr-3" href={font.downloadUrl}>
+                    <a
+                      class="btn !p-2 !pr-3"
+                      href={font.downloadUrl}
+                      aria-label="Download {font.family}">
                       <Icon name="download" size={16} />
                     </a>
                   </div>

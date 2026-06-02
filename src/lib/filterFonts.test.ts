@@ -29,9 +29,9 @@ describe('filterFonts', () => {
   });
 
   it('filters by a single category', () => {
-    expect(filterFonts(sample, { category: 'mono' }).map((x) => x.family)).toEqual([
-      'Roboto Mono'
-    ]);
+    expect(
+      filterFonts(sample, { category: 'mono' }).map((x) => x.family)
+    ).toEqual(['Roboto Mono']);
   });
 
   it('matches the term as a case-insensitive substring of the family', () => {
@@ -41,16 +41,18 @@ describe('filterFonts', () => {
   });
 
   it('trims surrounding whitespace from the term', () => {
-    expect(filterFonts(sample, { term: '  inter  ' }).map((x) => x.family)).toEqual([
-      'Inter'
-    ]);
+    expect(
+      filterFonts(sample, { term: '  inter  ' }).map((x) => x.family)
+    ).toEqual(['Inter']);
   });
 
   it('combines term AND category', () => {
     expect(
       filterFonts(sample, { term: 'o', category: 'mono' }).map((x) => x.family)
     ).toEqual(['Roboto Mono']);
-    expect(filterFonts(sample, { term: 'inter', category: 'mono' })).toHaveLength(0);
+    expect(
+      filterFonts(sample, { term: 'inter', category: 'mono' })
+    ).toHaveLength(0);
   });
 
   it('returns an empty array when nothing matches', () => {

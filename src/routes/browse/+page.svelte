@@ -59,6 +59,7 @@ function getFontByFamilyName(familyName: string) {
             class="btn btn-sm {selectedCategory === category.id
               ? 'preset-filled-primary-500'
               : 'preset-outlined-surface-500'}"
+            aria-pressed={selectedCategory === category.id}
             onclick={() => (selectedCategory = category.id)}
             >{category.label}</button>
         {/each}
@@ -73,6 +74,7 @@ function getFontByFamilyName(familyName: string) {
 
   <div
     class="grid h-full grid-cols-1 gap-4 bg-surface-50-950 p-4 md:grid-cols-2">
+    <h1 class="sr-only">Browse fonts</h1>
     <div class="flex flex-col gap-4" class:col-span-2={!fontFamilyRight.value}>
       <FontHeader font={getFontByFamilyName(fontFamily.value)} />
       <FontPreview

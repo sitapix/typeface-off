@@ -19,12 +19,14 @@ import { showName, fontSize, ligatures } from '$lib/store.svelte';
     <input
       class="input w-16"
       type="number"
+      inputmode="numeric"
       min="10"
       max="72"
       bind:value={fontSize.value} />
     <input
       class="min-w-32 flex-1 accent-primary-500 lg:max-w-60"
       type="range"
+      aria-label="Font size"
       min="10"
       max="72"
       step="1"

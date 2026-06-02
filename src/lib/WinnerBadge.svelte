@@ -10,7 +10,8 @@ let { children }: { children?: Snippet } = $props();
       height="10"
       viewBox="0 0 15 10"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true">
       <path
         fill-rule="evenodd"
         clip-rule="evenodd"
@@ -32,7 +33,8 @@ let { children }: { children?: Snippet } = $props();
       height="10"
       viewBox="0 0 15 10"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true">
       <path
         fill-rule="evenodd"
         clip-rule="evenodd"

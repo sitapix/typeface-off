@@ -7,9 +7,9 @@ let searchInput: HTMLInputElement;
 
 onMount(() => {
   if (navigator.userAgent.toUpperCase().includes('MAC')) {
-    placeholderText = '⌘ K to Search …';
+    placeholderText = '⌘ K to Search …';
   } else if (navigator.userAgent.toUpperCase().includes('WIN')) {
-    placeholderText = 'Ctrl K to Search …';
+    placeholderText = 'Ctrl K to Search …';
   }
 
   const handleKeydown = (event: KeyboardEvent) => {
@@ -28,5 +28,7 @@ onMount(() => {
   bind:this={searchInput}
   class="input max-w-[40rem] px-4 py-2"
   type="search"
+  aria-label="Search fonts"
+  autocomplete="off"
   bind:value={searchTerm.value}
   placeholder={placeholderText} />
