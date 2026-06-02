@@ -8,6 +8,7 @@ import {
   Controls,
   AppFrame,
   FontPreview,
+  FontDuel,
   PlayerBadge,
   WinnerBadge,
   createGame,
@@ -166,66 +167,71 @@ function scrollToBracket() {
     <Controls />
   {/snippet}
 
-  <div
-    class="flex flex-col gap-4 bg-surface-50-950 p-4 lg:grid lg:h-full lg:grid-cols-2 lg:grid-rows-1">
+  <div class="h-full overflow-hidden bg-surface-50-950">
     {#if currentBracket?.players?.length}
-      <!-- Inline controls for mobile/tablet (the bracket sidebar is lg-only). -->
-      <div class="flex flex-wrap items-center gap-2 lg:hidden">
-        <div
-          class="btn-group preset-outlined-surface-500 [&>*+*]:border-surface-400-500">
-          {#each categories as category (category.id)}
-            <button
-              class="btn btn-sm {selectedCategory === category.id
-                ? 'preset-filled-primary-500'
-                : ''}"
-              onclick={() => selectCategory(category.id)}>{category.label}</button>
-          {/each}
+      <!-- MOBILE / TABLET: tap-to-pick duel — both fonts on screen, no scroll -->
+      <div class="flex h-full flex-col gap-2 p-3 lg:hidden">
+        <div class="flex items-center gap-2 overflow-x-auto pb-1">
+          <div
+            class="btn-group preset-outlined-surface-500 shrink-0 [&>*+*]:border-surface-400-500">
+            {#each categories as category (category.id)}
+              <button
+                class="btn btn-sm {selectedCategory === category.id
+                  ? 'preset-filled-primary-500'
+                  : ''}"
+                onclick={() => selectCategory(category.id)}
+                >{category.label}</button>
+            {/each}
+          </div>
+          <button
+            class="btn btn-sm preset-filled-primary-500 shrink-0"
+            onclick={startGame}>Restart</button>
         </div>
-        <button class="btn btn-sm preset-filled-primary-500" onclick={startGame}
-          >Restart</button>
+        <FontDuel
+          players={currentBracket.players}
+          fontSize={fontSize.value}
+          ligatures={ligatures.value}
+          showName={showName.value}
+          onpick={chooseWinner} />
       </div>
 
-      <div
-        class="relative flex h-[58vh] min-h-[18rem] flex-col gap-3 lg:h-full">
-        <FontHeader
-          font={getFontByFamilyName(currentBracket.players[0].family)} />
-        <FontPreview
-          class="min-h-0 flex-1 overflow-hidden rounded-lg"
-          fontSize={fontSize.value}
-          family={currentBracket.players[0].family}
-          category={currentBracket.players[0].category}
-          ligatures={ligatures.value} />
-        <button
-          bind:this={leftButton}
-          class="btn preset-filled-primary-500 w-full shrink-0 shadow-xl lg:absolute lg:bottom-10 lg:left-1/2 lg:w-auto lg:-translate-x-1/2"
-          onclick={() => chooseWinner(currentBracket.players[0], leftButton)}>
-          <span class="lg:hidden">Pick this font</span>
-          <span class="hidden lg:inline"
-            >Choose or press <kbd class="kbd">⇽</kbd></span>
-        </button>
-      </div>
-      <div
-        class="relative flex h-[58vh] min-h-[18rem] flex-col gap-3 lg:h-full">
-        <FontHeader
-          font={getFontByFamilyName(currentBracket.players[1].family)} />
-        <FontPreview
-          class="min-h-0 flex-1 overflow-hidden rounded-lg"
-          fontSize={fontSize.value}
-          family={currentBracket.players[1].family}
-          category={currentBracket.players[1].category}
-          ligatures={ligatures.value} />
-        <button
-          bind:this={rightButton}
-          class="btn preset-filled-primary-500 w-full shrink-0 shadow-xl lg:absolute lg:bottom-10 lg:left-1/2 lg:w-auto lg:-translate-x-1/2"
-          onclick={() => chooseWinner(currentBracket.players[1], rightButton)}>
-          <span class="lg:hidden">Pick this font</span>
-          <span class="hidden lg:inline"
-            >Choose or press <kbd class="kbd">⇾</kbd></span>
-        </button>
+      <!-- DESKTOP: side-by-side specimens with the bracket sidebar -->
+      <div class="hidden h-full gap-4 p-4 lg:grid lg:grid-cols-2 lg:grid-rows-1">
+        <div class="relative flex h-full flex-col gap-3">
+          <FontHeader
+            font={getFontByFamilyName(currentBracket.players[0].family)} />
+          <FontPreview
+            class="min-h-0 flex-1 overflow-hidden rounded-lg"
+            fontSize={fontSize.value}
+            family={currentBracket.players[0].family}
+            category={currentBracket.players[0].category}
+            ligatures={ligatures.value} />
+          <button
+            bind:this={leftButton}
+            class="btn preset-filled-primary-500 absolute bottom-10 left-1/2 -translate-x-1/2 shadow-xl"
+            onclick={() => chooseWinner(currentBracket.players[0], leftButton)}
+            >Choose or press <kbd class="kbd">⇽</kbd></button>
+        </div>
+        <div class="relative flex h-full flex-col gap-3">
+          <FontHeader
+            font={getFontByFamilyName(currentBracket.players[1].family)} />
+          <FontPreview
+            class="min-h-0 flex-1 overflow-hidden rounded-lg"
+            fontSize={fontSize.value}
+            family={currentBracket.players[1].family}
+            category={currentBracket.players[1].category}
+            ligatures={ligatures.value} />
+          <button
+            bind:this={rightButton}
+            class="btn preset-filled-primary-500 absolute bottom-10 left-1/2 -translate-x-1/2 shadow-xl"
+            onclick={() => chooseWinner(currentBracket.players[1], rightButton)}
+            >Choose or press <kbd class="kbd">⇾</kbd></button>
+        </div>
       </div>
     {:else if currentBracket?.winner}
-      <div
-        class="relative overflow-hidden border-4 border-surface-900-50 bg-surface-50-950 p-6 text-center lg:col-span-2 lg:p-10">
+      <div class="h-full overflow-auto">
+        <div
+          class="relative min-h-full overflow-hidden border-4 border-surface-900-50 bg-surface-50-950 p-6 text-center lg:p-10">
         <img
           class="absolute bottom-0 left-0 right-0 mx-auto max-w-full opacity-60"
           src="/trophy.png"
@@ -278,6 +284,7 @@ function scrollToBracket() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     {/if}
   </div>
