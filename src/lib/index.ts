@@ -1,56 +1,28 @@
-import IconMenu from 'svelte-tabler/Menu2.svelte';
-import IconColorSwatch from 'svelte-tabler/ColorSwatch.svelte';
-import IconDownload from 'svelte-tabler/Download.svelte';
-import IconExternalLink from 'svelte-tabler/ExternalLink.svelte';
-import IconMaximize from 'svelte-tabler/Maximize.svelte';
-import IconBoxAlignLeftFilled from 'svelte-tabler/BoxAlignLeftFilled.svelte';
-import IconBoxAlignRightFilled from 'svelte-tabler/BoxAlignRightFilled.svelte';
-import IconCompare from 'svelte-tabler/Columns2.svelte';
+/* Components */
+export { default as Logo } from './Logo.svelte';
+export { default as Icon } from './Icon.svelte';
+export { default as ThemeSwitch } from './ThemeSwitch.svelte';
+export { default as ThemePicker } from './ThemePicker.svelte';
+export { default as Controls } from './Controls.svelte';
+export { default as SearchBar } from './SearchBar.svelte';
+export { default as FontHeader } from './FontHeader.svelte';
+export { default as FontTable } from './FontTable.svelte';
+export { default as FontLinks } from './FontLinks.svelte';
+export { default as CategoryFilter } from './CategoryFilter.svelte';
+export { default as Sidebar } from './Sidebar.svelte';
+export { default as Header } from './Header.svelte';
+export { default as AppFrame } from './AppFrame.svelte';
+export { default as PlayerBadge } from './PlayerBadge.svelte';
+export { default as WinnerBadge } from './WinnerBadge.svelte';
+export { default as NotePreview } from './NotePreview.svelte';
+export { default as CodePreview } from './CodePreview.svelte';
+export { default as FontPreview } from './FontPreview.svelte';
+export { default as FontColumn } from './FontColumn.svelte';
+export { default as FontDuel } from './FontDuel.svelte';
+export { default as ResultsCard } from './ResultsCard.svelte';
 
-import ThemeSwitch from './ThemeSwitch.svelte';
-import Logo from './Logo.svelte';
-import Controls from './Controls.svelte';
-import SearchBar from './SearchBar.svelte';
-import FontTable from './FontTable.svelte';
-import FontHeader from './FontHeader.svelte';
-import Sidebar from './Sidebar.svelte';
-import Header from './Header.svelte';
-import PlayerBadge from './PlayerBadge.svelte';
-import WinnerBadge from './WinnerBadge.svelte';
-import MonacoEditor from './MonacoEditor.svelte';
-import { monacoThemeNames, monacoThemes } from './monacoThemes';
-import codingFonts from './codingFonts';
+/* Fonts catalog + lookup */
+export { fonts, getFontByFamily } from './fontCatalog';
 
-import { createGame, createConfetti } from './game';
-
-export {
-  /* Icon Components */
-  IconMenu,
-  IconColorSwatch,
-  IconDownload,
-  IconExternalLink,
-  IconMaximize,
-  IconBoxAlignLeftFilled,
-  IconBoxAlignRightFilled,
-  IconCompare,
-  /* Components */
-  Logo,
-  ThemeSwitch,
-  Controls,
-  SearchBar,
-  FontHeader,
-  FontTable,
-  Sidebar,
-  Header,
-  PlayerBadge,
-  WinnerBadge,
-  /* Monaco Editor Related */
-  MonacoEditor,
-  monacoThemeNames,
-  monacoThemes,
-  /* Coding Fonts Metadata */
-  codingFonts,
-  /* Tournament Game Factory */
-  createGame,
-  createConfetti
-};
+/* Tournament game factory + ranking */
+export { createGame, createConfetti, placeFonts, seedBracket } from './game';

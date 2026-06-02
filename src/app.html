@@ -1,13 +1,22 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="cerberus">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%sveltekit.assets%/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#ffffff" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#0c0a09" />
+    <title>TypefaceOff</title>
     %sveltekit.head%
   </head>
 
-  <body data-sveltekit-preload-data="hover" data-theme="standard">
+  <body data-sveltekit-preload-data="hover">
     <div style="display: contents" class="h-full overflow-hidden">
       %sveltekit.body%
     </div>

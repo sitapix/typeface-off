@@ -3,9 +3,11 @@
   height: 21px;
   text-align: center;
   text-decoration: none;
-  transition: all 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
   position: relative;
-  @apply whitespace-nowrap px-2 rounded-token;
+  @apply rounded px-2 whitespace-nowrap;
 }
 
 .bracket-candidate:first-child {
@@ -28,7 +30,7 @@
   bottom: 0;
   left: auto;
   right: -2px;
-  @apply rounded-full bg-primary-500;
+  @apply bg-primary-500 rounded-full;
 }
 
 .right-line {
@@ -46,17 +48,14 @@
 .font-bracket {
   width: 150px;
   height: 50px;
-  grid-template-rows: auto;
-  grid-template-columns: 1fr;
-  grid-auto-columns: 1fr;
-  grid-auto-flow: row;
-  margin-bottom: 8px;
+  margin: 2px 0;
   position: relative;
+  flex: 0 0 auto;
 }
 
 .font-bracket.active:before {
   content: '';
-  @apply variant-soft-primary absolute -bottom-1 -left-1 -right-1 -top-1 z-0 border border-dashed border-primary-500;
+  @apply border-primary-500 bg-primary-500/10 absolute -top-1 -right-1 -bottom-1 -left-1 z-0 border border-dashed;
 }
 
 .line-bracket {
@@ -70,11 +69,8 @@
 }
 
 .font-brackets {
-  grid-template-rows: auto;
-  grid-template-columns: auto;
-  grid-auto-columns: auto;
-  grid-auto-flow: column;
   display: flex;
+  align-items: stretch;
 }
 
 .left-dot {
@@ -86,7 +82,7 @@
   top: 0;
   bottom: 0;
   left: -2px;
-  @apply rounded-full bg-primary-500;
+  @apply bg-primary-500 rounded-full;
 }
 
 .left-line {
@@ -136,12 +132,12 @@
   display: flex;
   grid-gap: 8px;
   position: relative;
-  @apply variant-filled-primary;
+  @apply bg-primary-500 text-primary-contrast-500;
 }
 
 .font-name-winner {
   text-align: center;
-  @apply variant-soft-surface py-6 text-center;
+  @apply bg-surface-200-800 py-6 text-center;
 }
 
 .left-dot-winner {
@@ -153,73 +149,27 @@
   top: 0;
   bottom: 0;
   left: -2px;
-  @apply rounded-full bg-primary-500;
+  @apply bg-primary-500 rounded-full;
 }
 
-.round-1,
-.round-2,
-.round-3,
-.round-4,
-.round-5 {
+/* Dynamic bracket: each round is a flex column that stretches to the tallest
+   column (round 0) and distributes its matchups with space-around, so matchups
+   in later rounds align to the midpoints of the previous round — for ANY number
+   of rounds/fonts, with no hardcoded per-round sizing. */
+.bracket-round {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
   margin-right: 8px;
 }
 
-.bracket-left {
-  margin-top: 2px;
-}
-
-.bracket-right {
-  margin-top: 2px;
-  transform: rotate(180deg);
-}
-
-.round-1 .left-dot,
-.round-1 .left-line {
+.bracket-round.first-round .left-dot,
+.bracket-round.first-round .left-line {
   display: none;
 }
 
 .bracket-candidate .link-buttons {
   display: none;
-}
-
-.round-2 {
-  padding-top: 15px;
-}
-
-.round-2 .font-bracket {
-  height: 79px;
-  margin-bottom: 37px;
-}
-
-.round-3 {
-  padding-top: 44px;
-}
-
-.round-3 .font-bracket {
-  height: 137px;
-  margin-bottom: 95px;
-}
-
-.round-4 {
-  padding-top: 102px;
-}
-
-.round-4 .font-bracket {
-  height: 253px;
-  margin-bottom: 211px;
-}
-
-.round-5 {
-  padding-top: 218px;
-}
-
-.round-5 .font-bracket {
-  height: 485px;
-  margin-bottom: 443px;
-}
-
-.font-bracket:last-child {
-  margin-bottom: 0 !important;
 }
 
 .left-dot-winner {

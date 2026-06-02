@@ -9,5 +9,6 @@ node_modules
 .vscode
 .vercel
 .output
+.claude.local.md
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*

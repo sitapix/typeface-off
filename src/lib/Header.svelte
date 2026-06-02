@@ -1,35 +1,69 @@
 <script lang="ts">
-import { page } from '$app/stores';
-import { TabGroup, TabAnchor } from '@skeletonlabs/skeleton';
-import { IconMenu, Logo, ThemeSwitch } from '$lib';
-import { menuOpen } from '$lib/store';
+import { base } from '$app/paths';
+import { page } from '$app/state';
+import { Icon, Logo, ThemePicker, ThemeSwitch } from '$lib';
+import { menuOpen } from '$lib/store.svelte';
+
+// `showMenu` controls the mobile hamburger. Pages without a mobile drawer
+// (e.g. the game, whose filters are surfaced inline) pass showMenu={false}.
+let { showMenu = true }: { showMenu?: boolean } = $props();
+
+// Prefix with `base` so links resolve on a GitHub Pages project site
+// (you.github.io/REPO); `base` is '' for a root/custom-domain deploy.
+const links = [
+  { href: `${base}/`, label: 'Game' },
+  { href: `${base}/browse`, label: 'Browse' }
+];
+
+// Trailing-slash-insensitive match so the base root ('' vs '/') still highlights.
+const norm = (p: string) => p.replace(/\/+$/, '') || '/';
 </script>
 
 <div
-  class="bg-surface-100-800-token flex flex-row items-center justify-between gap-4 border-b border-surface-400 p-4 dark:border-surface-700">
-  <div class="flex items-center justify-center gap-4">
-    <button
-      class="variant-soft btn-icon lg:hidden"
-      on:click="{() => {
-        $menuOpen = !$menuOpen;
-      }}">
-      <IconMenu size="24" />
-    </button>
-    <a href="/"><Logo class="h-[3rem] w-auto" /></a>
+  class="flex flex-row items-center justify-between gap-2 border-b border-surface-200-800 bg-surface-100-900 p-3 sm:gap-4 sm:p-4">
+  <div class="flex items-center justify-center gap-2 sm:gap-4">
+    {#if showMenu}
+      <button
+        class="btn-icon preset-tonal-surface lg:hidden"
+        onclick={() => (menuOpen.value = !menuOpen.value)}
+        aria-label={menuOpen.value ? 'Close menu' : 'Open menu'}
+        aria-expanded={menuOpen.value}
+        aria-controls="app-sidebar">
+        <Icon name={menuOpen.value ? 'x' : 'menu'} size={24} />
+      </button>
+    {/if}
+    <a href="{base}/" aria-label="TypefaceOff home"
+      ><Logo class="text-xl sm:text-3xl" /></a>
   </div>
 
-  <TabGroup
-    flex="hidden md:flex"
-    padding="px-2"
-    border="border-none h3 relative"
-    hover=""
-    active="before:content-['<'] after:content-['>']">
-    <TabAnchor href="/" selected="{$page.url.pathname === '/'}">Game</TabAnchor>
-    <TabAnchor href="/browse" selected="{$page.url.pathname === '/browse'}"
-      >Browse</TabAnchor>
-    <TabAnchor href="https://typogram.co/studio/" class="ml-4"
-      >Studio</TabAnchor>
-  </TabGroup>
+  <nav class="flex items-center gap-1 sm:gap-2">
+    {#each links as link (link.href)}
+      <a
+        href={link.href}
+        aria-current={norm(page.url.pathname) === norm(link.href)
+          ? 'page'
+          : undefined}
+        class="btn btn-sm {norm(page.url.pathname) === norm(link.href)
+          ? 'preset-tonal-primary'
+          : 'hover:preset-tonal-surface'}">{link.label}</a>
+    {/each}
+    <a
+      href="https://typogram.co/studio/"
+      class="btn btn-sm hidden hover:preset-tonal-surface md:inline-flex"
+      >Studio</a>
+  </nav>
 
-  <ThemeSwitch />
+  <div class="flex items-center gap-2">
+    <a
+      href="https://github.com/sitapix/typeface-off"
+      target="_blank"
+      rel="noopener"
+      aria-label="TypefaceOff on GitHub"
+      title="View source on GitHub"
+      class="btn-icon preset-tonal-surface hidden md:inline-flex">
+      <Icon name="github" size={22} />
+    </a>
+    <ThemePicker />
+    <ThemeSwitch />
+  </div>
 </div>

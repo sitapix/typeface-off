@@ -1,72 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital@0;1&family=Azeret+Mono:ital@0;1&family=B612+Mono:ital@0;1&family=Courier+Prime:ital@0;1&family=Cousine:ital@0;1&family=Cutive+Mono&family=DM+Mono:ital@0;1&family=Fira+Code&family=Fira+Mono&family=IBM+Plex+Mono:ital@0;1&family=Inconsolata&family=JetBrains+Mono:ital@0;1&family=Major+Mono+Display&family=Nanum+Gothic+Coding&family=Noto+Sans+Mono&family=Nova+Mono&family=Overpass+Mono&family=Oxygen+Mono&family=PT+Mono&family=Red+Hat+Mono&family=Roboto+Mono:ital@0;1&family=Share+Tech+Mono&family=Source+Code+Pro:ital@0;1&family=Space+Mono:ital@0;1&family=Syne+Mono&family=Ubuntu+Mono:ital@0;1&family=VT323&family=Victor+Mono:ital@0;1&family=Xanh+Mono:ital@0;1&family=Atkinson+Hyperlegible+Mono:ital,wght@0,200..800;1,200..800&display=swap');
-@import url('/src/lib/css/styles.css');
+/* Webfonts load dynamically from the font list (src/lib/fonts.ts) via a <link>
+   built in src/routes/+layout.svelte — fonts.ts is the single source of truth,
+   so adding a font there auto-loads it (no @import to keep in sync). */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@import '@skeletonlabs/skeleton';
+/* Selectable color schemes (Skeleton themes). The active one is set via
+   data-theme on <html> by ThemePicker.svelte; keep this list in sync with the
+   `themes` array there. */
+@import '@skeletonlabs/skeleton/themes/cerberus';
+@import '@skeletonlabs/skeleton/themes/wintry';
+@import '@skeletonlabs/skeleton/themes/catppuccin';
+@import '@skeletonlabs/skeleton/themes/crimson';
+@import '@skeletonlabs/skeleton/themes/hamlindigo';
+@import '@skeletonlabs/skeleton/themes/mint';
+@import '@skeletonlabs/skeleton/themes/mona';
+@import '@skeletonlabs/skeleton/themes/pine';
+@import '@skeletonlabs/skeleton/themes/rose';
+@import '@skeletonlabs/skeleton/themes/sahara';
+@import '@skeletonlabs/skeleton/themes/terminus';
+@import '@skeletonlabs/skeleton/themes/vintage';
+@source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
+@import './lib/css/styles.css';
 
-/* Load Hack */
-@font-face {
-  font-family: 'Hack';
-  font-style: normal;
-  font-weight: 400;
-  src: url('https://cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/fonts/hack-regular-subset.woff2')
-    format('woff2');
-}
-@font-face {
-  font-family: 'Hack';
-  font-style: italic;
-  font-weight: 400;
-  src: url('https://cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/fonts/hack-italic-subset.woff2')
-    format('woff2');
-}
-
-:focus,
-:focus-visible {
-  @apply outline-0;
-}
+/* Dark mode driven by a `.dark` class on <html> (set by ThemeSwitch) */
+@custom-variant dark (&:where(.dark, .dark *));
 
 html,
 body {
-  @apply h-full overflow-hidden;
+  height: 100%;
 }
 
-table tr td {
-  @apply !align-middle;
-}
-
-.hide {
-  @apply hidden lg:flex;
-}
-
-/* seafoam theme */
-@font-face {
-  font-family: 'Playfair Display';
-  src: url('/fonts/PlayfairDisplay-Italic.ttf');
-  font-display: swap;
-  font-style: italic;
-}
-
-/* modern theme */
-/* gold-nouveau theme */
-@font-face {
-  font-family: 'Quicksand';
-  src: url('/fonts/Quicksand.ttf');
-  font-display: swap;
-  font-weight: 700;
-}
-
-/* rocket theme */
-@font-face {
-  font-family: 'Space Grotesk';
-  src: url('/fonts/SpaceGrotesk.ttf');
-  font-display: swap;
-  font-weight: 700;
-}
-
-/* vintage theme */
-@font-face {
-  font-family: 'Abril Fatface';
-  src: url('/fonts/AbrilFatface.ttf');
-  font-display: swap;
+body {
+  overflow: hidden;
 }
