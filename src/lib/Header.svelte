@@ -26,8 +26,10 @@ const norm = (p: string) => p.replace(/\/+$/, '') || '/';
       <button
         class="btn-icon preset-tonal-surface lg:hidden"
         onclick={() => (menuOpen.value = !menuOpen.value)}
-        aria-label="Toggle menu">
-        <Icon name="menu" size={24} />
+        aria-label={menuOpen.value ? 'Close menu' : 'Open menu'}
+        aria-expanded={menuOpen.value}
+        aria-controls="app-sidebar">
+        <Icon name={menuOpen.value ? 'x' : 'menu'} size={24} />
       </button>
     {/if}
     <a href="{base}/" aria-label="TypefaceOff home"

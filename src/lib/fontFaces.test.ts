@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { faceFormat, buildFontFaceCss, resolveFaceSrc } from './fontFaces';
+import { faceFormat, buildFontFaceCss, withBase } from './fontFaces';
 import type { Font } from './fonts';
 
 const base = (over: Partial<Font>): Font => ({
@@ -73,18 +73,14 @@ describe('buildFontFaceCss', () => {
   });
 });
 
-describe('resolveFaceSrc', () => {
+describe('withBase', () => {
   it('prefixes root-relative paths with base', () => {
-    expect(resolveFaceSrc('/fonts/x.woff2', '/repo')).toBe(
-      '/repo/fonts/x.woff2'
-    );
+    expect(withBase('/fonts/x.woff2', '/repo')).toBe('/repo/fonts/x.woff2');
   });
   it('no-ops with empty base', () => {
-    expect(resolveFaceSrc('/fonts/x.woff2')).toBe('/fonts/x.woff2');
+    expect(withBase('/fonts/x.woff2')).toBe('/fonts/x.woff2');
   });
   it('never touches absolute URLs', () => {
-    expect(resolveFaceSrc('https://cdn/x.woff2', '/repo')).toBe(
-      'https://cdn/x.woff2'
-    );
+    expect(withBase('https://cdn/x.woff2', '/repo')).toBe('https://cdn/x.woff2');
   });
 });

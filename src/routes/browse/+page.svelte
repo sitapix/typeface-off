@@ -52,6 +52,18 @@ function getFontByFamilyName(familyName: string) {
 
   {#snippet sidebar()}
     <Sidebar>
+      {#snippet pinned()}
+        <!-- Live preview of the selected font, kept in view while you scroll the
+             list. The full-size preview lives in the main area (drawer closed). -->
+        <div class="h-40">
+          <FontPreview
+            class="overflow-hidden rounded-lg"
+            fontSize={fontSize.value}
+            family={fontFamily.value}
+            category={getFontByFamilyName(fontFamily.value)?.category}
+            ligatures={ligatures.value} />
+        </div>
+      {/snippet}
       <SearchBar />
       <div class="my-2 flex flex-wrap gap-1">
         {#each categories as category (category.id)}

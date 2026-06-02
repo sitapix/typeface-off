@@ -1,15 +1,10 @@
 <script lang="ts">
-import { base } from '$app/paths';
 import type { Font } from '$lib/fonts';
-import { Icon } from '$lib';
+import { Icon, FontLinks } from '$lib';
 import { lazyFont } from '$lib/lazyFont';
 import { fontFamily, fontFamilyRight, showName } from '$lib/store.svelte';
 
 let { fonts }: { fonts: Font[] } = $props();
-
-function slug(family: string) {
-  return encodeURIComponent(family.replace(/\s+/g, ''));
-}
 </script>
 
 <div class="table-wrap whitespace-nowrap">
@@ -51,29 +46,7 @@ function slug(family: string) {
             </button>
           </td>
           <td>
-            <div
-              class="btn-group preset-outlined-surface-500 [&>*+*]:border-surface-400-600">
-              <a
-                class="btn !p-2 !pl-3"
-                href={font.siteUrl}
-                target="_blank"
-                rel="noopener"
-                aria-label="Visit {font.family} website">
-                <Icon name="external" size={16} />
-              </a>
-              <a
-                class="btn !p-2"
-                href={font.downloadUrl}
-                aria-label="Download {font.family}">
-                <Icon name="download" size={16} />
-              </a>
-              <a
-                class="btn !p-2 !pr-3"
-                href="{base}/{slug(font.family)}"
-                aria-label="View {font.family} details">
-                <Icon name="maximize" size={16} />
-              </a>
-            </div>
+            <FontLinks {font} />
           </td>
         </tr>
       {/each}

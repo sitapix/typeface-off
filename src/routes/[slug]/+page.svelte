@@ -107,6 +107,12 @@ function slug(family: string) {
             <div class="mt-2 table-wrap !overflow-x-hidden !rounded-none">
               <table class="table !whitespace-nowrap !rounded-none text-left">
                 <tbody>
+                  {#if currentFont.designer}
+                    <tr>
+                      <th>Designer</th>
+                      <td>{currentFont.designer}</td>
+                    </tr>
+                  {/if}
                   <tr>
                     <th>Download URL</th>
                     <td>

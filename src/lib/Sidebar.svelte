@@ -2,27 +2,32 @@
 import type { Snippet } from 'svelte';
 import { menuOpen } from '$lib/store.svelte';
 
-let { children }: { children?: Snippet } = $props();
+// `pinned` (optional) stays fixed at the top of the mobile drawer while the rest
+// scrolls — e.g. Browse pins a live preview of the selected font above the list.
+let { children, pinned }: { children?: Snippet; pinned?: Snippet } = $props();
 
-let sidebar: HTMLDivElement;
+let scroller: HTMLDivElement;
 
 export function scrollToTop() {
-  sidebar?.scrollTo({ top: 0, behavior: 'smooth' });
+  scroller?.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
 
-<!-- Tap-outside backdrop (mobile only, when the drawer is open) -->
-{#if menuOpen.value}
-  <button
-    type="button"
-    aria-label="Close menu"
-    class="fixed inset-0 z-10 bg-surface-950/10 lg:hidden"
-    onclick={() => (menuOpen.value = false)}></button>
-{/if}
-
+<!-- Mobile: full-width drawer that slides over the content (close via the header
+     toggle, which becomes an ✕ while open). Desktop (lg): static in-flow column. -->
 <div
-  bind:this={sidebar}
-  class="absolute z-20 flex h-full w-[70vw] flex-col gap-4 overflow-y-auto overflow-x-visible overscroll-contain border-r border-surface-200-800 bg-surface-100-900 p-4 shadow-xl transition-transform duration-200 ease-out sm:w-96 lg:static lg:w-full lg:translate-x-0 lg:shadow-none"
+  id="app-sidebar"
+  class="absolute z-20 flex h-full w-screen flex-col border-r border-surface-200-800 bg-surface-100-900 shadow-xl transition-transform duration-200 ease-out lg:static lg:w-full lg:translate-x-0 lg:shadow-none"
   class:-translate-x-full={!menuOpen.value}>
-  {@render children?.()}
+  {#if pinned}
+    <!-- Fixed at the top of the drawer; only when a drawer is actually used (mobile). -->
+    <div class="shrink-0 border-b border-surface-200-800 p-4 pb-3 lg:hidden">
+      {@render pinned()}
+    </div>
+  {/if}
+  <div
+    bind:this={scroller}
+    class="flex flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-4">
+    {@render children?.()}
+  </div>
 </div>

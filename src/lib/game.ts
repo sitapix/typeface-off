@@ -5,7 +5,28 @@ export interface Matchup {
   players: Font[];
   winner: Font | null;
 }
-type Round = Matchup[];
+export type Round = Matchup[];
+
+/**
+ * What startGame()/setWinner() hand back: an active matchup to decide, or the
+ * final champion ({ winner }), or undefined when there's nothing to do. Both
+ * fields are optional so callers can read `.players?.length` / `.winner`
+ * without narrowing.
+ */
+export interface MatchupResult {
+  players?: Font[];
+  winner?: Font | null;
+}
+
+export interface Tournament {
+  rounds: Round[];
+  currentRound: number;
+  finalRound: number | null;
+  startGame(): MatchupResult | undefined;
+  setWinner(selectedPlayer: Font): MatchupResult | undefined;
+  createNextRound(): void;
+  getNextMatchup(): Matchup | undefined;
+}
 
 export function createConfetti(
   size: 'big' | 'small' = 'big',
@@ -29,7 +50,7 @@ export function createConfetti(
   confetti.create(canvas, { resize: true, useWorker: true })(options);
 }
 
-export function createGame(initialPlayers: Font[]) {
+export function createGame(initialPlayers: Font[]): Tournament {
   function shuffleArray(array: Font[]) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -39,12 +60,12 @@ export function createGame(initialPlayers: Font[]) {
 
   shuffleArray(initialPlayers);
 
-  const tournament = {
-    rounds: [] as Round[],
+  const tournament: Tournament = {
+    rounds: [],
     currentRound: -1,
-    finalRound: null as number | null,
+    finalRound: null,
 
-    startGame(): Matchup | { winner: Font } | undefined {
+    startGame() {
       const nextMatchup = this.getNextMatchup();
       if (!nextMatchup) {
         this.createNextRound();
@@ -53,30 +74,25 @@ export function createGame(initialPlayers: Font[]) {
       return nextMatchup;
     },
 
-    setWinner(selectedPlayer: Font): Matchup | { winner: Font } | undefined {
+    setWinner(selectedPlayer: Font) {
       const matchup = this.getNextMatchup();
-      if (
-        matchup &&
-        matchup.players.find(
-          (player) => player.family === selectedPlayer.family
-        )
-      ) {
-        matchup.winner = selectedPlayer;
-
-        const nextMatchup = this.startGame();
-        if (nextMatchup) {
-          return nextMatchup;
-        }
-
-        this.finalRound = this.currentRound;
-        return {
-          winner: matchup.players.find(
-            (player) => player.family === selectedPlayer.family
-          ) as Font
-        };
-      } else {
+      const chosen = matchup?.players.find(
+        (player) => player.family === selectedPlayer.family
+      );
+      if (!matchup || !chosen) {
         console.error('Invalid winner or no available matchup.');
+        return;
       }
+
+      matchup.winner = chosen;
+
+      const nextMatchup = this.startGame();
+      if (nextMatchup) {
+        return nextMatchup;
+      }
+
+      this.finalRound = this.currentRound;
+      return { winner: chosen };
     },
 
     createNextRound() {
@@ -92,27 +108,85 @@ export function createGame(initialPlayers: Font[]) {
         this.rounds[this.currentRound] = this.rounds[this.currentRound] || [];
         const players = winners.slice(i, i + 2);
         if (players.length === 1) {
-          this.rounds[this.currentRound].push({
-            players,
-            winner: players[0]
-          });
+          this.rounds[this.currentRound].push({ players, winner: players[0] });
         } else {
-          this.rounds[this.currentRound].push({
-            players,
-            winner: null
-          });
+          this.rounds[this.currentRound].push({ players, winner: null });
         }
       }
     },
 
-    getNextMatchup(): Matchup | undefined {
+    getNextMatchup() {
       const currentRoundMatches = this.rounds[this.currentRound];
       return (
-        currentRoundMatches &&
-        currentRoundMatches.find((match) => !match.winner)
+        currentRoundMatches && currentRoundMatches.find((match) => !match.winner)
       );
     }
   };
 
   return tournament;
+}
+
+export interface PlacementTier {
+  /** 1-based finishing place; tied fonts share it (e.g. two 3rd-place semis). */
+  place: number;
+  /** 'Champion', 'Finalist', 'Semi-finalist', 'Quarter-finalist', 'Round of N'. */
+  label: string;
+  fonts: Font[];
+}
+
+function tierLabel(roundsFromFinal: number): string {
+  if (roundsFromFinal === 0) return 'Finalist';
+  if (roundsFromFinal === 1) return 'Semi-finalist';
+  if (roundsFromFinal === 2) return 'Quarter-finalist';
+  return `Round of ${2 ** (roundsFromFinal + 1)}`;
+}
+
+/**
+ * Derive bracket placement tiers from a finished tournament. Fonts are grouped
+ * by the round they were knocked out in — co-tier fonts never faced each other,
+ * so they genuinely tie and share a place. Champion first, then whole tiers
+ * downward until adding the next would exceed `limit` (tiers are never split).
+ * Pure — unit tested.
+ */
+export function placeFonts(
+  rounds: Round[],
+  finalRound: number | null,
+  limit = 10
+): PlacementTier[] {
+  if (finalRound == null) return [];
+  const champion = rounds[finalRound]?.[0]?.winner;
+  if (!champion) return [];
+
+  const tiers: PlacementTier[] = [
+    { place: 0, label: 'Champion', fonts: [champion] }
+  ];
+
+  for (let r = finalRound; r >= 0; r--) {
+    const losers: Font[] = [];
+    for (const m of rounds[r] ?? []) {
+      if (m.players.length === 2 && m.winner) {
+        const loser = m.players.find((p) => p.family !== m.winner!.family);
+        if (loser) losers.push(loser);
+      }
+    }
+    if (losers.length)
+      tiers.push({ place: 0, label: tierLabel(finalRound - r), fonts: losers });
+  }
+
+  // Assign places (champion = 1; each subsequent tier ties at the next slot).
+  let running = 0;
+  for (const tier of tiers) {
+    tier.place = running + 1;
+    running += tier.fonts.length;
+  }
+
+  // Cap to whole tiers within `limit` (always keep the champion tier).
+  const out: PlacementTier[] = [];
+  let count = 0;
+  for (const tier of tiers) {
+    if (out.length && count + tier.fonts.length > limit) break;
+    out.push(tier);
+    count += tier.fonts.length;
+  }
+  return out;
 }

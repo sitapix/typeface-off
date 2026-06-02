@@ -16,7 +16,13 @@ import {
 } from '$lib';
 import { base } from '$app/paths';
 import { lazyFont } from '$lib/lazyFont';
-import { showName, fontSize, ligatures, topCollapsed } from '$lib/store.svelte';
+import {
+  menuOpen,
+  showName,
+  fontSize,
+  ligatures,
+  topCollapsed
+} from '$lib/store.svelte';
 
 let { data } = $props();
 
@@ -53,6 +59,10 @@ const picksMade = $derived.by(() => {
 const progress = $derived(totalPicks ? Math.min(1, picksMade / totalPicks) : 0);
 
 onMount(() => {
+  // The game has no mobile drawer (filters are inline + the header omits the
+  // menu toggle), so make sure a drawer left open on Browse/detail doesn't
+  // carry over here as an un-closeable full-screen overlay.
+  menuOpen.value = false;
   startGame();
 });
 

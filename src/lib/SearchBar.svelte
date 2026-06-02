@@ -2,27 +2,24 @@
 import { onMount } from 'svelte';
 import { searchTerm } from '$lib/store.svelte';
 
-let placeholderText = 'Search …';
+let placeholderText = $state('Search …');
 let searchInput: HTMLInputElement;
 
 onMount(() => {
-  if (navigator.userAgent.toUpperCase().includes('MAC')) {
-    placeholderText = '⌘ K to Search …';
-  } else if (navigator.userAgent.toUpperCase().includes('WIN')) {
-    placeholderText = 'Ctrl K to Search …';
-  }
-
-  const handleKeydown = (event: KeyboardEvent) => {
-    if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-      searchInput.focus();
-      event.preventDefault();
-    }
-  };
-
-  window.addEventListener('keydown', handleKeydown);
-  return () => window.removeEventListener('keydown', handleKeydown);
+  const ua = navigator.userAgent.toUpperCase();
+  if (ua.includes('MAC')) placeholderText = '⌘ K to Search …';
+  else if (ua.includes('WIN')) placeholderText = 'Ctrl K to Search …';
 });
+
+function handleKeydown(event: KeyboardEvent) {
+  if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+    searchInput.focus();
+    event.preventDefault();
+  }
+}
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <input
   bind:this={searchInput}

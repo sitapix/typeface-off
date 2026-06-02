@@ -18,11 +18,6 @@ export function withBase(path: string, base = ''): string {
   return path.startsWith('/') ? `${base}${path}` : path;
 }
 
-/** Resolve a face `src` against the app's base path. See {@link withBase}. */
-export function resolveFaceSrc(src: string, base = ''): string {
-  return withBase(src, base);
-}
-
 /**
  * Build one inline `<style>`-ready string of `@font-face` rules for every font
  * that carries `faces` (Fontsource static files + self-hosted local fonts).
@@ -34,7 +29,7 @@ export function buildFontFaceCss(fonts: Font[], base = ''): string {
     .filter((f) => f.faces && f.faces.length)
     .flatMap((f) =>
       f.faces!.map((face) => {
-        const src = resolveFaceSrc(face.src, base);
+        const src = withBase(face.src, base);
         return `@font-face{font-family:'${f.family}';src:url('${src}') format('${faceFormat(face.src)}');font-weight:${face.weight ?? '400'};font-style:${face.style ?? 'normal'};font-display:swap;}`;
       })
     )
