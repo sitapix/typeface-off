@@ -13,7 +13,8 @@ let {
   showLabels = false,
   details = true,
   detailLabel = '',
-  groupClass = 'preset-outlined-surface-500 [&>*+*]:border-surface-400-600'
+  groupClass = 'preset-outlined-surface-500 [&>*+*]:border-surface-400-600',
+  labelClass = 'hidden 2xl:block'
 }: {
   font: Font;
   /** Icon size in px. */
@@ -26,6 +27,9 @@ let {
   detailLabel?: string;
   /** Extra classes for the btn-group wrapper (preset, alignment, etc.). */
   groupClass?: string;
+  /** Visibility of the label spans. Defaults to 2xl-only; pass '' to always
+      show (e.g. the winner certificate, where bare icons read ambiguously). */
+  labelClass?: string;
 } = $props();
 </script>
 
@@ -37,13 +41,11 @@ let {
     rel="noopener"
     aria-label="Visit {font.family} website">
     <Icon name="external" size={size} />
-    {#if showLabels}<span class="hidden 2xl:block">Visit {font.family}</span
-      >{/if}
+    {#if showLabels}<span class={labelClass}>Visit {font.family}</span>{/if}
   </a>
   <a class="btn" href={font.downloadUrl} aria-label="Download {font.family}">
     <Icon name="download" size={size} />
-    {#if showLabels}<span class="hidden 2xl:block">Download {font.family}</span
-      >{/if}
+    {#if showLabels}<span class={labelClass}>Download {font.family}</span>{/if}
   </a>
   {#if details}
     <a
@@ -51,7 +53,7 @@ let {
       href="{base}/{fontSlug(font.family)}"
       aria-label="View {font.family} details">
       <Icon name="maximize" size={size} />
-      {#if showLabels && detailLabel}<span class="hidden 2xl:block"
+      {#if showLabels && detailLabel}<span class={labelClass}
           >{detailLabel}</span
         >{/if}
     </a>

@@ -14,6 +14,37 @@ google:
   - Onest
   - Pixelify Sans
   - Cal Sans
+  # --- Added from forum-popularity research (2026-06-02). Each is looked up in
+  #     the Google metadata for its category, so it lands in whatever category
+  #     Google assigns (e.g. Anton → sans). Not-on-Bunny / misspelled names are
+  #     reported and skipped by the generator. ---
+  # sans (community workhorses + most-requested free alternatives)
+  - Hanken Grotesk
+  - Atkinson Hyperlegible
+  - League Spartan
+  # serif (body-reading + libre classics the community keeps naming)
+  - Alegreya
+  - Literata
+  - Crimson Pro
+  - Cardo
+  - Sorts Mill Goudy
+  - Tinos
+  - Gentium Plus
+  # mono
+  - Intel One Mono
+  - Martian Mono
+  - Spline Sans Mono
+  - B612 Mono
+  # display (condensed / blackletter / brush / pixel / groovy / novelty)
+  - Anton
+  - UnifrakturMaguntia
+  - Shrikhand
+  - Fredoka
+  - Sixtyfour
+  - Bagel Fat One
+  - Rampart One
+  - Corben
+  - Climate Crisis
 
 # --- Self-hosted fonts. Required: family, category, and files: (or faces:).
 #     Optional: variable: true · url: https://… · license: OFL-1.1 · designer: …
