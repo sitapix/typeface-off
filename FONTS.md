@@ -2,7 +2,7 @@
 
 This app compares open-source fonts. The catalog comes from **three sources** (Bunny, Fontsource, self-hosted). To **hand-add** fonts you edit one file — **`scripts/fonts.yaml`** — then run a generator; everything then loads automatically and shows up in the Game, Browse, and type filters. The bulk of the catalog is auto-selected by popularity.
 
-- **Current catalog:** ~237 fonts across 5 categories (`sans`, `serif`, `display`, `script`, `mono`).
+- **Current catalog:** ~240 fonts across 5 categories (`sans`, `serif`, `display`, `script`, `mono`). Run `npm run fonts:names` to dump the current list to `font-names.txt`.
 
 ---
 
@@ -10,7 +10,7 @@ This app compares open-source fonts. The catalog comes from **three sources** (B
 
 | Source | Where it's hosted | How it loads | Add it by |
 | --- | --- | --- | --- |
-| `bunny` | [Bunny Fonts](https://fonts.bunny.net) (privacy-friendly Google Fonts mirror) | one combined `<link>` to `fonts.bunny.net/css?family=…` | the generator (`npm run fonts:generate`) |
+| `bunny` | [Bunny Fonts](https://fonts.bunny.net) (privacy-friendly Google Fonts mirror) | one combined `<link>` to `fonts.bunny.net/css?family=A\|B\|C` (**pipe-joined** — see gotcha below) | the generator (`npm run fonts:generate`) |
 | `fontsource` | [Fontsource](https://fontsource.org) via jsDelivr CDN | inline `@font-face` → jsDelivr **static** woff2 (`cdn.jsdelivr.net/fontsource/fonts/<id>@latest/<subset>-<weight>-<style>.woff2`), built from the font's `faces` — **no per-font stylesheet request** | the generator |
 | `local` | **self-hosted** in `static/fonts/` | inline `@font-face` from its `faces` | an entry under `local:` in `scripts/fonts.yaml` → `npm run fonts:local` (or hand-edit `src/lib/localFonts.ts`) |
 
@@ -21,6 +21,10 @@ This app compares open-source fonts. The catalog comes from **three sources** (B
 All loading happens in **`src/routes/+layout.svelte`**, which reads the merged font list and emits the right tag for each source. The preview/Game/Browse code never cares about the source — it just uses `font.family`, so anything that's loaded renders.
 
 > No requests ever go to Google (`googleapis.com` / `gstatic.com`). Bunny is the drop-in replacement.
+
+> ⚠️ **Bunny gotcha:** the combined stylesheet must **pipe-join** families — `…/css?family=A|B|C`. Repeated `&family=` params are the *css2* syntax; the v1 `/css` endpoint silently keeps only the **first** family, so every other Bunny font renders as a system fallback. (Bug fixed once already — don't reintroduce it.)
+
+> 🎮 **Game vs Browse:** the Game quiz draws from a hand-curated **`src/lib/featured.ts`** (~24 fonts per category), not the whole catalog. Browse shows everything. Adding a font to the catalog puts it in Browse; to make it compete in the quiz, add it to `featured.ts` too.
 
 ---
 
