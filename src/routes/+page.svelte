@@ -24,6 +24,7 @@ import type { Font, FontCategory } from '$lib/fonts';
 import { base } from '$app/paths';
 import { lazyFont } from '$lib/lazyFont';
 import { CATEGORIES, categoryLabel } from '$lib/categories';
+import { FEATURED } from '$lib/featured';
 import {
   downloadElement,
   shareElement,
@@ -92,18 +93,23 @@ function handleKeydown(event: KeyboardEvent) {
     chooseWinner(duel.players[1], rightButton);
 }
 
-// Each tournament uses a FIXED top-N slice of the category so the quiz stays
-// short AND every play is the same comparable bracket (catalog order = Bunny
-// popularity, so this is the N most popular). A full category is 40-80+ fonts
-// (too many rounds); the complete catalog still powers Browse. Bump to lengthen
-// (16 → 4 rounds / 15 picks; 32 matches the original Coding Font).
+// The quiz roster per category: a hand-curated FEATURED list when one exists
+// (see featured.ts), else the top-N most popular as a fallback. Kept short so
+// the quiz is a quick 4-round / 15-pick bracket; the full catalog still powers
+// Browse. Bump to lengthen the fallback.
 const BRACKET_SIZE = 16;
 
 function startGame() {
   const pool = data.fonts.filter((font) => font.category === selectedCategory);
-  // Same contestants AND same pairings every time (top-N by popularity, seeded
-  // 1v16/2v15/…) so brackets are comparable and favorites meet only late.
-  const players = seedBracket(pool.slice(0, BRACKET_SIZE));
+  const featured = FEATURED[selectedCategory];
+  // Curated roster (resolved from the catalog, in listed order) or top-N.
+  const roster = featured
+    ? (featured
+        .map((name) => pool.find((f) => f.family === name))
+        .filter(Boolean) as Font[])
+    : pool.slice(0, BRACKET_SIZE);
+  // Seed it (1v16/2v15…) so brackets are comparable and favorites meet late.
+  const players = seedBracket(roster);
   poolSize = players.length;
   game = createGame(players, { shuffle: false });
   currentBracket = game.startGame();
