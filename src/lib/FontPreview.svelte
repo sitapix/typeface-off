@@ -21,7 +21,11 @@ let {
 </script>
 
 {#if category === 'mono'}
-  <CodePreview fontFamily={family} {fontSize} {ligatures} class={className} />
+  <CodePreview
+    fontFamily={family}
+    fontSize={fontSize}
+    ligatures={ligatures}
+    class={className} />
 {:else}
-  <NotePreview fontFamily={family} {fontSize} class={className} />
+  <NotePreview fontFamily={family} fontSize={fontSize} class={className} />
 {/if}

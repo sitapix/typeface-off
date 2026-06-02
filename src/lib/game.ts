@@ -57,7 +57,9 @@ export function createGame(initialPlayers: Font[]) {
       const matchup = this.getNextMatchup();
       if (
         matchup &&
-        matchup.players.find((player) => player.family === selectedPlayer.family)
+        matchup.players.find(
+          (player) => player.family === selectedPlayer.family
+        )
       ) {
         matchup.winner = selectedPlayer;
 

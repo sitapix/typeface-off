@@ -5,7 +5,7 @@
   text-decoration: none;
   transition: all 0.2s;
   position: relative;
-  @apply whitespace-nowrap rounded px-2;
+  @apply rounded px-2 whitespace-nowrap;
 }
 
 .bracket-candidate:first-child {
@@ -28,7 +28,7 @@
   bottom: 0;
   left: auto;
   right: -2px;
-  @apply rounded-full bg-primary-500;
+  @apply bg-primary-500 rounded-full;
 }
 
 .right-line {
@@ -53,7 +53,7 @@
 
 .font-bracket.active:before {
   content: '';
-  @apply absolute -bottom-1 -left-1 -right-1 -top-1 z-0 border border-dashed border-primary-500 bg-primary-500/10;
+  @apply border-primary-500 bg-primary-500/10 absolute -top-1 -right-1 -bottom-1 -left-1 z-0 border border-dashed;
 }
 
 .line-bracket {
@@ -80,7 +80,7 @@
   top: 0;
   bottom: 0;
   left: -2px;
-  @apply rounded-full bg-primary-500;
+  @apply bg-primary-500 rounded-full;
 }
 
 .left-line {
@@ -147,7 +147,7 @@
   top: 0;
   bottom: 0;
   left: -2px;
-  @apply rounded-full bg-primary-500;
+  @apply bg-primary-500 rounded-full;
 }
 
 /* Dynamic bracket: each round is a flex column that stretches to the tallest

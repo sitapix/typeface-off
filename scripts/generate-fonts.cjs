@@ -14,7 +14,13 @@ const fs = require('fs');
 // How many of each category to take from Google (by popularity).
 const GTAKE = { sans: 44, serif: 32, display: 32, script: 24, mono: 24 };
 // Cap per category for Fontsource non-Google fonts (null = no cap).
-const FSTAKE = { sans: null, serif: null, display: null, script: null, mono: null };
+const FSTAKE = {
+  sans: null,
+  serif: null,
+  display: null,
+  script: null,
+  mono: null
+};
 
 function gBucket(cat) {
   if (cat === 'Sans Serif') return 'sans';
@@ -41,7 +47,9 @@ function fsFaces(f) {
   const sub = f.defSubset || 'latin';
   const ws = f.weights && f.weights.length ? f.weights : [400];
   // Most fonts have 'normal'; some (e.g. Syne Italic) are italic-only.
-  const style = (f.styles || ['normal']).includes('normal') ? 'normal' : 'italic';
+  const style = (f.styles || ['normal']).includes('normal')
+    ? 'normal'
+    : 'italic';
   let face;
   if (f.variable) {
     const min = Math.min(...ws);
@@ -69,7 +77,7 @@ function excluded(family) {
 }
 
 function gVariants(f) {
-  const keys = Object.keys(f.fonts || { '400': {} });
+  const keys = Object.keys(f.fonts || { 400: {} });
   const out = [];
   for (const k of keys) {
     let label;
@@ -85,10 +93,9 @@ function gVariants(f) {
 
 (async () => {
   // ---- Google Fonts metadata (live) ----
-  const gfRaw = (await (await fetch('https://fonts.google.com/metadata/fonts')).text()).replace(
-    /^\)\]\}'?\s*/,
-    ''
-  );
+  const gfRaw = (
+    await (await fetch('https://fonts.google.com/metadata/fonts')).text()
+  ).replace(/^\)\]\}'?\s*/, '');
   const gfList = JSON.parse(gfRaw).familyMetadataList || [];
 
   const gBuckets = { sans: [], serif: [], display: [], script: [], mono: [] };
@@ -104,14 +111,81 @@ function gVariants(f) {
   let bunnyAdded = 0;
   for (const b of ['sans', 'serif', 'display', 'script', 'mono']) {
     for (const f of gBuckets[b].slice(0, GTAKE[b])) {
-      seeds.push({ family: f.family, category: b, source: 'bunny', variants: gVariants(f) });
+      seeds.push({
+        family: f.family,
+        category: b,
+        source: 'bunny',
+        variants: gVariants(f)
+      });
       seen.add(f.family.toLowerCase());
       bunnyAdded++;
     }
   }
 
+  // ---- Extra hand-picked Google fonts (scripts/extra-fonts.txt) ----
+  // One family name per line; '#' comments and blank lines ignored. These are
+  // added regardless of popularity. Each is looked up in the Google metadata
+  // (for category + weights) and verified to exist on Bunny so it can't break
+  // the combined stylesheet. Duplicates/unknowns are reported and skipped.
+  const report = { added: [], duplicate: [], notFound: [], notOnBunny: [] };
+  let extraNames = [];
+  try {
+    extraNames = fs
+      .readFileSync('scripts/extra-fonts.txt', 'utf8')
+      .split('\n')
+      .map((s) => s.trim())
+      .filter((s) => s && !s.startsWith('#'));
+  } catch {
+    /* no extras file — fine */
+  }
+  if (extraNames.length) {
+    const gfByName = new Map(gfList.map((f) => [f.family.toLowerCase(), f]));
+    const bunnySet = new Set(
+      Object.keys(await (await fetch('https://fonts.bunny.net/list')).json())
+    );
+    const toBunnyId = (fam) => fam.toLowerCase().replace(/\s+/g, '-');
+    const fileSeen = new Set();
+    for (const name of extraNames) {
+      const key = name.toLowerCase();
+      if (fileSeen.has(key)) {
+        report.duplicate.push(`${name} (listed twice)`);
+        continue;
+      }
+      fileSeen.add(key);
+      const meta = gfByName.get(key);
+      if (!meta) {
+        report.notFound.push(name);
+        continue;
+      }
+      if (seen.has(meta.family.toLowerCase())) {
+        report.duplicate.push(`${meta.family} (already in catalog)`);
+        continue;
+      }
+      if (!bunnySet.has(toBunnyId(meta.family))) {
+        report.notOnBunny.push(meta.family);
+        continue;
+      }
+      const cat = gBucket(meta.category);
+      if (!cat) {
+        report.notFound.push(`${name} (unsupported category ${meta.category})`);
+        continue;
+      }
+      seeds.push({
+        family: meta.family,
+        category: cat,
+        source: 'bunny',
+        variants: gVariants(meta)
+      });
+      seen.add(meta.family.toLowerCase());
+      bunnyAdded++;
+      report.added.push(meta.family);
+    }
+  }
+
   // ---- Fontsource non-Google fonts (live) ----
-  const fsList = await (await fetch('https://api.fontsource.org/v1/fonts?type=other')).json();
+  const fsList = await (
+    await fetch('https://api.fontsource.org/v1/fonts?type=other')
+  ).json();
   const fsCount = { sans: 0, serif: 0, display: 0, script: 0, mono: 0 };
   let fsAdded = 0;
   for (const f of fsList) {
@@ -119,7 +193,8 @@ function gVariants(f) {
     if (!b || excluded(f.family) || seen.has(f.family.toLowerCase())) continue;
     if (FSTAKE[b] != null && fsCount[b] >= FSTAKE[b]) continue;
     const variants = [];
-    for (const w of f.weights || [400]) variants.push(w === 400 ? 'regular' : String(w));
+    for (const w of f.weights || [400])
+      variants.push(w === 400 ? 'regular' : String(w));
     if ((f.styles || []).includes('italic')) variants.push('italic');
     seeds.push({
       family: f.family,
@@ -137,7 +212,8 @@ function gVariants(f) {
   // ---- emit src/lib/fonts.ts ----
   const seedLines = seeds
     .map((s) => {
-      const idPart = s.source === 'fontsource' ? `, id: ${JSON.stringify(s.id)}` : '';
+      const idPart =
+        s.source === 'fontsource' ? `, id: ${JSON.stringify(s.id)}` : '';
       const facesPart = s.faces ? `, faces: ${JSON.stringify(s.faces)}` : '';
       return `  { family: ${JSON.stringify(s.family)}, category: '${s.category}', source: '${s.source}'${idPart}${facesPart}, variants: ${JSON.stringify(s.variants)} }`;
     })
@@ -212,4 +288,18 @@ export default fonts;
     `Wrote src/lib/fonts.ts — ${seeds.length} fonts (bunny=${bunnyAdded}, fontsource=${fsAdded})\n` +
       `  sans=${byCat('sans')} serif=${byCat('serif')} display=${byCat('display')} script=${byCat('script')} mono=${byCat('mono')}`
   );
+
+  // Report on scripts/extra-fonts.txt processing.
+  if (report.added.length)
+    console.log(`Extra fonts added (${report.added.length}): ${report.added.join(', ')}`);
+  if (report.duplicate.length)
+    console.log(`Skipped, duplicate (${report.duplicate.length}): ${report.duplicate.join(', ')}`);
+  if (report.notFound.length)
+    console.log(
+      `Skipped, NOT FOUND on Google Fonts — check spelling (${report.notFound.length}): ${report.notFound.join(', ')}`
+    );
+  if (report.notOnBunny.length)
+    console.log(
+      `Skipped, not available on Bunny (${report.notOnBunny.length}): ${report.notOnBunny.join(', ')}`
+    );
 })();

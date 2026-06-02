@@ -60,8 +60,8 @@ function pick(i: number, event: MouseEvent) {
           class="duel-specimen"
           family={font.family}
           category={font.category}
-          {fontSize}
-          {ligatures} />
+          fontSize={fontSize}
+          ligatures={ligatures} />
 
         <span class="duel-cta bg-primary-500 text-white">
           <svg

@@ -137,7 +137,10 @@ function slug(family: string) {
                 <td>
                   <div
                     class="btn-group preset-outlined-surface-500 [&>*+*]:border-surface-400-500">
-                    <a class="btn !p-2 !pl-3" href={font.siteUrl} target="_blank">
+                    <a
+                      class="btn !p-2 !pl-3"
+                      href={font.siteUrl}
+                      target="_blank">
                       <Icon name="external" size={16} />
                     </a>
                     <a class="btn !p-2 !pr-3" href={font.downloadUrl}>
@@ -160,7 +163,9 @@ function slug(family: string) {
   {#if currentFont}
     <div
       class="grid h-full grid-cols-1 gap-4 bg-surface-50-950 p-4 md:grid-cols-2">
-      <div class="flex flex-col gap-4" class:col-span-2={!fontFamilyRight.value}>
+      <div
+        class="flex flex-col gap-4"
+        class:col-span-2={!fontFamilyRight.value}>
         <FontHeader font={currentFont} />
         <FontPreview
           class="overflow-hidden rounded-lg"
@@ -180,7 +185,8 @@ function slug(family: string) {
             ligatures={ligatures.value} />
           <button
             class="btn preset-filled-surface-500 absolute bottom-10 self-center"
-            onclick={() => (fontFamilyRight.value = '')}>Clear Comparison</button>
+            onclick={() => (fontFamilyRight.value = '')}
+            >Clear Comparison</button>
         </div>
       {/if}
     </div>

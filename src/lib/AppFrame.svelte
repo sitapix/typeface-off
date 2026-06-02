@@ -8,18 +8,23 @@ let {
   header,
   sidebar,
   pageHeader,
-  children
+  children,
+  headerClass = '',
+  pageHeaderClass = ''
 }: {
   header?: Snippet;
   sidebar?: Snippet;
   pageHeader?: Snippet;
   children: Snippet;
+  /** Extra classes for the header/page-header wrappers (e.g. to collapse them). */
+  headerClass?: string;
+  pageHeaderClass?: string;
 } = $props();
 </script>
 
 <div class="flex h-full flex-col overflow-hidden">
   {#if header}
-    <header class="z-30 shrink-0">{@render header()}</header>
+    <header class="z-30 shrink-0 {headerClass}">{@render header()}</header>
   {/if}
 
   <div class="relative flex min-h-0 flex-1 overflow-hidden">
@@ -29,7 +34,9 @@ let {
 
     <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
       {#if pageHeader}
-        <div class="z-20 shrink-0">{@render pageHeader()}</div>
+        <div class="z-20 shrink-0 {pageHeaderClass}">
+          {@render pageHeader()}
+        </div>
       {/if}
       <main class="min-h-0 flex-1 overflow-auto">{@render children()}</main>
     </div>

@@ -62,7 +62,8 @@ const ligCss = $derived(
 <div
   class="code-preview flex h-full w-full flex-col overflow-hidden rounded-lg border border-[#2a2a2a] shadow-lg {className}">
   <!-- editor chrome -->
-  <div class="flex items-center gap-2 border-b border-[#2a2a2a] bg-[#252526] px-4 py-3">
+  <div
+    class="flex items-center gap-2 border-b border-[#2a2a2a] bg-[#252526] px-4 py-3">
     <span class="h-3 w-3 rounded-full bg-[#ff5f56]"></span>
     <span class="h-3 w-3 rounded-full bg-[#ffbd2e]"></span>
     <span class="h-3 w-3 rounded-full bg-[#27c93f]"></span>

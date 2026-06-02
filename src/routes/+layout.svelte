@@ -1,6 +1,7 @@
 <script lang="ts">
 import '../app.css';
 import { fonts } from '$lib';
+import { buildFontFaceCss } from '$lib/fontFaces';
 
 let { children } = $props();
 
@@ -20,27 +21,18 @@ const bunnyHref =
     .join('&') +
   '&display=swap';
 
-function faceFormat(src: string): string {
-  if (src.endsWith('.woff2')) return 'woff2';
-  if (src.endsWith('.woff')) return 'woff';
-  if (src.endsWith('.otf')) return 'opentype';
-  return 'truetype';
-}
-
-const faceCss = fonts
-  .filter((f) => f.faces)
-  .flatMap((f) =>
-    f.faces!.map(
-      (face) =>
-        `@font-face{font-family:'${f.family}';src:url('${face.src}') format('${faceFormat(face.src)}');font-weight:${face.weight ?? '400'};font-style:${face.style ?? 'normal'};font-display:swap;}`
-    )
-  )
-  .join('');
+const faceCss = buildFontFaceCss(fonts);
 </script>
 
 <svelte:head>
-  <link rel="preconnect" href="https://fonts.bunny.net" crossorigin="anonymous" />
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
+  <link
+    rel="preconnect"
+    href="https://fonts.bunny.net"
+    crossorigin="anonymous" />
+  <link
+    rel="preconnect"
+    href="https://cdn.jsdelivr.net"
+    crossorigin="anonymous" />
   <link rel="stylesheet" href={bunnyHref} />
   {#if faceCss}
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->

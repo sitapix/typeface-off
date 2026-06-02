@@ -26,22 +26,27 @@ let {
   <article
     class="article-body flex-1 overflow-auto px-6 py-5"
     style="font-family: '{fontFamily}', sans-serif; font-size: {fontSize}px; line-height: 1.6;">
-    <h1 class="font-bold" style="font-size: {fontSize * 1.9}px; line-height: 1.2;">
+    <h1
+      class="font-bold"
+      style="font-size: {fontSize * 1.9}px; line-height: 1.2;">
       Kola nut
     </h1>
     <p class="mt-3">
       The <strong class="font-semibold">kola nut</strong> is the seed of certain
       species of plant of the genus <em class="italic">Cola</em>, native to the
-      tropical <a class="text-primary-600-400 underline" href="#kola">rainforests</a>
-      of Africa. Their <a class="text-primary-600-400 underline" href="#caffeine"
-        >caffeine</a>-containing seeds are used as flavoring in various carbonated
-      soft drinks; the name <em class="italic">cola</em> derives from this use.<sup
+      tropical
+      <a class="text-primary-600-400 underline" href="#kola">rainforests</a>
+      of Africa. Their
+      <a class="text-primary-600-400 underline" href="#caffeine">caffeine</a
+      >-containing seeds are used as flavoring in various carbonated soft
+      drinks; the name <em class="italic">cola</em> derives from this use.<sup
         class="align-super text-[0.7em] text-primary-600-400">[1]</sup>
     </p>
     <p class="mt-3 opacity-90">
-      Chewed in West African cultures individually or in a social setting, the nut
-      has a bitter flavor and is offered to guests as a sign of hospitality &amp;
-      friendship — often shared at weddings, funerals, and naming ceremonies.
+      Chewed in West African cultures individually or in a social setting, the
+      nut has a bitter flavor and is offered to guests as a sign of hospitality
+      &amp; friendship — often shared at weddings, funerals, and naming
+      ceremonies.
     </p>
     <p
       class="mt-4 opacity-70"

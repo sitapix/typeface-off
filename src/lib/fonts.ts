@@ -189,6 +189,8 @@ const seeds: FontSeed[] = [
   { family: "Chivo Mono", category: 'mono', source: 'bunny', variants: ["100","200","300","regular","500","600","700","800","900","100italic","200italic","300italic","italic","500italic","600italic","700italic","800italic","900italic"] },
   { family: "Red Hat Mono", category: 'mono', source: 'bunny', variants: ["300","regular","500","600","700","300italic","italic","500italic","600italic","700italic"] },
   { family: "Sometype Mono", category: 'mono', source: 'bunny', variants: ["regular","500","600","700","italic","500italic","600italic","700italic"] },
+  { family: "Onest", category: 'sans', source: 'bunny', variants: ["100","200","300","regular","500","600","700","800","900"] },
+  { family: "Pixelify Sans", category: 'display', source: 'bunny', variants: ["regular","500","600","700"] },
   { family: "Adwaita Mono", category: 'mono', source: 'fontsource', id: "adwaita-mono", faces: [{"src":"https://cdn.jsdelivr.net/fontsource/fonts/adwaita-mono@latest/latin-400-normal.woff2","weight":"400"}], variants: ["regular","700","italic"] },
   { family: "Adwaita Sans", category: 'sans', source: 'fontsource', id: "adwaita-sans", faces: [{"src":"https://cdn.jsdelivr.net/fontsource/fonts/adwaita-sans@latest/latin-400-normal.woff2","weight":"400"}], variants: ["100","200","300","regular","500","600","700","800","900","italic"] },
   { family: "Aileron", category: 'sans', source: 'fontsource', id: "aileron", faces: [{"src":"https://cdn.jsdelivr.net/fontsource/fonts/aileron@latest/latin-400-normal.woff2","weight":"400"}], variants: ["100","300","regular","600","700","800","italic"] },

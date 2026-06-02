@@ -9,6 +9,7 @@ import {
   AppFrame,
   FontPreview
 } from '$lib';
+import { filterFonts } from '$lib/filterFonts';
 import {
   fontSize,
   fontFamily,
@@ -33,13 +34,9 @@ const categories = [
 ] as const;
 
 const fonts = $derived(
-  data.fonts.filter((font) => {
-    const matchesSearch =
-      !searchTerm.value ||
-      font.family.toLowerCase().includes(searchTerm.value.toLowerCase());
-    const matchesCategory =
-      selectedCategory === 'all' || font.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+  filterFonts(data.fonts, {
+    term: searchTerm.value,
+    category: selectedCategory
   })
 );
 
@@ -62,10 +59,11 @@ function getFontByFamilyName(familyName: string) {
             class="btn btn-sm {selectedCategory === category.id
               ? 'preset-filled-primary-500'
               : 'preset-outlined-surface-500'}"
-            onclick={() => (selectedCategory = category.id)}>{category.label}</button>
+            onclick={() => (selectedCategory = category.id)}
+            >{category.label}</button>
         {/each}
       </div>
-      <FontTable {fonts} />
+      <FontTable fonts={fonts} />
     </Sidebar>
   {/snippet}
 

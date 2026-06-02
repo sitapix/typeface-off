@@ -14,7 +14,12 @@ import {
   createGame,
   createConfetti
 } from '$lib';
-import { showName, fontSize, ligatures } from '$lib/store.svelte';
+import {
+  showName,
+  fontSize,
+  ligatures,
+  topCollapsed
+} from '$lib/store.svelte';
 
 let { data } = $props();
 
@@ -33,6 +38,22 @@ let game = $state<any>(null);
 let currentBracket = $state<any>(null);
 let leftButton = $state<HTMLButtonElement>();
 let rightButton = $state<HTMLButtonElement>();
+let poolSize = $state(0);
+
+// Progress toward a champion. In single-elimination, deciding a winner takes
+// exactly poolSize − 1 real (2-player) matchups; byes don't need a tap. We count
+// decided 2-player matchups across all rounds to fill the bar as you pick.
+const totalPicks = $derived(Math.max(0, poolSize - 1));
+const picksMade = $derived.by(() => {
+  if (!game?.rounds) return 0;
+  let n = 0;
+  for (const round of game.rounds)
+    for (const m of round) if (m.winner && m.players.length === 2) n++;
+  return n;
+});
+const progress = $derived(
+  totalPicks ? Math.min(1, picksMade / totalPicks) : 0
+);
 
 onMount(() => {
   startGame();
@@ -53,6 +74,7 @@ function startGame() {
     selectedCategory === 'all'
       ? data.fonts
       : data.fonts.filter((font) => font.category === selectedCategory);
+  poolSize = pool.length;
   // copy the pool so createGame's in-place shuffle doesn't mutate shared data
   game = createGame([...pool]);
   currentBracket = game.startGame();
@@ -96,7 +118,9 @@ function scrollToBracket() {
 
 <svelte:window onkeydown={handleKeydown} />
 
-<AppFrame>
+<AppFrame
+  headerClass={topCollapsed.value ? 'hidden lg:block' : ''}
+  pageHeaderClass={topCollapsed.value ? 'hidden lg:block' : ''}>
   {#snippet header()}
     <Header showMenu={false} />
   {/snippet}
@@ -111,7 +135,8 @@ function scrollToBracket() {
               class="btn btn-sm {selectedCategory === category.id
                 ? 'preset-filled-primary-500'
                 : 'preset-outlined-surface-500'}"
-              onclick={() => selectCategory(category.id)}>{category.label}</button>
+              onclick={() => selectCategory(category.id)}
+              >{category.label}</button>
           {/each}
         </div>
       </div>
@@ -170,23 +195,60 @@ function scrollToBracket() {
   <div class="h-full overflow-hidden bg-surface-50-950">
     {#if currentBracket?.players?.length}
       <!-- MOBILE / TABLET: tap-to-pick duel — both fonts on screen, no scroll -->
-      <div class="flex h-full flex-col gap-2 p-3 lg:hidden">
-        <div class="flex shrink-0 items-center gap-2 overflow-x-auto pb-1">
+      <div class="flex h-full flex-col p-3 pt-2 lg:hidden">
+        <!-- always-visible toolbar: collapse chrome · progress · restart -->
+        <div class="flex shrink-0 items-center gap-3 pb-2">
+          <button
+            class="btn-icon preset-tonal-surface shrink-0"
+            onclick={() => (topCollapsed.value = !topCollapsed.value)}
+            aria-label={topCollapsed.value ? 'Show controls' : 'Hide controls'}>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="transition: transform 0.2s; transform: rotate({topCollapsed.value
+                ? 180
+                : 0}deg);"><path d="m18 15-6-6-6 6" /></svg>
+          </button>
           <div
-            class="btn-group preset-outlined-surface-500 shrink-0 [&>*+*]:border-surface-400-500">
-            {#each categories as category (category.id)}
-              <button
-                class="btn btn-sm {selectedCategory === category.id
-                  ? 'preset-filled-primary-500'
-                  : ''}"
-                onclick={() => selectCategory(category.id)}
-                >{category.label}</button>
-            {/each}
+            class="h-2 flex-1 overflow-hidden rounded-full bg-surface-300-700"
+            role="progressbar"
+            aria-valuenow={picksMade}
+            aria-valuemin={0}
+            aria-valuemax={totalPicks}>
+            <div
+              class="h-full rounded-full bg-primary-500 transition-[width] duration-300 ease-out"
+              style="width: {Math.round(progress * 100)}%"></div>
           </div>
+          <span class="shrink-0 text-xs tabular-nums opacity-60"
+            >{picksMade}/{totalPicks}</span>
           <button
             class="btn btn-sm preset-filled-primary-500 shrink-0"
             onclick={startGame}>Restart</button>
         </div>
+
+        <!-- collapsible: category filters -->
+        {#if !topCollapsed.value}
+          <div class="flex shrink-0 items-center gap-2 overflow-x-auto pb-2">
+            <div
+              class="btn-group preset-outlined-surface-500 shrink-0 [&>*+*]:border-surface-400-500">
+              {#each categories as category (category.id)}
+                <button
+                  class="btn btn-sm {selectedCategory === category.id
+                    ? 'preset-filled-primary-500'
+                    : ''}"
+                  onclick={() => selectCategory(category.id)}
+                  >{category.label}</button>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
         <FontDuel
           players={currentBracket.players}
           fontSize={fontSize.value}
@@ -196,7 +258,8 @@ function scrollToBracket() {
       </div>
 
       <!-- DESKTOP: side-by-side specimens with the bracket sidebar -->
-      <div class="hidden h-full gap-4 p-4 lg:grid lg:grid-cols-2 lg:grid-rows-1">
+      <div
+        class="hidden h-full gap-4 p-4 lg:grid lg:grid-cols-2 lg:grid-rows-1">
         <div class="relative flex h-full flex-col gap-3">
           <FontHeader
             font={getFontByFamilyName(currentBracket.players[0].family)} />
@@ -232,59 +295,63 @@ function scrollToBracket() {
       <div class="h-full overflow-auto">
         <div
           class="relative min-h-full overflow-hidden border-4 border-surface-900-50 bg-surface-50-950 p-6 text-center lg:p-10">
-        <img
-          class="absolute bottom-0 left-0 right-0 mx-auto max-w-full opacity-60"
-          src="/trophy.png"
-          alt="Trophy of Font"
-          width="400" />
-        <div class="relative mx-auto flex max-w-5xl flex-col gap-12 p-4 md:p-10">
+          <img
+            class="absolute bottom-0 left-0 right-0 mx-auto max-w-full opacity-60"
+            src="/trophy.png"
+            alt="Trophy of Font"
+            width="400" />
           <div
-            class="flex flex-col gap-6 border-t-2 border-surface-700-200 pt-10 tracking-widest">
-            <h2 class="h2">CERTIFICATE OF ABSOLUTE AWESOMENESS</h2>
-            <h4 class="h4">HEREBY UNLEASHED UPON</h4>
-          </div>
-          <div
-            class="my-4 text-4xl md:text-6xl"
-            style="font-family: '{currentBracket?.winner.family}'">
-            {currentBracket?.winner.family}
-          </div>
-          <div class="btn-group preset-tonal-surface self-center">
-            <a class="btn" href={currentBracket?.winner.siteUrl} target="_blank">
-              <Icon name="external" size={24} />
-              <span class="hidden 2xl:block"
-                >Visit {currentBracket?.winner.family}</span>
-            </a>
-            <a class="btn" href={currentBracket?.winner.downloadUrl}>
-              <Icon name="download" size={24} />
-              <span class="hidden 2xl:block"
-                >Download {currentBracket?.winner.family}</span>
-            </a>
-            <a
-              class="btn"
-              href="/{encodeURIComponent(
-                currentBracket?.winner.family.replace(/\s+/g, '')
-              )}">
-              <Icon name="maximize" size={24} />
-              <span class="hidden 2xl:block">View Font Detail</span>
-            </a>
-          </div>
-          <h4 class="h4">
-            For mastering the art of bézier curve pageantry, where serifs and
-            counters stand heroic — triumphing in the tumultuous tournament of
-            type!
-          </h4>
-          <div class="mt-20 hidden justify-between md:flex">
-            <div>
-              <p class="mb-2">__________________________</p>
-              <p class="text-center">HEAD OF DEPARTMENT</p>
+            class="relative mx-auto flex max-w-5xl flex-col gap-12 p-4 md:p-10">
+            <div
+              class="flex flex-col gap-6 border-t-2 border-surface-700-200 pt-10 tracking-widest">
+              <h2 class="h2">CERTIFICATE OF ABSOLUTE AWESOMENESS</h2>
+              <h4 class="h4">HEREBY UNLEASHED UPON</h4>
             </div>
-            <div>
-              <p class="mb-2">__________________________</p>
-              <p class="text-center">COORDINATOR</p>
+            <div
+              class="my-4 text-4xl md:text-6xl"
+              style="font-family: '{currentBracket?.winner.family}'">
+              {currentBracket?.winner.family}
+            </div>
+            <div class="btn-group preset-tonal-surface self-center">
+              <a
+                class="btn"
+                href={currentBracket?.winner.siteUrl}
+                target="_blank">
+                <Icon name="external" size={24} />
+                <span class="hidden 2xl:block"
+                  >Visit {currentBracket?.winner.family}</span>
+              </a>
+              <a class="btn" href={currentBracket?.winner.downloadUrl}>
+                <Icon name="download" size={24} />
+                <span class="hidden 2xl:block"
+                  >Download {currentBracket?.winner.family}</span>
+              </a>
+              <a
+                class="btn"
+                href="/{encodeURIComponent(
+                  currentBracket?.winner.family.replace(/\s+/g, '')
+                )}">
+                <Icon name="maximize" size={24} />
+                <span class="hidden 2xl:block">View Font Detail</span>
+              </a>
+            </div>
+            <h4 class="h4">
+              For mastering the art of bézier curve pageantry, where serifs and
+              counters stand heroic — triumphing in the tumultuous tournament of
+              type!
+            </h4>
+            <div class="mt-20 hidden justify-between md:flex">
+              <div>
+                <p class="mb-2">__________________________</p>
+                <p class="text-center">HEAD OF DEPARTMENT</p>
+              </div>
+              <div>
+                <p class="mb-2">__________________________</p>
+                <p class="text-center">COORDINATOR</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
     {/if}
   </div>

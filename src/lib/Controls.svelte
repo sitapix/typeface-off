@@ -8,7 +8,9 @@ import { showName, fontSize, ligatures } from '$lib/store.svelte';
     <input class="checkbox" type="checkbox" bind:checked={showName.value} />
     <span>Show Name</span>
   </label>
-  <label class="flex items-center space-x-2" title="Ligatures apply to coding (mono) fonts">
+  <label
+    class="flex items-center space-x-2"
+    title="Ligatures apply to coding (mono) fonts">
     <input class="checkbox" type="checkbox" bind:checked={ligatures.value} />
     <span>Ligatures</span>
   </label>

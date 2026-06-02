@@ -12,9 +12,8 @@ const slug = $derived(
 
 {#if showName.value && font}
   <div class="flex flex-row items-center justify-between">
-    <a
-      href="/{slug}"
-      class="h3 truncate whitespace-nowrap hover:underline">{font.family}</a>
+    <a href="/{slug}" class="h3 truncate whitespace-nowrap hover:underline"
+      >{font.family}</a>
     <div
       class="btn-group preset-outlined-surface-500 [&>*+*]:border-surface-400-500">
       <a class="btn" href={font.siteUrl} target="_blank">
