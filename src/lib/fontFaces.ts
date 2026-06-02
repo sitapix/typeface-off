@@ -9,13 +9,18 @@ export function faceFormat(src: string): string {
 }
 
 /**
- * Resolve a face `src` against the app's base path. Root-relative paths (local
- * self-hosted fonts, e.g. `/fonts/x.woff2`) get the SvelteKit `base` prefix so
- * they work under a subpath (GitHub Pages project site). Absolute URLs
- * (Fontsource on jsDelivr, `https://…`) are left untouched.
+ * Prefix a root-relative app path (e.g. `/fonts/x.woff2`) with the SvelteKit
+ * `base` so it resolves under a subpath (GitHub Pages project site). Absolute
+ * URLs (`https://…`, protocol-relative) are returned untouched. Used for both
+ * `@font-face` sources and self-hosted Visit/Download link hrefs.
  */
+export function withBase(path: string, base = ''): string {
+  return path.startsWith('/') ? `${base}${path}` : path;
+}
+
+/** Resolve a face `src` against the app's base path. See {@link withBase}. */
 export function resolveFaceSrc(src: string, base = ''): string {
-  return src.startsWith('/') ? `${base}${src}` : src;
+  return withBase(src, base);
 }
 
 /**

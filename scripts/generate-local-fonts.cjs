@@ -9,12 +9,14 @@
  */
 const fs = require('fs');
 const path = require('path');
-const YAML = require('yaml');
+const {
+  CATEGORIES,
+  FONTS_YAML,
+  loadFontsConfig
+} = require('./fonts-shared.cjs');
 
 const STATIC_DIR = 'static/fonts';
-const YAML_FILE = 'scripts/fonts.yaml';
 const OUT = 'src/lib/localFonts.generated.ts';
-const CATEGORIES = ['sans', 'serif', 'display', 'script', 'mono'];
 
 const WEIGHT_KEYWORDS = [
   [/thin|hairline/i, '100'],
@@ -48,10 +50,10 @@ function variantLabel(face) {
 
 let entries = [];
 try {
-  const cfg = YAML.parse(fs.readFileSync(YAML_FILE, 'utf8')) || {};
+  const cfg = loadFontsConfig();
   entries = Array.isArray(cfg.local) ? cfg.local : [];
 } catch (e) {
-  console.error(`Could not parse ${YAML_FILE}: ${e.message}`);
+  console.error(`Could not read/parse ${FONTS_YAML}: ${e.message}`);
   process.exit(1);
 }
 
@@ -110,6 +112,8 @@ for (const entry of entries) {
     category,
     source: 'local',
     faces,
+    designer: entry.designer || undefined,
+    license: entry.license || undefined,
     variants: variants.length ? variants : ['regular'],
     siteUrl: url,
     downloadUrl: url

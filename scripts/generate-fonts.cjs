@@ -10,7 +10,7 @@
  * Tune the counts in GTAKE / FSTAKE below. Requires Node 18+ (global fetch).
  */
 const fs = require('fs');
-const YAML = require('yaml');
+const { CATEGORIES, bunnyId, loadFontsConfig } = require('./fonts-shared.cjs');
 
 // How many of each category to take from Google (by popularity).
 const GTAKE = { sans: 44, serif: 32, display: 32, script: 24, mono: 24 };
@@ -99,7 +99,7 @@ function gVariants(f) {
   ).replace(/^\)\]\}'?\s*/, '');
   const gfList = JSON.parse(gfRaw).familyMetadataList || [];
 
-  const gBuckets = { sans: [], serif: [], display: [], script: [], mono: [] };
+  const gBuckets = Object.fromEntries(CATEGORIES.map((c) => [c, []]));
   for (const f of gfList) {
     const b = gBucket(f.category);
     if (b && !excluded(f.family)) gBuckets[b].push(f);
@@ -110,12 +110,15 @@ function gVariants(f) {
   const seeds = [];
   const seen = new Set();
   let bunnyAdded = 0;
-  for (const b of ['sans', 'serif', 'display', 'script', 'mono']) {
+  for (const b of CATEGORIES) {
     for (const f of gBuckets[b].slice(0, GTAKE[b])) {
       seeds.push({
         family: f.family,
         category: b,
         source: 'bunny',
+        designer: f.designers && f.designers.length ? f.designers.join(', ') : undefined,
+        // Google Fonts' policy: new families are SIL OFL-1.1.
+        license: 'OFL-1.1',
         variants: gVariants(f)
       });
       seen.add(f.family.toLowerCase());
@@ -131,19 +134,18 @@ function gVariants(f) {
   const report = { added: [], duplicate: [], notFound: [], notOnBunny: [] };
   let extraNames = [];
   try {
-    const cfg = YAML.parse(fs.readFileSync('scripts/fonts.yaml', 'utf8')) || {};
+    const cfg = loadFontsConfig();
     extraNames = Array.isArray(cfg.google)
       ? cfg.google.map((s) => String(s).trim()).filter(Boolean)
       : [];
   } catch {
-    /* no fonts.yaml — fine */
+    /* no/malformed fonts.yaml — skip the google: extras */
   }
   if (extraNames.length) {
     const gfByName = new Map(gfList.map((f) => [f.family.toLowerCase(), f]));
     const bunnySet = new Set(
       Object.keys(await (await fetch('https://fonts.bunny.net/list')).json())
     );
-    const toBunnyId = (fam) => fam.toLowerCase().replace(/\s+/g, '-');
     const fileSeen = new Set();
     for (const name of extraNames) {
       const key = name.toLowerCase();
@@ -161,7 +163,7 @@ function gVariants(f) {
         report.duplicate.push(`${meta.family} (already in catalog)`);
         continue;
       }
-      if (!bunnySet.has(toBunnyId(meta.family))) {
+      if (!bunnySet.has(bunnyId(meta.family))) {
         report.notOnBunny.push(meta.family);
         continue;
       }
@@ -174,6 +176,11 @@ function gVariants(f) {
         family: meta.family,
         category: cat,
         source: 'bunny',
+        designer:
+          meta.designers && meta.designers.length
+            ? meta.designers.join(', ')
+            : undefined,
+        license: 'OFL-1.1',
         variants: gVariants(meta)
       });
       seen.add(meta.family.toLowerCase());
@@ -186,7 +193,7 @@ function gVariants(f) {
   const fsList = await (
     await fetch('https://api.fontsource.org/v1/fonts?type=other')
   ).json();
-  const fsCount = { sans: 0, serif: 0, display: 0, script: 0, mono: 0 };
+  const fsCount = Object.fromEntries(CATEGORIES.map((c) => [c, 0]));
   let fsAdded = 0;
   for (const f of fsList) {
     const b = fsBucket(f.category);
@@ -202,6 +209,7 @@ function gVariants(f) {
       source: 'fontsource',
       id: f.id,
       faces: fsFaces(f),
+      license: f.license || undefined,
       variants: variants.length ? variants : ['regular']
     });
     seen.add(f.family.toLowerCase());
@@ -215,7 +223,13 @@ function gVariants(f) {
       const idPart =
         s.source === 'fontsource' ? `, id: ${JSON.stringify(s.id)}` : '';
       const facesPart = s.faces ? `, faces: ${JSON.stringify(s.faces)}` : '';
-      return `  { family: ${JSON.stringify(s.family)}, category: '${s.category}', source: '${s.source}'${idPart}${facesPart}, variants: ${JSON.stringify(s.variants)} }`;
+      const designerPart = s.designer
+        ? `, designer: ${JSON.stringify(s.designer)}`
+        : '';
+      const licensePart = s.license
+        ? `, license: ${JSON.stringify(s.license)}`
+        : '';
+      return `  { family: ${JSON.stringify(s.family)}, category: '${s.category}', source: '${s.source}'${idPart}${facesPart}${designerPart}${licensePart}, variants: ${JSON.stringify(s.variants)} }`;
     })
     .join(',\n');
 
@@ -237,6 +251,10 @@ export interface Font {
   id?: string;
   /** @font-face definitions — present when source === 'local'. */
   faces?: FontFace[];
+  /** Designer/foundry, when known (mostly Bunny). */
+  designer?: string;
+  /** SPDX-ish license id, when known (mostly Fontsource & local). */
+  license?: string;
   variants: string[];
   siteUrl: string;
   downloadUrl: string;
@@ -248,6 +266,8 @@ interface FontSeed {
   source: FontSource;
   id?: string;
   faces?: FontFace[];
+  designer?: string;
+  license?: string;
   variants: string[];
 }
 

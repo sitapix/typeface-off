@@ -1,4 +1,5 @@
 <script lang="ts">
+import { base } from '$app/paths';
 import type { Font } from '$lib/fonts';
 import { Icon } from '$lib';
 import { showName } from '$lib/store.svelte';
@@ -13,7 +14,7 @@ const slug = $derived(
 {#if showName.value && font}
   <div class="flex flex-row items-center justify-between gap-2">
     <a
-      href="/{slug}"
+      href="{base}/{slug}"
       class="h3 min-w-0 truncate whitespace-nowrap hover:underline"
       >{font.family}</a>
     <div
@@ -34,7 +35,10 @@ const slug = $derived(
         <Icon name="download" size={24} />
         <span class="hidden 2xl:block">Download {font.family}</span>
       </a>
-      <a class="btn" href="/{slug}" aria-label="View {font.family} details">
+      <a
+        class="btn"
+        href="{base}/{slug}"
+        aria-label="View {font.family} details">
         <Icon name="maximize" size={24} />
       </a>
     </div>

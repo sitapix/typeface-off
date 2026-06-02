@@ -5,8 +5,21 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @import '@skeletonlabs/skeleton';
+/* Selectable color schemes (Skeleton themes). The active one is set via
+   data-theme on <html> by ThemePicker.svelte; keep this list in sync with the
+   `themes` array there. */
 @import '@skeletonlabs/skeleton/themes/cerberus';
 @import '@skeletonlabs/skeleton/themes/wintry';
+@import '@skeletonlabs/skeleton/themes/catppuccin';
+@import '@skeletonlabs/skeleton/themes/crimson';
+@import '@skeletonlabs/skeleton/themes/hamlindigo';
+@import '@skeletonlabs/skeleton/themes/mint';
+@import '@skeletonlabs/skeleton/themes/mona';
+@import '@skeletonlabs/skeleton/themes/pine';
+@import '@skeletonlabs/skeleton/themes/rose';
+@import '@skeletonlabs/skeleton/themes/sahara';
+@import '@skeletonlabs/skeleton/themes/terminus';
+@import '@skeletonlabs/skeleton/themes/vintage';
 @source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
 @import './lib/css/styles.css';
 

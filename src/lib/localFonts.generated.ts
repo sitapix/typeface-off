@@ -12,10 +12,12 @@ export const localGeneratedFonts: Font[] = [
         "src": "/fonts/SpaceGrotesk.ttf"
       }
     ],
+    "designer": "Florian Karsten",
+    "license": "OFL-1.1",
     "variants": [
       "regular"
     ],
-    "siteUrl": "/fonts/SpaceGrotesk.ttf",
-    "downloadUrl": "/fonts/SpaceGrotesk.ttf"
+    "siteUrl": "https://github.com/floriankarsten/space-grotesk",
+    "downloadUrl": "https://github.com/floriankarsten/space-grotesk"
   }
 ];

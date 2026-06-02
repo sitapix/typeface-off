@@ -11,6 +11,12 @@ export default {
     // BASE_PATH=/REPO so asset + self-hosted-font URLs resolve. Defaults to ''
     // (root): correct for a user/org page or a custom domain.
     paths: { base: process.env.BASE_PATH || '' },
+    prerender: {
+      // The note specimen (NotePreview.svelte) has decorative in-prose links
+      // (#kola, #caffeine) with no real target — they exist to show how a
+      // hyperlink renders in body text. Warn instead of failing the build.
+      handleMissingId: 'warn'
+    },
     adapter: adapter({
       // default options are shown. On some platforms
       // these options are set automatically — see below

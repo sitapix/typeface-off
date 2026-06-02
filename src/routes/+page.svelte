@@ -14,6 +14,7 @@ import {
   createGame,
   createConfetti
 } from '$lib';
+import { base } from '$app/paths';
 import { lazyFont } from '$lib/lazyFont';
 import { showName, fontSize, ligatures, topCollapsed } from '$lib/store.svelte';
 
@@ -327,7 +328,7 @@ function scrollToBracket() {
               </a>
               <a
                 class="btn"
-                href="/{encodeURIComponent(
+                href="{base}/{encodeURIComponent(
                   currentBracket?.winner.family.replace(/\s+/g, '')
                 )}">
                 <Icon name="maximize" size={24} />

@@ -1,6 +1,7 @@
 import Logo from './Logo.svelte';
 import Icon from './Icon.svelte';
 import ThemeSwitch from './ThemeSwitch.svelte';
+import ThemePicker from './ThemePicker.svelte';
 import Controls from './Controls.svelte';
 import SearchBar from './SearchBar.svelte';
 import FontTable from './FontTable.svelte';
@@ -17,6 +18,8 @@ import FontDuel from './FontDuel.svelte';
 import generatedFonts from './fonts';
 import { localFonts } from './localFonts';
 import { localGeneratedFonts } from './localFonts.generated';
+import { withBase } from './fontFaces';
+import { base } from '$app/paths';
 
 import { createGame, createConfetti } from './game';
 
@@ -31,16 +34,24 @@ const localAll = [
   )
 ];
 const localFamilies = new Set(localAll.map((f) => f.family));
+// Base-prefix self-hosted asset URLs (e.g. /fonts/x.ttf) so the Visit/Download
+// links resolve on a GitHub Pages project site. Absolute http(s) URLs (Bunny /
+// Fontsource) pass through `withBase` unchanged.
 const fonts = [
   ...localAll,
   ...generatedFonts.filter((f) => !localFamilies.has(f.family))
-];
+].map((f) => ({
+  ...f,
+  siteUrl: withBase(f.siteUrl, base),
+  downloadUrl: withBase(f.downloadUrl, base)
+}));
 
 export {
   /* Components */
   Logo,
   Icon,
   ThemeSwitch,
+  ThemePicker,
   Controls,
   SearchBar,
   FontHeader,

@@ -1,4 +1,5 @@
 <script lang="ts">
+import { base } from '$app/paths';
 import type { Font } from '$lib/fonts';
 import { Icon } from '$lib';
 import { lazyFont } from '$lib/lazyFont';
@@ -68,7 +69,7 @@ function slug(family: string) {
               </a>
               <a
                 class="btn !p-2 !pr-3"
-                href="/{slug(font.family)}"
+                href="{base}/{slug(font.family)}"
                 aria-label="View {font.family} details">
                 <Icon name="maximize" size={16} />
               </a>

@@ -15,11 +15,16 @@ google:
   - Pixelify Sans
 
 # --- Self-hosted fonts. Required: family, category, and files: (or faces:).
-#     Optional: variable: true · url: https://…  See examples below. ---
+#     Optional: variable: true · url: https://… · license: OFL-1.1 · designer: …
+#     IMPORTANT: you redistribute these files, so also drop the font's license
+#     text in  static/fonts/licenses/  (most OSS fonts are OFL-1.1). See FONTS.md.
 local:
   - family: Space Grotesk
     category: sans
     files: [SpaceGrotesk.ttf]
+    designer: Florian Karsten
+    license: OFL-1.1
+    url: https://github.com/floriankarsten/space-grotesk
 
   # - family: My Serif
   #   category: serif

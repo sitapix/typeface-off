@@ -1,16 +1,22 @@
 <script lang="ts">
+import { base } from '$app/paths';
 import { page } from '$app/state';
-import { Icon, Logo, ThemeSwitch } from '$lib';
+import { Icon, Logo, ThemePicker, ThemeSwitch } from '$lib';
 import { menuOpen } from '$lib/store.svelte';
 
 // `showMenu` controls the mobile hamburger. Pages without a mobile drawer
 // (e.g. the game, whose filters are surfaced inline) pass showMenu={false}.
 let { showMenu = true }: { showMenu?: boolean } = $props();
 
+// Prefix with `base` so links resolve on a GitHub Pages project site
+// (you.github.io/REPO); `base` is '' for a root/custom-domain deploy.
 const links = [
-  { href: '/', label: 'Game' },
-  { href: '/browse', label: 'Browse' }
+  { href: `${base}/`, label: 'Game' },
+  { href: `${base}/browse`, label: 'Browse' }
 ];
+
+// Trailing-slash-insensitive match so the base root ('' vs '/') still highlights.
+const norm = (p: string) => p.replace(/\/+$/, '') || '/';
 </script>
 
 <div
@@ -24,16 +30,18 @@ const links = [
         <Icon name="menu" size={24} />
       </button>
     {/if}
-    <a href="/" aria-label="Font Face-Off home"
-      ><Logo class="h-[2.25rem] w-auto sm:h-[3rem]" /></a>
+    <a href="{base}/" aria-label="TypefaceOff home"
+      ><Logo class="text-2xl sm:text-3xl" /></a>
   </div>
 
   <nav class="hidden items-center gap-2 md:flex">
     {#each links as link (link.href)}
       <a
         href={link.href}
-        aria-current={page.url.pathname === link.href ? 'page' : undefined}
-        class="btn {page.url.pathname === link.href
+        aria-current={norm(page.url.pathname) === norm(link.href)
+          ? 'page'
+          : undefined}
+        class="btn {norm(page.url.pathname) === norm(link.href)
           ? 'preset-tonal-primary'
           : 'hover:preset-tonal-surface'}">{link.label}</a>
     {/each}
@@ -41,5 +49,17 @@ const links = [
       >Studio</a>
   </nav>
 
-  <ThemeSwitch />
+  <div class="flex items-center gap-2">
+    <a
+      href="https://github.com/sitapix/typeface-off"
+      target="_blank"
+      rel="noopener"
+      aria-label="TypefaceOff on GitHub"
+      title="View source on GitHub"
+      class="btn-icon preset-tonal-surface">
+      <Icon name="github" size={22} />
+    </a>
+    <ThemePicker />
+    <ThemeSwitch />
+  </div>
 </div>

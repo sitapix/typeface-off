@@ -1,4 +1,5 @@
 <script lang="ts">
+import { base } from '$app/paths';
 import {
   Icon,
   Header,
@@ -57,7 +58,7 @@ function slug(family: string) {
       {#if currentFont}
         <div class="flex flex-col gap-4">
           <nav class="flex items-center gap-2 text-sm">
-            <a class="anchor" href="/browse">Browse</a>
+            <a class="anchor" href="{base}/browse">Browse</a>
             <span aria-hidden="true">&rsaquo;</span>
             <span>{currentFont.family}</span>
           </nav>
@@ -149,7 +150,7 @@ function slug(family: string) {
                   : ''}">
                 <td class="max-w-[9rem] !whitespace-nowrap p-0">
                   <a
-                    href="/{slug(font.family)}"
+                    href="{base}/{slug(font.family)}"
                     style="font-family: '{font.family}'"
                     aria-current={currentFont?.family === font.family
                       ? 'page'
@@ -234,7 +235,8 @@ function slug(family: string) {
   {:else}
     <div class="flex h-full flex-col items-center justify-center gap-4 p-8">
       <h2 class="h2">Font not found</h2>
-      <a class="btn preset-filled-primary-500" href="/browse">Back to Browse</a>
+      <a class="btn preset-filled-primary-500" href="{base}/browse"
+        >Back to Browse</a>
     </div>
   {/if}
 </AppFrame>
