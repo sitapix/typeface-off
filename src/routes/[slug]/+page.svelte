@@ -8,9 +8,15 @@ import {
   FontHeader,
   Controls,
   AppFrame,
-  NotePreview
+  FontPreview
 } from '$lib';
-import { fontSize, fontFamilyRight, menuOpen, searchTerm } from '$lib/store.svelte';
+import {
+  fontSize,
+  fontFamilyRight,
+  menuOpen,
+  searchTerm,
+  ligatures
+} from '$lib/store.svelte';
 
 let { data } = $props();
 
@@ -64,7 +70,11 @@ function slug(family: string) {
             {/each}
           </div>
           <div class="h-64">
-            <NotePreview fontFamily={currentFont.family} fontSize={18} />
+            <FontPreview
+              family={currentFont.family}
+              category={currentFont.category}
+              fontSize={18}
+              ligatures={ligatures.value} />
           </div>
           <div class="table-wrap !overflow-x-hidden !rounded-none">
             <table class="table !whitespace-nowrap !rounded-none text-left">
@@ -152,18 +162,22 @@ function slug(family: string) {
       class="grid h-full grid-cols-1 gap-4 bg-surface-50-950 p-4 md:grid-cols-2">
       <div class="flex flex-col gap-4" class:col-span-2={!fontFamilyRight.value}>
         <FontHeader font={currentFont} />
-        <NotePreview
+        <FontPreview
           class="overflow-hidden rounded-lg"
           fontSize={fontSize.value}
-          fontFamily={currentFont.family} />
+          family={currentFont.family}
+          category={currentFont.category}
+          ligatures={ligatures.value} />
       </div>
       {#if fontFamilyRight.value}
         <div class="relative hidden flex-col gap-4 md:flex">
           <FontHeader font={getFontByFamilyName(fontFamilyRight.value)} />
-          <NotePreview
+          <FontPreview
             class="overflow-hidden rounded-lg"
             fontSize={fontSize.value}
-            fontFamily={fontFamilyRight.value} />
+            family={fontFamilyRight.value}
+            category={getFontByFamilyName(fontFamilyRight.value)?.category}
+            ligatures={ligatures.value} />
           <button
             class="btn preset-filled-surface-500 absolute bottom-10 self-center"
             onclick={() => (fontFamilyRight.value = '')}>Clear Comparison</button>

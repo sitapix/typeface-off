@@ -11,6 +11,8 @@ import AppFrame from './AppFrame.svelte';
 import PlayerBadge from './PlayerBadge.svelte';
 import WinnerBadge from './WinnerBadge.svelte';
 import NotePreview from './NotePreview.svelte';
+import CodePreview from './CodePreview.svelte';
+import FontPreview from './FontPreview.svelte';
 import fonts from './fonts';
 
 import { createGame, createConfetti } from './game';
@@ -30,6 +32,8 @@ export {
   PlayerBadge,
   WinnerBadge,
   NotePreview,
+  CodePreview,
+  FontPreview,
   /* Fonts Metadata */
   fonts,
   /* Tournament Game Factory */

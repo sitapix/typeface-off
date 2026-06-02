@@ -3,6 +3,10 @@ import { page } from '$app/state';
 import { Icon, Logo, ThemeSwitch } from '$lib';
 import { menuOpen } from '$lib/store.svelte';
 
+// `showMenu` controls the mobile hamburger. Pages without a mobile drawer
+// (e.g. the game, whose filters are surfaced inline) pass showMenu={false}.
+let { showMenu = true }: { showMenu?: boolean } = $props();
+
 const links = [
   { href: '/', label: 'Game' },
   { href: '/browse', label: 'Browse' }
@@ -12,13 +16,15 @@ const links = [
 <div
   class="flex flex-row items-center justify-between gap-4 border-b border-surface-200-800 bg-surface-100-800 p-4">
   <div class="flex items-center justify-center gap-4">
-    <button
-      class="btn-icon preset-tonal-surface lg:hidden"
-      onclick={() => (menuOpen.value = !menuOpen.value)}
-      aria-label="Toggle menu">
-      <Icon name="menu" size={24} />
-    </button>
-    <a href="/"><Logo class="h-[3rem] w-auto" /></a>
+    {#if showMenu}
+      <button
+        class="btn-icon preset-tonal-surface lg:hidden"
+        onclick={() => (menuOpen.value = !menuOpen.value)}
+        aria-label="Toggle menu">
+        <Icon name="menu" size={24} />
+      </button>
+    {/if}
+    <a href="/"><Logo class="h-[2.25rem] w-auto sm:h-[3rem]" /></a>
   </div>
 
   <nav class="hidden items-center gap-2 md:flex">

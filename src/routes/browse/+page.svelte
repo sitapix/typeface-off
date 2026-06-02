@@ -7,24 +7,29 @@ import {
   FontHeader,
   Controls,
   AppFrame,
-  NotePreview
+  FontPreview
 } from '$lib';
 import {
   fontSize,
   fontFamily,
   fontFamilyRight,
-  searchTerm
+  searchTerm,
+  ligatures
 } from '$lib/store.svelte';
 
 let { data } = $props();
 
-let selectedCategory = $state<'all' | 'sans' | 'serif' | 'display'>('all');
+let selectedCategory = $state<
+  'all' | 'sans' | 'serif' | 'display' | 'script' | 'mono'
+>('all');
 
 const categories = [
   { id: 'all', label: 'All' },
   { id: 'sans', label: 'Sans' },
   { id: 'serif', label: 'Serif' },
-  { id: 'display', label: 'Display' }
+  { id: 'display', label: 'Display' },
+  { id: 'script', label: 'Script' },
+  { id: 'mono', label: 'Mono' }
 ] as const;
 
 const fonts = $derived(
@@ -51,13 +56,12 @@ function getFontByFamilyName(familyName: string) {
   {#snippet sidebar()}
     <Sidebar>
       <SearchBar />
-      <div
-        class="btn-group preset-outlined-surface-500 my-2 w-full [&>*+*]:border-surface-400-500">
+      <div class="my-2 flex flex-wrap gap-1">
         {#each categories as category (category.id)}
           <button
             class="btn btn-sm {selectedCategory === category.id
               ? 'preset-filled-primary-500'
-              : ''}"
+              : 'preset-outlined-surface-500'}"
             onclick={() => (selectedCategory = category.id)}>{category.label}</button>
         {/each}
       </div>
@@ -73,18 +77,22 @@ function getFontByFamilyName(familyName: string) {
     class="grid h-full grid-cols-1 gap-4 bg-surface-50-950 p-4 md:grid-cols-2">
     <div class="flex flex-col gap-4" class:col-span-2={!fontFamilyRight.value}>
       <FontHeader font={getFontByFamilyName(fontFamily.value)} />
-      <NotePreview
+      <FontPreview
         class="overflow-hidden rounded-lg"
         fontSize={fontSize.value}
-        fontFamily={fontFamily.value} />
+        family={fontFamily.value}
+        category={getFontByFamilyName(fontFamily.value)?.category}
+        ligatures={ligatures.value} />
     </div>
     {#if fontFamilyRight.value}
       <div class="relative hidden flex-col gap-4 md:flex">
         <FontHeader font={getFontByFamilyName(fontFamilyRight.value)} />
-        <NotePreview
+        <FontPreview
           class="overflow-hidden rounded-lg"
           fontSize={fontSize.value}
-          fontFamily={fontFamilyRight.value} />
+          family={fontFamilyRight.value}
+          category={getFontByFamilyName(fontFamilyRight.value)?.category}
+          ligatures={ligatures.value} />
         <button
           class="btn preset-filled-surface-500 absolute bottom-4 self-center"
           onclick={() => (fontFamilyRight.value = '')}>Clear Comparison</button>
