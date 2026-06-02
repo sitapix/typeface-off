@@ -14,6 +14,7 @@ import {
   createGame,
   createConfetti
 } from '$lib';
+import { lazyFont } from '$lib/lazyFont';
 import { showName, fontSize, ligatures, topCollapsed } from '$lib/store.svelte';
 
 let { data } = $props();
@@ -160,7 +161,7 @@ function scrollToBracket() {
                           class={bracket?.winner?.family == font.family
                             ? 'preset-tonal-primary'
                             : 'preset-tonal-surface'}>
-                          <span style="font-family: '{font.family}'">
+                          <span use:lazyFont={font.family}>
                             {showName.value ? font.family : 'ABC abc 123'}
                           </span>
                         </PlayerBadge>

@@ -154,10 +154,12 @@ Skipped, NOT FOUND on Google Fonts — check spelling (1): Inteer
 
 **Performance.** Local/Fontsource fonts use inline `@font-face`, and the browser
 only downloads a `woff2` when that font is actually rendered — so adding hundreds
-of fonts doesn't slow first paint. The catch: **Browse and the desktop bracket
-render every font's specimen**, so on those views every font's `woff2` downloads
-(non-blocking; text shows immediately and swaps in via `font-display: swap`).
-For a large self-hosted library:
+of fonts doesn't slow first paint. On top of that, the long specimen lists
+(Browse table, Game bracket) are **lazy-loaded** via the `lazyFont` action
+(`src/lib/lazyFont.ts`): each specimen only applies its font — and thus only
+fetches its `woff2` — when it scrolls into view. So a 1000-font Browse downloads
+only the dozen rows you can see, plus more as you scroll. Still recommended for a
+big self-hosted library:
 
 - **Ship subset `woff2`, not raw `.ttf`/`.otf`.** A Latin-subset woff2 is ~15–40 KB;
   a full-unicode TTF can be 200 KB–1 MB. Convert with
@@ -167,8 +169,18 @@ For a large self-hosted library:
   pyftsubset MyFont.ttf --output-file=MyFont.woff2 --flavor=woff2 \
     --unicodes=U+0000-00FF,U+2018-201F  # basic Latin + common punctuation
   ```
-- If you ever need it to scale to *thousands*, ask for the optional
-  IntersectionObserver lazy-load (each specimen fetches only when scrolled into view).
+
+### How many files per font?
+
+- **One is enough.** A single `regular` (400) face displays the font; bold/italic
+  are faux-synthesized by the browser.
+- **For real bold/italic**, add more `faces` entries (each with its own `weight` /
+  `style`) — see the self-hosted example above.
+- **Best: a variable `woff2`** covers every weight (and italic, if it has that
+  axis) in **one file** — set `weight` to the range, e.g. `'100 900'`:
+  ```ts
+  faces: [{ src: '/fonts/MyVar.woff2', weight: '100 900' }]
+  ```
 
 **GitHub Pages.** The app builds static via `@sveltejs/adapter-static`.
 

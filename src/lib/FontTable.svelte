@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { Font } from '$lib/fonts';
 import { Icon } from '$lib';
+import { lazyFont } from '$lib/lazyFont';
 import {
   fontFamily,
   fontFamilyRight,
@@ -33,7 +34,7 @@ function slug(family: string) {
           <td class="max-w-[9rem] !whitespace-nowrap p-0">
             <button
               type="button"
-              style="font-family: '{font.family}'"
+              use:lazyFont={font.family}
               class="block w-full cursor-pointer truncate px-4 py-2 text-left"
               aria-pressed={fontFamily.value === font.family}
               onclick={() => {
