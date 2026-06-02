@@ -5,7 +5,7 @@ export let fontSize = 20;
 const pangram = 'The quick brown fox jumps over the lazy dog.';
 const paragraph =
   'Sphinx of black quartz, judge my vow. Pack my box with five dozen liquor jugs, then ship it overnight to the waiting crew.';
-const glyphs = "0123456789  .,;:!?''\"\"&@#%*()";
+const glyphs = '0123456789  .,;:!?‘’“”&@#%*()';
 </script>
 
 <div
