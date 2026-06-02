@@ -5,12 +5,13 @@ import { fonts } from '$lib';
 let { children } = $props();
 
 // Each source loads its own way; fonts.ts is the single source of truth.
-// Google → one combined css2 stylesheet. Fontsource → one jsDelivr stylesheet
-// per font. Add a font in fonts.ts and it loads automatically.
-const googleHref =
-  'https://fonts.googleapis.com/css2?' +
+// Bunny Fonts (privacy-friendly Google Fonts mirror) → one combined stylesheet.
+// Fontsource → one jsDelivr stylesheet per font. Add a font in fonts.ts and it
+// loads automatically.
+const bunnyHref =
+  'https://fonts.bunny.net/css?' +
   fonts
-    .filter((f) => f.source === 'google')
+    .filter((f) => f.source === 'bunny')
     .map((f) => 'family=' + f.family.replace(/\s+/g, '+'))
     .join('&') +
   '&display=swap';
@@ -21,10 +22,9 @@ const fontsourceHrefs = fonts
 </script>
 
 <svelte:head>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.bunny.net" crossorigin="anonymous" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
-  <link rel="stylesheet" href={googleHref} />
+  <link rel="stylesheet" href={bunnyHref} />
   {#each fontsourceHrefs as href (href)}
     <link rel="stylesheet" href={href} />
   {/each}
