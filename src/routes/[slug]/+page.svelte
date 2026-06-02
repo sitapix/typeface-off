@@ -143,7 +143,7 @@ function slug(family: string) {
                 </td>
                 <td>
                   <div
-                    class="btn-group preset-outlined-surface-500 [&>*+*]:border-surface-400-500">
+                    class="btn-group preset-outlined-surface-500 [&>*+*]:border-surface-400-600">
                     <a
                       class="btn !p-2 !pl-3"
                       href={font.siteUrl}

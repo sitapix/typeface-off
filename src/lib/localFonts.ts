@@ -1,27 +1,14 @@
 import type { Font } from './fonts';
 
-// Self-hosted OSS fonts — for fonts that aren't on Bunny or Fontsource (e.g.
-// Font Squirrel kits, GitHub releases, foundry downloads). This file is NOT
-// touched by the font generator, so entries here survive regeneration.
+// Manual self-hosted font entries (advanced escape hatch).
 //
-// To add one:
-//   1. Put the file(s) in  static/fonts/   (woff2 preferred; ttf/otf also work)
-//   2. Add a Font entry below with  source: 'local'  and a `faces` list.
-//   3. It loads automatically — the layout injects the @font-face — and joins
-//      the Game / Browse / type filters like any other font.
+// For most self-hosted fonts, prefer the easy YAML config:
+//   1. Put file(s) in  static/fonts/
+//   2. Add an entry to  scripts/local-fonts.yaml
+//   3. Run  npm run fonts:local
+// …which generates src/lib/localFonts.generated.ts.
 //
-// A local entry whose `family` matches a Bunny/Fontsource font overrides it
-// (your self-hosted copy wins).
-export const localFonts: Font[] = [
-  // Demo: Space Grotesk isn't on Bunny, so it's self-hosted from the bundled
-  // file. Copy this shape for your own downloads.
-  {
-    family: 'Space Grotesk',
-    category: 'sans',
-    source: 'local',
-    variants: ['regular'],
-    faces: [{ src: '/fonts/SpaceGrotesk.ttf', weight: '400', style: 'normal' }],
-    siteUrl: 'https://github.com/floriankarsten/space-grotesk',
-    downloadUrl: 'https://github.com/floriankarsten/space-grotesk'
-  }
-];
+// Use THIS file only when you need full control the YAML doesn't express. Entries
+// here are never touched by any generator, and override a same-named font from
+// the YAML pipeline or the Bunny/Fontsource catalog.
+export const localFonts: Font[] = [];

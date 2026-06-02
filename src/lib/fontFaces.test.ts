@@ -63,7 +63,8 @@ describe('buildFontFaceCss', () => {
   });
 
   it('leaves absolute (Fontsource/CDN) srcs untouched under a base path', () => {
-    const url = 'https://cdn.jsdelivr.net/fontsource/fonts/x@latest/latin-400-normal.woff2';
+    const url =
+      'https://cdn.jsdelivr.net/fontsource/fonts/x@latest/latin-400-normal.woff2';
     const css = buildFontFaceCss(
       [base({ source: 'fontsource', faces: [{ src: url }] })],
       '/coding-font'
@@ -74,12 +75,16 @@ describe('buildFontFaceCss', () => {
 
 describe('resolveFaceSrc', () => {
   it('prefixes root-relative paths with base', () => {
-    expect(resolveFaceSrc('/fonts/x.woff2', '/repo')).toBe('/repo/fonts/x.woff2');
+    expect(resolveFaceSrc('/fonts/x.woff2', '/repo')).toBe(
+      '/repo/fonts/x.woff2'
+    );
   });
   it('no-ops with empty base', () => {
     expect(resolveFaceSrc('/fonts/x.woff2')).toBe('/fonts/x.woff2');
   });
   it('never touches absolute URLs', () => {
-    expect(resolveFaceSrc('https://cdn/x.woff2', '/repo')).toBe('https://cdn/x.woff2');
+    expect(resolveFaceSrc('https://cdn/x.woff2', '/repo')).toBe(
+      'https://cdn/x.woff2'
+    );
   });
 });

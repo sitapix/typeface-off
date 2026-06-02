@@ -14,7 +14,7 @@ let {
   class="article-preview flex h-full w-full flex-col overflow-hidden rounded-lg border border-surface-300-700 bg-surface-50-950 shadow-lg {className}">
   <!-- browser chrome (neutral UI font, not the specimen) -->
   <div
-    class="flex items-center gap-2 border-b border-surface-300-700 bg-surface-100-800 px-4 py-2">
+    class="flex items-center gap-2 border-b border-surface-300-700 bg-surface-100-900 px-4 py-2">
     <span class="h-3 w-3 rounded-full bg-[#ff5f56]"></span>
     <span class="h-3 w-3 rounded-full bg-[#ffbd2e]"></span>
     <span class="h-3 w-3 rounded-full bg-[#27c93f]"></span>

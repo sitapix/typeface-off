@@ -14,7 +14,7 @@ const links = [
 </script>
 
 <div
-  class="flex flex-row items-center justify-between gap-4 border-b border-surface-200-800 bg-surface-100-800 p-4">
+  class="flex flex-row items-center justify-between gap-4 border-b border-surface-200-800 bg-surface-100-900 p-4">
   <div class="flex items-center justify-center gap-4">
     {#if showMenu}
       <button

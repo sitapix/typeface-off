@@ -233,7 +233,7 @@ function scrollToBracket() {
         {#if !topCollapsed.value}
           <div class="flex shrink-0 items-center gap-2 overflow-x-auto pb-2">
             <div
-              class="btn-group preset-outlined-surface-500 shrink-0 [&>*+*]:border-surface-400-500">
+              class="btn-group preset-outlined-surface-500 shrink-0 [&>*+*]:border-surface-400-600">
               {#each categories as category (category.id)}
                 <button
                   class="btn btn-sm {selectedCategory === category.id
@@ -292,7 +292,7 @@ function scrollToBracket() {
     {:else if currentBracket?.winner}
       <div class="h-full overflow-auto">
         <div
-          class="relative min-h-full overflow-hidden border-4 border-surface-900-50 bg-surface-50-950 p-6 text-center lg:p-10">
+          class="relative min-h-full overflow-hidden border-4 border-surface-950-50 bg-surface-50-950 p-6 text-center lg:p-10">
           <img
             class="absolute bottom-0 left-0 right-0 mx-auto max-w-full opacity-60"
             src="/trophy.png"
@@ -302,7 +302,7 @@ function scrollToBracket() {
           <div
             class="relative mx-auto flex max-w-5xl flex-col gap-12 p-4 md:p-10">
             <div
-              class="flex flex-col gap-6 border-t-2 border-surface-700-200 pt-10 tracking-widest">
+              class="flex flex-col gap-6 border-t-2 border-surface-700-300 pt-10 tracking-widest">
               <h2 class="h2">CERTIFICATE OF ABSOLUTE AWESOMENESS</h2>
               <h3 class="h4">HEREBY UNLEASHED UPON</h3>
             </div>

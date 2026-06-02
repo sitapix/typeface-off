@@ -17,7 +17,7 @@ const slug = $derived(
       class="h3 min-w-0 truncate whitespace-nowrap hover:underline"
       >{font.family}</a>
     <div
-      class="btn-group preset-outlined-surface-500 shrink-0 [&>*+*]:border-surface-400-500">
+      class="btn-group preset-outlined-surface-500 shrink-0 [&>*+*]:border-surface-400-600">
       <a
         class="btn"
         href={font.siteUrl}

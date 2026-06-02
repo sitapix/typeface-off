@@ -2,12 +2,7 @@
 import type { Font } from '$lib/fonts';
 import { Icon } from '$lib';
 import { lazyFont } from '$lib/lazyFont';
-import {
-  fontFamily,
-  fontFamilyRight,
-  menuOpen,
-  showName
-} from '$lib/store.svelte';
+import { fontFamily, fontFamilyRight, showName } from '$lib/store.svelte';
 
 let { fonts }: { fonts: Font[] } = $props();
 
@@ -37,10 +32,8 @@ function slug(family: string) {
               use:lazyFont={font.family}
               class="block w-full cursor-pointer truncate px-4 py-2 text-left"
               aria-pressed={fontFamily.value === font.family}
-              onclick={() => {
-                menuOpen.value = false;
-                fontFamily.value = font.family;
-              }}>{showName.value ? font.family : 'ABC abc 123'}</button>
+              onclick={() => (fontFamily.value = font.family)}
+              >{showName.value ? font.family : 'ABC abc 123'}</button>
           </td>
           <td class="hidden md:table-cell">
             <button
@@ -58,7 +51,7 @@ function slug(family: string) {
           </td>
           <td>
             <div
-              class="btn-group preset-outlined-surface-500 [&>*+*]:border-surface-400-500">
+              class="btn-group preset-outlined-surface-500 [&>*+*]:border-surface-400-600">
               <a
                 class="btn !p-2 !pl-3"
                 href={font.siteUrl}

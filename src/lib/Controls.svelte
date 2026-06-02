@@ -3,7 +3,7 @@ import { showName, fontSize, ligatures } from '$lib/store.svelte';
 </script>
 
 <div
-  class="flex flex-row flex-wrap items-center gap-x-4 gap-y-2 border-b border-surface-200-800 bg-surface-100-800 px-4 py-2">
+  class="flex flex-row flex-wrap items-center gap-x-4 gap-y-2 border-b border-surface-200-800 bg-surface-100-900 px-4 py-2">
   <label class="flex items-center space-x-2">
     <input class="checkbox" type="checkbox" bind:checked={showName.value} />
     <span>Show Name</span>

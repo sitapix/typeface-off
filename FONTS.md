@@ -12,7 +12,7 @@ This app compares open-source fonts. The font catalog comes from **three sources
 | --- | --- | --- | --- |
 | `bunny` | [Bunny Fonts](https://fonts.bunny.net) (privacy-friendly Google Fonts mirror) | one combined `<link>` to `fonts.bunny.net/css?family=…` | the generator (`npm run fonts:generate`) |
 | `fontsource` | [Fontsource](https://fontsource.org) via jsDelivr CDN | inline `@font-face` → jsDelivr **static** woff2 (`cdn.jsdelivr.net/fontsource/fonts/<id>@latest/<subset>-<weight>-<style>.woff2`), built from the font's `faces` — **no per-font stylesheet request** | the generator |
-| `local` | **self-hosted** in `static/fonts/` | inline `@font-face` from its `faces` | hand-edit `src/lib/localFonts.ts` |
+| `local` | **self-hosted** in `static/fonts/` | inline `@font-face` from its `faces` | a line in `scripts/local-fonts.yaml` → `npm run fonts:local` (or hand-edit `src/lib/localFonts.ts`) |
 
 **Why no per-font Fontsource stylesheets?** Loading 80+ `<link>`s in `<head>` is render-blocking and delays first paint by seconds. Instead the generator records a static woff2 URL in each Fontsource font's `faces`, and the layout emits all of them as one inline `<style>` of `@font-face` rules. Result: **one** blocking stylesheet (Bunny), zero Fontsource stylesheet requests, and each woff2 is fetched lazily by the browser only when its font is actually rendered.
 
@@ -52,57 +52,49 @@ interface FontFace {
 
 ## Adding a self-hosted font (no API / Font Squirrel / GitHub release)
 
-This is the path for any OSS font that isn't on Bunny or Fontsource.
+For any OSS font that isn't on Bunny or Fontsource. The easy path is a YAML list —
+just like `extra-fonts.txt` for Google fonts, but local needs a touch more (the
+file + category, which an API would otherwise give us).
 
-1. **Get the file(s).** `.woff2` is best (smallest); `.woff`, `.ttf`, `.otf` also work. From a Font Squirrel @font-face kit, use the `.woff2` inside the ZIP.
+1. **Get the file(s).** `.woff2` is best (smallest); `.woff`, `.ttf`, `.otf` also
+   work. From a Font Squirrel @font-face kit, use the `.woff2` inside the ZIP.
 
-2. **Drop them in `static/fonts/`.** e.g. `static/fonts/MyCoolFont-Regular.woff2`. (Anything in `static/` is served from the site root, so the URL is `/fonts/MyCoolFont-Regular.woff2`.)
+2. **Drop them in `static/fonts/`.** e.g. `static/fonts/MyCoolFont-Regular.woff2`.
 
-3. **Add an entry to `src/lib/localFonts.ts`:**
+3. **Add an entry to `scripts/local-fonts.yaml`:**
 
-   ```ts
-   export const localFonts: Font[] = [
-     {
-       family: 'My Cool Font', // must match the font's real family name
-       category: 'display', // sans | serif | display | script | mono
-       source: 'local',
-       variants: ['regular', '700'],
-       faces: [
-         {
-           src: '/fonts/MyCoolFont-Regular.woff2',
-           weight: '400',
-           style: 'normal'
-         },
-         {
-           src: '/fonts/MyCoolFont-Bold.woff2',
-           weight: '700',
-           style: 'normal'
-         },
-         {
-           src: '/fonts/MyCoolFont-Italic.woff2',
-           weight: '400',
-           style: 'italic'
-         }
-       ],
-       siteUrl: 'https://where-you-got-it.example',
-       downloadUrl: 'https://where-you-got-it.example'
-     }
-   ];
+   ```yaml
+   - family: My Cool Font
+     category: display # sans | serif | display | script | mono
+     files: [MyCoolFont-Regular.woff2, MyCoolFont-Bold.woff2, MyCoolFont-Italic.woff2]
    ```
 
-That's it. The layout turns each `faces` entry into:
+   Weight & style are inferred from each filename (`-Bold` → 700, `-Italic`, etc.;
+   default 400 normal). Options:
 
-```css
-@font-face {
-  font-family: 'My Cool Font';
-  src: url('/fonts/MyCoolFont-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-```
+   - **Variable font** (one file, all weights): add `variable: true`.
+   - **Explicit control** instead of `files`:
+     ```yaml
+     - family: Precise Mono
+       category: mono
+       faces:
+         - { file: Precise.woff2, weight: "400" }
+         - { file: Precise-Bold.woff2, weight: "700" }
+         - { file: Precise-Italic.woff2, weight: "400", style: italic }
+     ```
+   - `url: https://…` sets the Visit/Download link (defaults to the font file).
 
-The font now appears everywhere automatically. (Working example in the repo: **Space Grotesk**, self-hosted from `static/fonts/SpaceGrotesk.ttf` because it's not on Bunny.)
+4. **Run `npm run fonts:local`.** It validates the files exist, infers
+   weights/styles, and writes `src/lib/localFonts.generated.ts`. Missing files or
+   bad categories are reported and skipped. Done — the font joins the Game,
+   Browse, and filters.
+
+(Working example already in the repo: **Space Grotesk**, self-hosted from
+`static/fonts/SpaceGrotesk.ttf` via that YAML file.)
+
+**Advanced / manual:** for anything the YAML can't express, add a full `Font`
+object to `src/lib/localFonts.ts` (hand-maintained, never overwritten; overrides a
+same-named font). See "How many files per font?" below for `faces` details.
 
 ---
 
@@ -152,18 +144,9 @@ Skipped, NOT FOUND on Google Fonts — check spelling (1): Inteer
 
 ## Performance & deploying to GitHub Pages
 
-**Performance.** Local/Fontsource fonts use inline `@font-face`, and the browser
-only downloads a `woff2` when that font is actually rendered — so adding hundreds
-of fonts doesn't slow first paint. On top of that, the long specimen lists
-(Browse table, Game bracket) are **lazy-loaded** via the `lazyFont` action
-(`src/lib/lazyFont.ts`): each specimen only applies its font — and thus only
-fetches its `woff2` — when it scrolls into view. So a 1000-font Browse downloads
-only the dozen rows you can see, plus more as you scroll. Still recommended for a
-big self-hosted library:
+**Performance.** Local/Fontsource fonts use inline `@font-face`, and the browser only downloads a `woff2` when that font is actually rendered — so adding hundreds of fonts doesn't slow first paint. On top of that, the long specimen lists (Browse table, Game bracket) are **lazy-loaded** via the `lazyFont` action (`src/lib/lazyFont.ts`): each specimen only applies its font — and thus only fetches its `woff2` — when it scrolls into view. So a 1000-font Browse downloads only the dozen rows you can see, plus more as you scroll. Still recommended for a big self-hosted library:
 
-- **Ship subset `woff2`, not raw `.ttf`/`.otf`.** A Latin-subset woff2 is ~15–40 KB;
-  a full-unicode TTF can be 200 KB–1 MB. Convert with
-  [`fonttools`](https://github.com/fonttools/fonttools):
+- **Ship subset `woff2`, not raw `.ttf`/`.otf`.** A Latin-subset woff2 is ~15–40 KB; a full-unicode TTF can be 200 KB–1 MB. Convert with [`fonttools`](https://github.com/fonttools/fonttools):
   ```bash
   pip install fonttools brotli
   pyftsubset MyFont.ttf --output-file=MyFont.woff2 --flavor=woff2 \
@@ -172,29 +155,22 @@ big self-hosted library:
 
 ### How many files per font?
 
-- **One is enough.** A single `regular` (400) face displays the font; bold/italic
-  are faux-synthesized by the browser.
-- **For real bold/italic**, add more `faces` entries (each with its own `weight` /
-  `style`) — see the self-hosted example above.
-- **Best: a variable `woff2`** covers every weight (and italic, if it has that
-  axis) in **one file** — set `weight` to the range, e.g. `'100 900'`:
+- **One is enough.** A single `regular` (400) face displays the font; bold/italic are faux-synthesized by the browser.
+- **For real bold/italic**, add more `faces` entries (each with its own `weight` / `style`) — see the self-hosted example above.
+- **Best: a variable `woff2`** covers every weight (and italic, if it has that axis) in **one file** — set `weight` to the range, e.g. `'100 900'`:
   ```ts
-  faces: [{ src: '/fonts/MyVar.woff2', weight: '100 900' }]
+  faces: [{ src: '/fonts/MyVar.woff2', weight: '100 900' }];
   ```
 
 **GitHub Pages.** The app builds static via `@sveltejs/adapter-static`.
 
-- **User/org page (`you.github.io`) or custom domain** → root path, build normally:
-  `npm run build`.
+- **User/org page (`you.github.io`) or custom domain** → root path, build normally: `npm run build`.
 - **Project page (`you.github.io/REPO`)** → it's served under `/REPO`, so build with:
   ```bash
   BASE_PATH=/REPO npm run build
   ```
-  This is wired in `svelte.config.js` (`paths.base`), and local-font `@font-face`
-  URLs are base-aware — so a `local` font's `src` **must be root-relative**
-  (`/fonts/MyFont.woff2`), and it gets the `/REPO` prefix automatically.
-- A `static/.nojekyll` file is included so GitHub Pages serves SvelteKit's `_app/`
-  directory.
+  This is wired in `svelte.config.js` (`paths.base`), and local-font `@font-face` URLs are base-aware — so a `local` font's `src` **must be root-relative** (`/fonts/MyFont.woff2`), and it gets the `/REPO` prefix automatically.
+- A `static/.nojekyll` file is included so GitHub Pages serves SvelteKit's `_app/` directory.
 
 ---
 

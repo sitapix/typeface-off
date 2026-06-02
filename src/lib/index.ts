@@ -16,14 +16,23 @@ import FontPreview from './FontPreview.svelte';
 import FontDuel from './FontDuel.svelte';
 import generatedFonts from './fonts';
 import { localFonts } from './localFonts';
+import { localGeneratedFonts } from './localFonts.generated';
 
 import { createGame, createConfetti } from './game';
 
 // Merge self-hosted (local) fonts with the generated Bunny/Fontsource set.
 // Local entries take precedence over a same-named generated font.
-const localFamilies = new Set(localFonts.map((f) => f.family));
-const fonts = [
+// Precedence: manual localFonts > YAML-generated local fonts > Bunny/Fontsource
+// catalog. A self-hosted family overrides a same-named catalog font.
+const localAll = [
   ...localFonts,
+  ...localGeneratedFonts.filter(
+    (g) => !localFonts.some((m) => m.family === g.family)
+  )
+];
+const localFamilies = new Set(localAll.map((f) => f.family));
+const fonts = [
+  ...localAll,
   ...generatedFonts.filter((f) => !localFamilies.has(f.family))
 ];
 

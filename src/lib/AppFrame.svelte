@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { Snippet } from 'svelte';
+import { menuOpen } from '$lib/store.svelte';
 
 // Layout shell replacing Skeleton v2's <AppShell> (removed in v3/v4):
 // sticky app header, optional left sidebar (the Sidebar component handles its
@@ -36,7 +37,16 @@ let {
       <div class="relative w-0 shrink-0 lg:w-[22rem]">{@render sidebar()}</div>
     {/if}
 
-    <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+    <!-- When the mobile drawer is open, the main column is pushed to the right
+         (seam with the drawer) instead of being hidden behind a backdrop, so the
+         preview stays partly visible and updates live as you pick fonts. The
+         translate must match the drawer width in Sidebar.svelte (70vw / sm:24rem)
+         and resets on lg, where the sidebar is static. -->
+    <div
+      class="flex min-w-0 flex-1 flex-col overflow-hidden transition-transform duration-200 ease-out {sidebar &&
+      menuOpen.value
+        ? 'translate-x-[70vw] sm:translate-x-96 lg:translate-x-0'
+        : ''}">
       {#if pageHeader}
         <div class="z-20 shrink-0 {pageHeaderClass}">
           {@render pageHeader()}
