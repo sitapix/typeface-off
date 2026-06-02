@@ -18,8 +18,9 @@ import Header from './Header.svelte';
 import PlayerBadge from './PlayerBadge.svelte';
 import WinnerBadge from './WinnerBadge.svelte';
 import MonacoEditor from './MonacoEditor.svelte';
+import NotePreview from './NotePreview.svelte';
 import { monacoThemeNames, monacoThemes } from './monacoThemes';
-import codingFonts from './codingFonts';
+import fonts from './fonts';
 
 import { createGame, createConfetti } from './game';
 
@@ -44,12 +45,13 @@ export {
   Header,
   PlayerBadge,
   WinnerBadge,
+  NotePreview,
   /* Monaco Editor Related */
   MonacoEditor,
   monacoThemeNames,
   monacoThemes,
-  /* Coding Fonts Metadata */
-  codingFonts,
+  /* Fonts Metadata */
+  fonts,
   /* Tournament Game Factory */
   createGame,
   createConfetti
