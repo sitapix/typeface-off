@@ -1,72 +1,22 @@
+/* Curated regular OSS fonts (Google Fonts) */
 @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bebas+Neue&family=Bitter&family=Caveat&family=Comfortaa&family=DM+Sans&family=Dancing+Script&family=EB+Garamond&family=Inter&family=Lato&family=Libre+Baskerville&family=Lobster&family=Lora&family=Manrope&family=Merriweather&family=Montserrat&family=Nunito&family=Open+Sans&family=Oswald&family=PT+Serif&family=Pacifico&family=Playfair+Display&family=Poppins&family=Raleway&family=Roboto&family=Source+Serif+4&family=Work+Sans&display=swap');
-@import url('/src/lib/css/styles.css');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton/themes/cerberus';
+@import '@skeletonlabs/skeleton/themes/wintry';
+@source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
+@import './lib/css/styles.css';
 
-/* Load Hack */
-@font-face {
-  font-family: 'Hack';
-  font-style: normal;
-  font-weight: 400;
-  src: url('https://cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/fonts/hack-regular-subset.woff2')
-    format('woff2');
-}
-@font-face {
-  font-family: 'Hack';
-  font-style: italic;
-  font-weight: 400;
-  src: url('https://cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/fonts/hack-italic-subset.woff2')
-    format('woff2');
-}
-
-:focus,
-:focus-visible {
-  @apply outline-0;
-}
+/* Dark mode driven by a `.dark` class on <html> (set by ThemeSwitch) */
+@custom-variant dark (&:where(.dark, .dark *));
 
 html,
 body {
-  @apply h-full overflow-hidden;
+  height: 100%;
 }
 
-table tr td {
-  @apply !align-middle;
-}
-
-.hide {
-  @apply hidden lg:flex;
-}
-
-/* seafoam theme */
-@font-face {
-  font-family: 'Playfair Display';
-  src: url('/fonts/PlayfairDisplay-Italic.ttf');
-  font-display: swap;
-  font-style: italic;
-}
-
-/* modern theme */
-/* gold-nouveau theme */
-@font-face {
-  font-family: 'Quicksand';
-  src: url('/fonts/Quicksand.ttf');
-  font-display: swap;
-  font-weight: 700;
-}
-
-/* rocket theme */
-@font-face {
-  font-family: 'Space Grotesk';
-  src: url('/fonts/SpaceGrotesk.ttf');
-  font-display: swap;
-  font-weight: 700;
-}
-
-/* vintage theme */
-@font-face {
-  font-family: 'Abril Fatface';
-  src: url('/fonts/AbrilFatface.ttf');
-  font-display: swap;
+body {
+  overflow: hidden;
 }
