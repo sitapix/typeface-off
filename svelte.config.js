@@ -1,5 +1,5 @@
 import adapter from '@sveltejs/adapter-static';
-import { vitePreprocess } from '@sveltejs/kit/vite';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {
@@ -7,6 +7,16 @@ export default {
   // for more information about preprocessors
   preprocess: vitePreprocess(),
   kit: {
+    // For a GitHub Pages *project* site (you.github.io/REPO) build with
+    // BASE_PATH=/REPO so asset + self-hosted-font URLs resolve. Defaults to ''
+    // (root): correct for a user/org page or a custom domain.
+    paths: { base: process.env.BASE_PATH || '' },
+    prerender: {
+      // The note specimen (NotePreview.svelte) has decorative in-prose links
+      // (#kola, #caffeine) with no real target — they exist to show how a
+      // hyperlink renders in body text. Warn instead of failing the build.
+      handleMissingId: 'warn'
+    },
     adapter: adapter({
       // default options are shown. On some platforms
       // these options are set automatically — see below
