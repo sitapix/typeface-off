@@ -80,7 +80,8 @@ const ligCss = $derived(
       <pre class="ln-gutter" aria-hidden="true">{lineNumbers}</pre>
       <pre class="code-pre text-[#d4d4d4]"><code
           class="hljs"
-          style="font-family: '{fontFamily}', monospace; {ligCss}">{@html highlighted}</code></pre>
+          style="font-family: '{fontFamily}', monospace; {ligCss}"
+          >{@html highlighted}</code></pre>
     </div>
   </div>
 </div>
