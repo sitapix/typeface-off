@@ -72,7 +72,9 @@ describe('seedBracket', () => {
     expect(order[0]).toBe(1); // top seed leads
     expect(order[1]).toBe(8); // …vs the lowest seed in round 1
     expect(order).toHaveLength(8);
-    expect([...order].sort((a, b) => a - b)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(
+      order.filter((x): x is number => x !== null).sort((a, b) => a - b)
+    ).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
   });
 
   it('keeps seeds 1 and 2 in opposite halves (meet only in the final)', () => {
@@ -82,10 +84,19 @@ describe('seedBracket', () => {
     expect(order.slice(half)).toContain(2);
   });
 
-  it('returns a copy unchanged when length is not a power of two', () => {
-    const input = [1, 2, 3, 4, 5, 6];
-    expect(seedBracket(input)).toEqual(input);
-    expect(seedBracket(input)).not.toBe(input);
+  it('pads a non-power-of-two roster to the next power of two with byes', () => {
+    const order = seedBracket([1, 2, 3, 4, 5, 6]); // → bracket of 8
+    expect(order).toHaveLength(8);
+    expect(order.filter((x) => x === null)).toHaveLength(2); // 2 byes
+    expect(order.filter((x): x is number => x !== null).sort((a, b) => a - b)).toEqual([
+      1, 2, 3, 4, 5, 6
+    ]);
+  });
+
+  it('gives the top seed a bye (seed 1 paired with a null)', () => {
+    const order = seedBracket([1, 2, 3, 4, 5, 6]);
+    expect(order[0]).toBe(1);
+    expect(order[1]).toBeNull();
   });
 
   it('seeded play (shuffle off) still reaches one champion', () => {
@@ -95,6 +106,18 @@ describe('seedBracket', () => {
     let guard = 0;
     while (b?.players?.length && guard++ < 5000) b = game.setWinner(b.players[0]);
     expect(b?.winner).toBeTruthy();
+  });
+
+  it('a 24-font seeded roster crowns a champion in exactly 23 picks', () => {
+    const game = createGame(seedBracket(makeFonts(24)), { shuffle: false });
+    let b: any = game.startGame();
+    let picks = 0;
+    while (b?.players?.length && picks < 5000) {
+      b = game.setWinner(b.players[0]);
+      picks++;
+    }
+    expect(b?.winner).toBeTruthy();
+    expect(picks).toBe(23); // byes don't cost a tap
   });
 });
 

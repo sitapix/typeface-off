@@ -97,7 +97,7 @@ function handleKeydown(event: KeyboardEvent) {
 // (see featured.ts), else the top-N most popular as a fallback. Kept short so
 // the quiz is a quick 4-round / 15-pick bracket; the full catalog still powers
 // Browse. Bump to lengthen the fallback.
-const BRACKET_SIZE = 16;
+const BRACKET_SIZE = 24;
 
 function startGame() {
   const pool = data.fonts.filter((font) => font.category === selectedCategory);
@@ -108,9 +108,12 @@ function startGame() {
         .map((name) => pool.find((f) => f.family === name))
         .filter(Boolean) as Font[])
     : pool.slice(0, BRACKET_SIZE);
-  // Seed it (1v16/2v15…) so brackets are comparable and favorites meet late.
+  // poolSize counts real contestants (roster − 1 = taps); seedBracket may pad
+  // with null byes for a non-power-of-two roster, so measure before seeding.
+  poolSize = roster.length;
+  // Seed it (1vN/2v(N-1)…, top seeds get byes) so brackets are comparable and
+  // favorites meet only late.
   const players = seedBracket(roster);
-  poolSize = players.length;
   game = createGame(players, { shuffle: false });
   currentBracket = game.startGame();
 }

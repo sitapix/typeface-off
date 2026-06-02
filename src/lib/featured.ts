@@ -30,7 +30,15 @@ export const FEATURED: Partial<Record<FontCategory, string[]>> = {
     'Anonymous Pro',
     'VT323',
     'Comic Mono',
-    'Red Hat Mono'
+    'Red Hat Mono',
+    'iA Writer Mono',
+    'DM Mono',
+    'Ubuntu Mono',
+    'Monaspace Argon',
+    'Iosevka Curly',
+    'Courier Prime',
+    'Overpass Mono',
+    'Mononoki'
   ],
   sans: [
     'Inter',
@@ -48,6 +56,14 @@ export const FEATURED: Partial<Record<FontCategory, string[]>> = {
     'Uncut Sans',
     'Open Runde',
     'Oswald',
-    'Bebas Neue'
+    'Bebas Neue',
+    'Montserrat',
+    'Poppins',
+    'Archivo',
+    'IBM Plex Sans',
+    'Rubik',
+    'Hauora Sans',
+    'Pretendard',
+    'Quicksand'
   ]
 };

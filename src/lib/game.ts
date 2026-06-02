@@ -51,10 +51,10 @@ export function createConfetti(
 }
 
 export function createGame(
-  initialPlayers: Font[],
+  initialPlayers: (Font | null)[],
   options: { shuffle?: boolean } = {}
 ): Tournament {
-  function shuffleArray(array: Font[]) {
+  function shuffleArray(array: (Font | null)[]) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
@@ -102,7 +102,7 @@ export function createGame(
 
     createNextRound() {
       this.currentRound++;
-      const winners: Font[] =
+      const winners: (Font | null)[] =
         this.rounds.length > 0
           ? this.rounds[this.currentRound - 1]
               .filter((matchup) => matchup.winner)
@@ -111,7 +111,10 @@ export function createGame(
 
       for (let i = 0; i < winners.length; i += 2) {
         this.rounds[this.currentRound] = this.rounds[this.currentRound] || [];
-        const players = winners.slice(i, i + 2);
+        // A `null` slot is a bye: the real player advances with no opponent
+        // (used to seed a non-power-of-two roster — top seeds get the byes).
+        const players = winners.slice(i, i + 2).filter(Boolean) as Font[];
+        if (players.length === 0) continue;
         if (players.length === 1) {
           this.rounds[this.currentRound].push({ players, winner: players[0] });
         } else {
@@ -134,17 +137,22 @@ export function createGame(
 
 /**
  * Reorder a ranked list (index 0 = top seed) into standard single-elimination
- * bracket order, so that pairing the result sequentially (0v1, 2v3, …) yields
- * seed 1 vs last, with seeds 1 and 2 kept in opposite halves — favorites only
- * meet in later rounds. Requires a power-of-two length; otherwise returns a
- * copy unchanged. Pure — unit tested.
+ * bracket order, so that pairing the result sequentially (0v1, 2v3, …) puts
+ * seed 1 vs the last seed and keeps seeds 1 and 2 in opposite halves —
+ * favorites only meet in later rounds.
+ *
+ * Pads up to the next power of two with `null` byes, placed (per standard
+ * seeding) opposite the TOP seeds, so the strongest get a free first round.
+ * A power-of-two input yields no byes. Pure — unit tested.
  */
-export function seedBracket<T>(seeds: T[]): T[] {
+export function seedBracket<T>(seeds: T[]): (T | null)[] {
   const n = seeds.length;
-  if (n < 2 || (n & (n - 1)) !== 0) return seeds.slice();
+  if (n < 2) return seeds.slice();
+  let size = 1;
+  while (size < n) size *= 2; // next power of two
   let order = [0];
-  for (let size = 1; size < n; size *= 2) {
-    const total = size * 2 - 1;
+  for (let s = 1; s < size; s *= 2) {
+    const total = s * 2 - 1;
     const next: number[] = [];
     for (const p of order) {
       next.push(p);
@@ -152,7 +160,7 @@ export function seedBracket<T>(seeds: T[]): T[] {
     }
     order = next;
   }
-  return order.map((i) => seeds[i]);
+  return order.map((i) => (i < n ? seeds[i] : null));
 }
 
 export interface PlacementTier {
