@@ -38,7 +38,10 @@ export const FEATURED: Partial<Record<FontCategory, string[]>> = {
     'Iosevka Curly',
     'Courier Prime',
     'Overpass Mono',
-    'Mononoki'
+    'Mononoki',
+    'Departure Mono',
+    'Victor Mono',
+    'Serious Shanns'
   ],
   sans: [
     'Inter',
@@ -64,7 +67,12 @@ export const FEATURED: Partial<Record<FontCategory, string[]>> = {
     'Rubik',
     'Hauora Sans',
     'Pretendard',
-    'Quicksand'
+    'Quicksand',
+    'LINE Seed Sans',
+    'Nimbus Sans L',
+    'Karrik',
+    'Techna Sans',
+    'Hanken Round'
   ],
   serif: [
     'Playfair Display',
