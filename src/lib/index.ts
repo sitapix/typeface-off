@@ -1,41 +1,24 @@
-import IconMenu from 'svelte-tabler/Menu2.svelte';
-import IconColorSwatch from 'svelte-tabler/ColorSwatch.svelte';
-import IconDownload from 'svelte-tabler/Download.svelte';
-import IconExternalLink from 'svelte-tabler/ExternalLink.svelte';
-import IconMaximize from 'svelte-tabler/Maximize.svelte';
-import IconBoxAlignLeftFilled from 'svelte-tabler/BoxAlignLeftFilled.svelte';
-import IconBoxAlignRightFilled from 'svelte-tabler/BoxAlignRightFilled.svelte';
-import IconCompare from 'svelte-tabler/Columns2.svelte';
-
-import ThemeSwitch from './ThemeSwitch.svelte';
 import Logo from './Logo.svelte';
+import Icon from './Icon.svelte';
+import ThemeSwitch from './ThemeSwitch.svelte';
 import Controls from './Controls.svelte';
 import SearchBar from './SearchBar.svelte';
 import FontTable from './FontTable.svelte';
 import FontHeader from './FontHeader.svelte';
 import Sidebar from './Sidebar.svelte';
 import Header from './Header.svelte';
+import AppFrame from './AppFrame.svelte';
 import PlayerBadge from './PlayerBadge.svelte';
 import WinnerBadge from './WinnerBadge.svelte';
-import MonacoEditor from './MonacoEditor.svelte';
 import NotePreview from './NotePreview.svelte';
-import { monacoThemeNames, monacoThemes } from './monacoThemes';
 import fonts from './fonts';
 
 import { createGame, createConfetti } from './game';
 
 export {
-  /* Icon Components */
-  IconMenu,
-  IconColorSwatch,
-  IconDownload,
-  IconExternalLink,
-  IconMaximize,
-  IconBoxAlignLeftFilled,
-  IconBoxAlignRightFilled,
-  IconCompare,
   /* Components */
   Logo,
+  Icon,
   ThemeSwitch,
   Controls,
   SearchBar,
@@ -43,13 +26,10 @@ export {
   FontTable,
   Sidebar,
   Header,
+  AppFrame,
   PlayerBadge,
   WinnerBadge,
   NotePreview,
-  /* Monaco Editor Related */
-  MonacoEditor,
-  monacoThemeNames,
-  monacoThemes,
   /* Fonts Metadata */
   fonts,
   /* Tournament Game Factory */

@@ -1,5 +1,4 @@
 <script lang="ts">
-import { AppShell } from '@skeletonlabs/skeleton';
 import {
   Header,
   SearchBar,
@@ -7,74 +6,89 @@ import {
   Sidebar,
   FontHeader,
   Controls,
-  MonacoEditor
+  AppFrame,
+  NotePreview
 } from '$lib';
 import {
-  selectedTheme,
   fontSize,
   fontFamily,
   fontFamilyRight,
-  fontLigatures,
   searchTerm
-} from '$lib/store';
+} from '$lib/store.svelte';
 
-export let data;
-let { fonts } = data;
+let { data } = $props();
+
+let selectedCategory = $state<'all' | 'sans' | 'serif' | 'display'>('all');
+
+const categories = [
+  { id: 'all', label: 'All' },
+  { id: 'sans', label: 'Sans' },
+  { id: 'serif', label: 'Serif' },
+  { id: 'display', label: 'Display' }
+] as const;
+
+const fonts = $derived(
+  data.fonts.filter((font) => {
+    const matchesSearch =
+      !searchTerm.value ||
+      font.family.toLowerCase().includes(searchTerm.value.toLowerCase());
+    const matchesCategory =
+      selectedCategory === 'all' || font.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  })
+);
 
 function getFontByFamilyName(familyName: string) {
-  return fonts.find((font) => font.family === familyName);
-}
-
-$: if ($searchTerm) {
-  fonts = data.fonts.filter((font) =>
-    font.family.toLowerCase().includes($searchTerm.toLowerCase())
-  );
-} else {
-  fonts = data.fonts;
+  return data.fonts.find((font) => font.family === familyName);
 }
 </script>
 
-<AppShell
-  slotSidebarLeft="flex relative resize-x min-w-0 w-0 lg:w-[30rem] lg:min-w-[16rem] !overflow-visible"
-  slotHeader="z-30">
-  <svelte:fragment slot="header">
+<AppFrame>
+  {#snippet header()}
     <Header />
-  </svelte:fragment>
-  <svelte:fragment slot="sidebarLeft">
+  {/snippet}
+
+  {#snippet sidebar()}
     <Sidebar>
       <SearchBar />
-      <FontTable fonts="{fonts}" />
+      <div
+        class="btn-group preset-outlined-surface-500 my-2 w-full [&>*+*]:border-surface-400-500">
+        {#each categories as category (category.id)}
+          <button
+            class="btn btn-sm {selectedCategory === category.id
+              ? 'preset-filled-primary-500'
+              : ''}"
+            onclick={() => (selectedCategory = category.id)}>{category.label}</button>
+        {/each}
+      </div>
+      <FontTable {fonts} />
     </Sidebar>
-  </svelte:fragment>
-  <svelte:fragment slot="pageHeader">
+  {/snippet}
+
+  {#snippet pageHeader()}
     <Controls />
-  </svelte:fragment>
+  {/snippet}
+
   <div
-    class="bg-surface-50-900-token grid h-full grid-cols-1 gap-4 p-4 md:grid-cols-2">
-    <div class="flex flex-col gap-4" class:col-span-2="{!$fontFamilyRight}">
-      <FontHeader font="{getFontByFamilyName($fontFamily)}" />
-      <MonacoEditor
-        class="overflow-hidden rounded-container-token"
-        fontSize="{$fontSize}"
-        fontFamily="{$fontFamily}"
-        fontLigatures="{$fontLigatures}"
-        themeName="{$selectedTheme}" />
+    class="grid h-full grid-cols-1 gap-4 bg-surface-50-950 p-4 md:grid-cols-2">
+    <div class="flex flex-col gap-4" class:col-span-2={!fontFamilyRight.value}>
+      <FontHeader font={getFontByFamilyName(fontFamily.value)} />
+      <NotePreview
+        class="overflow-hidden rounded-lg"
+        fontSize={fontSize.value}
+        fontFamily={fontFamily.value} />
     </div>
-    {#if $fontFamilyRight}
+    {#if fontFamilyRight.value}
       <div class="relative hidden flex-col gap-4 md:flex">
-        <FontHeader font="{getFontByFamilyName($fontFamilyRight)}" />
-        <MonacoEditor
-          class="overflow-hidden rounded-container-token"
-          fontSize="{$fontSize}"
-          fontFamily="{$fontFamilyRight}"
-          fontLigatures="{$fontLigatures}"
-          themeName="{$selectedTheme}" />
+        <FontHeader font={getFontByFamilyName(fontFamilyRight.value)} />
+        <NotePreview
+          class="overflow-hidden rounded-lg"
+          fontSize={fontSize.value}
+          fontFamily={fontFamilyRight.value} />
         <button
-          class="variant-filled-surface btn absolute bottom-4 self-center"
-          on:click="{() => {
-            $fontFamilyRight = '';
-          }}">Clear Comparison</button>
+          class="btn preset-filled-surface-500 absolute bottom-4 self-center"
+          onclick={() => (fontFamilyRight.value = '')}>Clear Comparison</button>
       </div>
     {/if}
   </div>
-</AppShell>
+</AppFrame>

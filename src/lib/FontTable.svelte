@@ -1,17 +1,22 @@
 <script lang="ts">
-import { fontFamily, fontFamilyRight, menuOpen, showName } from '$lib/store';
+import type { Font } from '$lib/fonts';
+import { Icon } from '$lib';
 import {
-  IconDownload,
-  IconExternalLink,
-  IconMaximize,
-  IconBoxAlignRightFilled
-} from '$lib';
+  fontFamily,
+  fontFamilyRight,
+  menuOpen,
+  showName
+} from '$lib/store.svelte';
 
-export let fonts;
+let { fonts }: { fonts: Font[] } = $props();
+
+function slug(family: string) {
+  return encodeURIComponent(family.replace(/\s+/g, ''));
+}
 </script>
 
-<div class="table-container whitespace-nowrap">
-  <table class="table table-interactive table-hover table-compact">
+<div class="table-wrap whitespace-nowrap">
+  <table class="table">
     <thead>
       <tr>
         <th>Font Family</th>
@@ -19,42 +24,45 @@ export let fonts;
         <th>Actions</th>
       </tr>
     </thead>
-    <tbody>
-      {#each fonts as font (font)}
+    <tbody class="[&>tr]:cursor-pointer">
+      {#each fonts as font (font.family)}
         <tr
-          on:click="{() => {
-            $menuOpen = false;
-            $fontFamily = font.family;
-          }}"
-          class:!variant-ghost-primary="{$fontFamily === font.family}">
+          class="hover:preset-tonal-surface {fontFamily.value === font.family
+            ? 'preset-tonal-primary'
+            : ''}"
+          onclick={() => {
+            menuOpen.value = false;
+            fontFamily.value = font.family;
+          }}>
           <td
             style="font-family: '{font.family}'"
             class="max-w-[9rem] truncate !whitespace-nowrap"
-            >{$showName ? font.family : 'ABC abc 123'}</td>
+            >{showName.value ? font.family : 'ABC abc 123'}</td>
           <td class="hidden md:table-cell">
             <button
-              class="variant-ringed-surface btn btn-sm"
-              class:!variant-ghost-primary="{font.family === $fontFamilyRight}"
-              on:click|stopPropagation="{() => {
-                $fontFamilyRight = font.family;
-              }}">
-              <IconBoxAlignRightFilled size="16" />
+              class="btn btn-sm preset-outlined-surface-500 {font.family ===
+              fontFamilyRight.value
+                ? 'preset-tonal-primary'
+                : ''}"
+              onclick={(e) => {
+                e.stopPropagation();
+                fontFamilyRight.value = font.family;
+              }}>
+              <Icon name="compare" size={16} />
               <span>Compare</span>
             </button>
           </td>
           <td>
             <div
-              class="variant-ringed-surface btn-group [&>*+*]:border-surface-400-500-token">
-              <a href="{font?.siteUrl}" target="_blank" class="!p-2 !pl-3">
-                <IconExternalLink size="16" />
+              class="btn-group preset-outlined-surface-500 [&>*+*]:border-surface-400-500">
+              <a class="btn !p-2 !pl-3" href={font.siteUrl} target="_blank">
+                <Icon name="external" size={16} />
               </a>
-              <a href="{font?.downloadUrl}" class="!p-2">
-                <IconDownload size="16" />
+              <a class="btn !p-2" href={font.downloadUrl}>
+                <Icon name="download" size={16} />
               </a>
-              <a
-                href="/{encodeURIComponent(font.family.replace(/\s+/g, ''))}"
-                class="!p-2 !pr-3">
-                <IconMaximize size="16" />
+              <a class="btn !p-2 !pr-3" href="/{slug(font.family)}">
+                <Icon name="maximize" size={16} />
               </a>
             </div>
           </td>
@@ -64,7 +72,7 @@ export let fonts;
     <tfoot>
       <tr>
         <th colspan="1">Total</th>
-        <td colspan="2">{`${fonts.length} fonts`}</td>
+        <td colspan="2">{fonts.length} fonts</td>
       </tr>
     </tfoot>
   </table>

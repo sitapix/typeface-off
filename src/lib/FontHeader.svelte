@@ -1,26 +1,32 @@
 <script lang="ts">
-import { IconDownload, IconExternalLink, IconMaximize } from '$lib';
-import { showName } from '$lib/store';
-export let font: any;
+import type { Font } from '$lib/fonts';
+import { Icon } from '$lib';
+import { showName } from '$lib/store.svelte';
+
+let { font }: { font?: Font } = $props();
+
+const slug = $derived(
+  font ? encodeURIComponent(font.family.replace(/\s+/g, '')) : ''
+);
 </script>
 
-{#if $showName}
+{#if showName.value && font}
   <div class="flex flex-row items-center justify-between">
     <a
-      href="/{encodeURIComponent(font.family.replace(/\s+/g, ''))}"
+      href="/{slug}"
       class="h3 truncate whitespace-nowrap hover:underline">{font.family}</a>
     <div
-      class="variant-ringed-surface btn-group [&>*+*]:border-surface-400-500-token">
-      <a href="{font.siteUrl}" target="_blank">
-        <IconExternalLink size="24" />
+      class="btn-group preset-outlined-surface-500 [&>*+*]:border-surface-400-500">
+      <a class="btn" href={font.siteUrl} target="_blank">
+        <Icon name="external" size={24} />
         <span class="hidden 2xl:block">Visit {font.family}</span>
       </a>
-      <a href="{font.downloadUrl}">
-        <IconDownload size="24" />
+      <a class="btn" href={font.downloadUrl}>
+        <Icon name="download" size={24} />
         <span class="hidden 2xl:block">Download {font.family}</span>
       </a>
-      <a href="/{encodeURIComponent(font.family.replace(/\s+/g, ''))}">
-        <IconMaximize size="24" />
+      <a class="btn" href="/{slug}">
+        <Icon name="maximize" size={24} />
       </a>
     </div>
   </div>

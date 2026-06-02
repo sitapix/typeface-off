@@ -1,4 +1,9 @@
-<div class="winner-candidate variant-ghost-primary overflow-hidden rounded">
+<script lang="ts">
+import type { Snippet } from 'svelte';
+let { children }: { children?: Snippet } = $props();
+</script>
+
+<div class="winner-candidate preset-tonal-primary overflow-hidden rounded">
   <div class="label-winner items-baseline">
     <svg
       width="15"
@@ -44,7 +49,7 @@
         fill="black"></path>
     </svg>
   </div>
-  <div class="font-name-winner"><slot /></div>
+  <div class="font-name-winner">{@render children?.()}</div>
 </div>
 <div class="left-dot-winner"></div>
 <div class="left-line-winner"></div>

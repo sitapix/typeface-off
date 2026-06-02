@@ -1,6 +1,9 @@
 <script lang="ts">
-export let fontFamily = 'Inter';
-export let fontSize = 20;
+let {
+  fontFamily = 'Inter',
+  fontSize = 20,
+  class: className = ''
+}: { fontFamily?: string; fontSize?: number; class?: string } = $props();
 
 const pangram = 'The quick brown fox jumps over the lazy dog.';
 const paragraph =
@@ -9,11 +12,11 @@ const glyphs = '0123456789  .,;:!?‘’“”&@#%*()';
 </script>
 
 <div
-  class="bg-surface-50-900-token border-surface-300-600-token {$$props.class} flex h-full w-full flex-col overflow-hidden rounded-container-token border shadow-lg"
+  class="flex h-full w-full flex-col overflow-hidden rounded-lg border border-surface-300-700 bg-surface-50-950 shadow-lg {className}"
   style="font-family: '{fontFamily}', sans-serif;">
   <!-- note chrome -->
   <div
-    class="border-surface-300-600-token flex items-center justify-between border-b px-5 py-3">
+    class="flex items-center justify-between border-b border-surface-300-700 px-5 py-3">
     <span class="text-lg opacity-90">Quick note</span>
     <span class="text-sm opacity-50">Edited just now · Draft</span>
   </div>

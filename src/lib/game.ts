@@ -1,13 +1,20 @@
 import confetti from 'canvas-confetti';
+import type { Font } from './fonts';
 
-export function createConfetti(size = 'big', position = { x: 0.5, y: 0.5 }) {
-  const options = {
+export interface Matchup {
+  players: Font[];
+  winner: Font | null;
+}
+type Round = Matchup[];
+
+export function createConfetti(
+  size: 'big' | 'small' = 'big',
+  position = { x: 0.5, y: 0.5 }
+) {
+  const options: confetti.Options = {
     particleCount: 400,
     spread: 200,
-    origin: {
-      x: position.x,
-      y: position.y
-    }
+    origin: { x: position.x, y: position.y }
   };
 
   if (size === 'small') {
@@ -16,14 +23,14 @@ export function createConfetti(size = 'big', position = { x: 0.5, y: 0.5 }) {
     options.startVelocity = 20;
   }
 
-  confetti.create(document.getElementById('canvas'), {
-    resize: true,
-    useWorker: true
-  })(options);
+  const canvas = document.getElementById('canvas') as HTMLCanvasElement | null;
+  if (!canvas) return;
+
+  confetti.create(canvas, { resize: true, useWorker: true })(options);
 }
 
-export function createGame(initialPlayers) {
-  function shuffleArray(array) {
+export function createGame(initialPlayers: Font[]) {
+  function shuffleArray(array: Font[]) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
@@ -33,11 +40,11 @@ export function createGame(initialPlayers) {
   shuffleArray(initialPlayers);
 
   const tournament = {
-    rounds: [],
+    rounds: [] as Round[],
     currentRound: -1,
-    finalRound: null,
+    finalRound: null as number | null,
 
-    startGame: function () {
+    startGame(): Matchup | { winner: Font } | undefined {
       const nextMatchup = this.getNextMatchup();
       if (!nextMatchup) {
         this.createNextRound();
@@ -46,13 +53,11 @@ export function createGame(initialPlayers) {
       return nextMatchup;
     },
 
-    setWinner: function (selectedPlayer) {
+    setWinner(selectedPlayer: Font): Matchup | { winner: Font } | undefined {
       const matchup = this.getNextMatchup();
       if (
         matchup &&
-        matchup.players.find(
-          (player) => player.family === selectedPlayer.family
-        )
+        matchup.players.find((player) => player.family === selectedPlayer.family)
       ) {
         matchup.winner = selectedPlayer;
 
@@ -65,20 +70,20 @@ export function createGame(initialPlayers) {
         return {
           winner: matchup.players.find(
             (player) => player.family === selectedPlayer.family
-          )
+          ) as Font
         };
       } else {
         console.error('Invalid winner or no available matchup.');
       }
     },
 
-    createNextRound: function () {
+    createNextRound() {
       this.currentRound++;
-      const winners =
+      const winners: Font[] =
         this.rounds.length > 0
           ? this.rounds[this.currentRound - 1]
               .filter((matchup) => matchup.winner)
-              .map((matchup) => matchup.winner)
+              .map((matchup) => matchup.winner as Font)
           : initialPlayers;
 
       for (let i = 0; i < winners.length; i += 2) {
@@ -86,19 +91,19 @@ export function createGame(initialPlayers) {
         const players = winners.slice(i, i + 2);
         if (players.length === 1) {
           this.rounds[this.currentRound].push({
-            players: winners.slice(i, i + 2),
+            players,
             winner: players[0]
           });
         } else {
           this.rounds[this.currentRound].push({
-            players: winners.slice(i, i + 2),
+            players,
             winner: null
           });
         }
       }
     },
 
-    getNextMatchup: function () {
+    getNextMatchup(): Matchup | undefined {
       const currentRoundMatches = this.rounds[this.currentRound];
       return (
         currentRoundMatches &&
