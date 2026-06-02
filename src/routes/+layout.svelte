@@ -39,6 +39,12 @@ const faceCss = buildFontFaceCss(fonts, base);
     href="https://cdn.jsdelivr.net"
     crossorigin="anonymous" />
   <link rel="stylesheet" href={bunnyHref} />
+  <!-- Wordmark face. The combined sheet above loads only weight 400, so the
+       logo's display weight (700) is requested explicitly to avoid faux-bold.
+       Keep this family in sync with Logo.svelte. -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.bunny.net/css?family=Newsreader:700&display=swap" />
   {#if faceCss}
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html `<style>${faceCss}</style>`}

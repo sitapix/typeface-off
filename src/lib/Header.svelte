@@ -47,10 +47,6 @@ const norm = (p: string) => p.replace(/\/+$/, '') || '/';
           ? 'preset-tonal-primary'
           : 'hover:preset-tonal-surface'}">{link.label}</a>
     {/each}
-    <a
-      href="https://typogram.co/studio/"
-      class="btn btn-sm hidden hover:preset-tonal-surface md:inline-flex"
-      >Studio</a>
   </nav>
 
   <div class="flex items-center gap-2">
