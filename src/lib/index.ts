@@ -13,9 +13,19 @@ import WinnerBadge from './WinnerBadge.svelte';
 import NotePreview from './NotePreview.svelte';
 import CodePreview from './CodePreview.svelte';
 import FontPreview from './FontPreview.svelte';
-import fonts from './fonts';
+import FontDuel from './FontDuel.svelte';
+import generatedFonts from './fonts';
+import { localFonts } from './localFonts';
 
 import { createGame, createConfetti } from './game';
+
+// Merge self-hosted (local) fonts with the generated Bunny/Fontsource set.
+// Local entries take precedence over a same-named generated font.
+const localFamilies = new Set(localFonts.map((f) => f.family));
+const fonts = [
+  ...localFonts,
+  ...generatedFonts.filter((f) => !localFamilies.has(f.family))
+];
 
 export {
   /* Components */
@@ -34,6 +44,7 @@ export {
   NotePreview,
   CodePreview,
   FontPreview,
+  FontDuel,
   /* Fonts Metadata */
   fonts,
   /* Tournament Game Factory */

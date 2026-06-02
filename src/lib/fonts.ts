@@ -1,5 +1,12 @@
 export type FontCategory = 'sans' | 'serif' | 'display' | 'script' | 'mono';
-export type FontSource = 'bunny' | 'fontsource';
+export type FontSource = 'bunny' | 'fontsource' | 'local';
+
+/** One self-hosted @font-face (for source === 'local'). */
+export interface FontFace {
+  src: string; // path under /static, e.g. '/fonts/MyFont-Regular.woff2'
+  weight?: string; // default '400'
+  style?: string; // default 'normal'
+}
 
 export interface Font {
   family: string;
@@ -7,6 +14,8 @@ export interface Font {
   source: FontSource;
   /** Fontsource slug — present when source === 'fontsource'. */
   id?: string;
+  /** @font-face definitions — present when source === 'local'. */
+  faces?: FontFace[];
   variants: string[];
   siteUrl: string;
   downloadUrl: string;

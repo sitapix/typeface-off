@@ -1,33 +1,52 @@
 <script lang="ts">
+// A "natural" specimen: renders a real encyclopedia-style article (heading,
+// running prose with links, bold, italics, a citation, and a glyph row) inside
+// a browser-window frame — so you judge the font the way you'd actually read it
+// on the web, not as abstract pangram lines.
 let {
   fontFamily = 'Inter',
   fontSize = 20,
   class: className = ''
 }: { fontFamily?: string; fontSize?: number; class?: string } = $props();
-
-const pangram = 'The quick brown fox jumps over the lazy dog.';
-const paragraph =
-  'Sphinx of black quartz, judge my vow. Pack my box with five dozen liquor jugs, then ship it overnight to the waiting crew.';
-const glyphs = '0123456789  .,;:!?‘’“”&@#%*()';
 </script>
 
 <div
-  class="flex h-full w-full flex-col overflow-hidden rounded-lg border border-surface-300-700 bg-surface-50-950 shadow-lg {className}"
-  style="font-family: '{fontFamily}', sans-serif;">
-  <!-- note chrome -->
+  class="article-preview flex h-full w-full flex-col overflow-hidden rounded-lg border border-surface-300-700 bg-surface-50-950 shadow-lg {className}">
+  <!-- browser chrome (neutral UI font, not the specimen) -->
   <div
-    class="flex items-center justify-between border-b border-surface-300-700 px-5 py-3">
-    <span class="text-lg opacity-90">Quick note</span>
-    <span class="text-sm opacity-50">Edited just now · Draft</span>
+    class="flex items-center gap-2 border-b border-surface-300-700 bg-surface-100-800 px-4 py-2">
+    <span class="h-3 w-3 rounded-full bg-[#ff5f56]"></span>
+    <span class="h-3 w-3 rounded-full bg-[#ffbd2e]"></span>
+    <span class="h-3 w-3 rounded-full bg-[#27c93f]"></span>
+    <span class="ml-2 truncate text-sm opacity-60"
+      >en.wikipedia.org › Kola nut</span>
   </div>
 
-  <!-- note body -->
-  <div
-    class="flex flex-1 flex-col gap-4 overflow-auto px-6 py-5 leading-relaxed"
-    style="font-size: {fontSize}px;">
-    <p class="opacity-95" style="font-size: {fontSize * 1.4}px;">Meeting notes</p>
-    <p>{pangram}</p>
-    <p class="opacity-90">{paragraph}</p>
-    <p class="opacity-70" style="font-size: {fontSize * 0.9}px;">{glyphs}</p>
-  </div>
+  <!-- article body (rendered in the specimen font) -->
+  <article
+    class="article-body flex-1 overflow-auto px-6 py-5"
+    style="font-family: '{fontFamily}', sans-serif; font-size: {fontSize}px; line-height: 1.6;">
+    <h1 class="font-bold" style="font-size: {fontSize * 1.9}px; line-height: 1.2;">
+      Kola nut
+    </h1>
+    <p class="mt-3">
+      The <strong class="font-semibold">kola nut</strong> is the seed of certain
+      species of plant of the genus <em class="italic">Cola</em>, native to the
+      tropical <a class="text-primary-600-400 underline" href="#kola">rainforests</a>
+      of Africa. Their <a class="text-primary-600-400 underline" href="#caffeine"
+        >caffeine</a>-containing seeds are used as flavoring in various carbonated
+      soft drinks; the name <em class="italic">cola</em> derives from this use.<sup
+        class="align-super text-[0.7em] text-primary-600-400">[1]</sup>
+    </p>
+    <p class="mt-3 opacity-90">
+      Chewed in West African cultures individually or in a social setting, the nut
+      has a bitter flavor and is offered to guests as a sign of hospitality &amp;
+      friendship — often shared at weddings, funerals, and naming ceremonies.
+    </p>
+    <p
+      class="mt-4 opacity-70"
+      style="font-size: {fontSize * 0.85}px; line-height: 1.5;">
+      0123456789 — ABCDEFG abcdefg .,;:!?‘’“”&amp;@#%*()
+    </p>
+  </article>
 </div>
