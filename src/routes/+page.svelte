@@ -16,7 +16,8 @@ import {
   ResultsCard,
   createGame,
   createConfetti,
-  placeFonts
+  placeFonts,
+  seedBracket
 } from '$lib';
 import type { Tournament, MatchupResult, Matchup } from '$lib/game';
 import type { Font, FontCategory } from '$lib/fonts';
@@ -100,11 +101,11 @@ const BRACKET_SIZE = 16;
 
 function startGame() {
   const pool = data.fonts.filter((font) => font.category === selectedCategory);
-  // Same contestants every time → brackets are comparable across plays.
-  // createGame still shuffles first-round pairings, so the path stays fresh.
-  const players = pool.slice(0, BRACKET_SIZE);
+  // Same contestants AND same pairings every time (top-N by popularity, seeded
+  // 1v16/2v15/…) so brackets are comparable and favorites meet only late.
+  const players = seedBracket(pool.slice(0, BRACKET_SIZE));
   poolSize = players.length;
-  game = createGame(players);
+  game = createGame(players, { shuffle: false });
   currentBracket = game.startGame();
 }
 

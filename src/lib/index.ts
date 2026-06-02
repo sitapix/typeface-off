@@ -25,4 +25,4 @@ export { default as ResultsCard } from './ResultsCard.svelte';
 export { fonts, getFontByFamily } from './fontCatalog';
 
 /* Tournament game factory + ranking */
-export { createGame, createConfetti, placeFonts } from './game';
+export { createGame, createConfetti, placeFonts, seedBracket } from './game';

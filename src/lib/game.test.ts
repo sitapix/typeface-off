@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 // tournament logic can run in Node.
 vi.mock('canvas-confetti', () => ({ default: { create: () => () => {} } }));
 
-import { createGame, placeFonts } from './game';
+import { createGame, placeFonts, seedBracket } from './game';
 import type { Font } from './fonts';
 
 const makeFonts = (n: number): Font[] =>
@@ -65,6 +65,38 @@ function playGame(fonts: Font[]) {
   }
   return game;
 }
+
+describe('seedBracket', () => {
+  it('places seed 1 first and pairs it against the last seed', () => {
+    const order = seedBracket([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(order[0]).toBe(1); // top seed leads
+    expect(order[1]).toBe(8); // …vs the lowest seed in round 1
+    expect(order).toHaveLength(8);
+    expect([...order].sort((a, b) => a - b)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+  });
+
+  it('keeps seeds 1 and 2 in opposite halves (meet only in the final)', () => {
+    const order = seedBracket([1, 2, 3, 4, 5, 6, 7, 8]);
+    const half = order.length / 2;
+    expect(order.slice(0, half)).toContain(1);
+    expect(order.slice(half)).toContain(2);
+  });
+
+  it('returns a copy unchanged when length is not a power of two', () => {
+    const input = [1, 2, 3, 4, 5, 6];
+    expect(seedBracket(input)).toEqual(input);
+    expect(seedBracket(input)).not.toBe(input);
+  });
+
+  it('seeded play (shuffle off) still reaches one champion', () => {
+    const fonts = seedBracket(makeFonts(16));
+    const game = createGame(fonts, { shuffle: false });
+    let b: any = game.startGame();
+    let guard = 0;
+    while (b?.players?.length && guard++ < 5000) b = game.setWinner(b.players[0]);
+    expect(b?.winner).toBeTruthy();
+  });
+});
 
 describe('placeFonts', () => {
   it('returns [] before a champion exists', () => {

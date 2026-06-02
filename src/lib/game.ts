@@ -50,7 +50,10 @@ export function createConfetti(
   confetti.create(canvas, { resize: true, useWorker: true })(options);
 }
 
-export function createGame(initialPlayers: Font[]): Tournament {
+export function createGame(
+  initialPlayers: Font[],
+  options: { shuffle?: boolean } = {}
+): Tournament {
   function shuffleArray(array: Font[]) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -58,7 +61,9 @@ export function createGame(initialPlayers: Font[]): Tournament {
     }
   }
 
-  shuffleArray(initialPlayers);
+  // Default: shuffle for random first-round pairings. Pass { shuffle: false }
+  // to keep a pre-seeded order (see seedBracket) for comparable, fair brackets.
+  if (options.shuffle ?? true) shuffleArray(initialPlayers);
 
   const tournament: Tournament = {
     rounds: [],
@@ -125,6 +130,29 @@ export function createGame(initialPlayers: Font[]): Tournament {
   };
 
   return tournament;
+}
+
+/**
+ * Reorder a ranked list (index 0 = top seed) into standard single-elimination
+ * bracket order, so that pairing the result sequentially (0v1, 2v3, …) yields
+ * seed 1 vs last, with seeds 1 and 2 kept in opposite halves — favorites only
+ * meet in later rounds. Requires a power-of-two length; otherwise returns a
+ * copy unchanged. Pure — unit tested.
+ */
+export function seedBracket<T>(seeds: T[]): T[] {
+  const n = seeds.length;
+  if (n < 2 || (n & (n - 1)) !== 0) return seeds.slice();
+  let order = [0];
+  for (let size = 1; size < n; size *= 2) {
+    const total = size * 2 - 1;
+    const next: number[] = [];
+    for (const p of order) {
+      next.push(p);
+      next.push(total - p);
+    }
+    order = next;
+  }
+  return order.map((i) => seeds[i]);
 }
 
 export interface PlacementTier {
