@@ -14,6 +14,33 @@ google:
   - Onest
   - Pixelify Sans
   - Cal Sans
+  # sans
+  - Hanken Grotesk
+  - Atkinson Hyperlegible
+  - League Spartan
+  # serif
+  - Alegreya
+  - Literata
+  - Crimson Pro
+  - Cardo
+  - Sorts Mill Goudy
+  - Tinos
+  - Gentium Plus
+  # mono
+  - Intel One Mono
+  - Martian Mono
+  - Spline Sans Mono
+  - B612 Mono
+  # display
+  - Anton
+  - UnifrakturMaguntia
+  - Shrikhand
+  - Fredoka
+  - Sixtyfour
+  - Bagel Fat One
+  - Rampart One
+  - Corben
+  - Climate Crisis
 
 # --- Self-hosted fonts. Required: family, category, and files: (or faces:).
 #     Optional: variable: true · url: https://… · license: OFL-1.1 · designer: …
