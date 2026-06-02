@@ -68,7 +68,7 @@ function getFontByFamilyName(familyName: string) {
   return data.fonts.find((font) => font.family === familyName);
 }
 
-async function chooseWinner(player: any, button: HTMLButtonElement | undefined) {
+async function chooseWinner(player: any, button: HTMLElement | undefined) {
   currentBracket = game.setWinner(player);
   if (currentBracket?.winner) {
     createConfetti();
