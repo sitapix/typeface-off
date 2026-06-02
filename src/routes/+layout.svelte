@@ -4,18 +4,30 @@ import { fonts } from '$lib';
 
 let { children } = $props();
 
-// Build the Google Fonts stylesheet URL from the font list so fonts.ts is the
-// single source of truth — add a font there and it loads automatically.
-const fontHref =
+// Each source loads its own way; fonts.ts is the single source of truth.
+// Google → one combined css2 stylesheet. Fontsource → one jsDelivr stylesheet
+// per font. Add a font in fonts.ts and it loads automatically.
+const googleHref =
   'https://fonts.googleapis.com/css2?' +
-  fonts.map((f) => 'family=' + f.family.replace(/\s+/g, '+')).join('&') +
+  fonts
+    .filter((f) => f.source === 'google')
+    .map((f) => 'family=' + f.family.replace(/\s+/g, '+'))
+    .join('&') +
   '&display=swap';
+
+const fontsourceHrefs = fonts
+  .filter((f) => f.source === 'fontsource' && f.id)
+  .map((f) => `https://cdn.jsdelivr.net/fontsource/css/${f.id}@latest/index.css`);
 </script>
 
 <svelte:head>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-  <link rel="stylesheet" href={fontHref} />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
+  <link rel="stylesheet" href={googleHref} />
+  {#each fontsourceHrefs as href (href)}
+    <link rel="stylesheet" href={href} />
+  {/each}
 </svelte:head>
 
 {@render children()}
