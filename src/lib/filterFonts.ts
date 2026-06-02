@@ -1,6 +1,7 @@
-import type { Font, FontCategory } from './fonts';
+import type { Font } from './fonts';
+import type { CategoryFilter } from './categories';
 
-export type CategoryFilter = FontCategory | 'all';
+export type { CategoryFilter };
 
 /**
  * Filter fonts by a search term (substring of the family name, case-insensitive)

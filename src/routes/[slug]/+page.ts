@@ -1,12 +1,9 @@
 import { fonts } from '$lib';
+import { matchesSlug } from '$lib/slug';
 
 export async function load({ params }) {
-  const slug = params.slug;
-  const decodedSlug = decodeURIComponent(slug);
-
-  const font = fonts.find(
-    (font) => font.family.replace(/\s+/g, '') === decodedSlug
-  );
+  const decodedSlug = decodeURIComponent(params.slug);
+  const font = fonts.find((font) => matchesSlug(font.family, decodedSlug));
   if (font) {
     return { font };
   }

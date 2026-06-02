@@ -24,8 +24,13 @@ async function ensureFontsLoaded(el: HTMLElement): Promise<void> {
 async function elementToCanvas(el: HTMLElement): Promise<HTMLCanvasElement> {
   const { snapdom } = await import('@zumer/snapdom');
   const bg = getComputedStyle(el).backgroundColor;
-  const backgroundColor = bg && !bg.includes('rgba(0, 0, 0, 0)') ? bg : '#ffffff';
-  const result = await snapdom(el, { scale: 2, embedFonts: true, backgroundColor });
+  const backgroundColor =
+    bg && !bg.includes('rgba(0, 0, 0, 0)') ? bg : '#ffffff';
+  const result = await snapdom(el, {
+    scale: 2,
+    embedFonts: true,
+    backgroundColor
+  });
   return result.toCanvas();
 }
 
@@ -36,7 +41,8 @@ function canvasToBlob(
 ): Promise<Blob> {
   return new Promise((resolve, reject) =>
     canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error('canvas.toBlob failed'))),
+      (blob) =>
+        blob ? resolve(blob) : reject(new Error('canvas.toBlob failed')),
       type,
       quality
     )
@@ -52,7 +58,10 @@ function triggerDownload(href: string, filename: string): void {
 
 /** True when the platform can share image files via the native share sheet. */
 export function canShareFiles(): boolean {
-  if (typeof navigator === 'undefined' || typeof navigator.canShare !== 'function')
+  if (
+    typeof navigator === 'undefined' ||
+    typeof navigator.canShare !== 'function'
+  )
     return false;
   try {
     return navigator.canShare({

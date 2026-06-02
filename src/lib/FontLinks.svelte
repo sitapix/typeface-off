@@ -36,11 +36,12 @@ let {
     target="_blank"
     rel="noopener"
     aria-label="Visit {font.family} website">
-    <Icon name="external" {size} />
-    {#if showLabels}<span class="hidden 2xl:block">Visit {font.family}</span>{/if}
+    <Icon name="external" size={size} />
+    {#if showLabels}<span class="hidden 2xl:block">Visit {font.family}</span
+      >{/if}
   </a>
   <a class="btn" href={font.downloadUrl} aria-label="Download {font.family}">
-    <Icon name="download" {size} />
+    <Icon name="download" size={size} />
     {#if showLabels}<span class="hidden 2xl:block">Download {font.family}</span
       >{/if}
   </a>
@@ -49,7 +50,7 @@ let {
       class="btn"
       href="{base}/{fontSlug(font.family)}"
       aria-label="View {font.family} details">
-      <Icon name="maximize" {size} />
+      <Icon name="maximize" size={size} />
       {#if showLabels && detailLabel}<span class="hidden 2xl:block"
           >{detailLabel}</span
         >{/if}

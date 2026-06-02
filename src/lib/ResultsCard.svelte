@@ -34,8 +34,7 @@ function medal(place: number): string {
         <div class="flex items-center gap-2">
           <span class="w-8 shrink-0 text-center text-lg" aria-hidden="true"
             >{medal(tier.place)}</span>
-          <span
-            class="text-xs font-semibold tracking-wide uppercase opacity-60"
+          <span class="text-xs font-semibold tracking-wide uppercase opacity-60"
             >{tier.label}{tier.fonts.length > 1 ? 's' : ''}</span>
         </div>
         <div class="flex flex-wrap gap-x-6 gap-y-1 pl-10">

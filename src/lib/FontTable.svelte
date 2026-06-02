@@ -46,7 +46,7 @@ let { fonts }: { fonts: Font[] } = $props();
             </button>
           </td>
           <td>
-            <FontLinks {font} />
+            <FontLinks font={font} />
           </td>
         </tr>
       {/each}

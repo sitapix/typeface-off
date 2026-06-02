@@ -19,10 +19,10 @@ let {
 } = $props();
 </script>
 
-<FontHeader {font} />
+<FontHeader font={font} />
 <FontPreview
   class={previewClass}
-  {fontSize}
+  fontSize={fontSize}
   family={font?.family}
   category={font?.category}
-  {ligatures} />
+  ligatures={ligatures} />

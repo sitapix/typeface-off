@@ -5,11 +5,14 @@ import {
   Header,
   SearchBar,
   Sidebar,
-  FontHeader,
   Controls,
   AppFrame,
-  FontPreview
+  FontPreview,
+  FontColumn,
+  FontLinks,
+  getFontByFamily
 } from '$lib';
+import { fontSlug } from '$lib/slug';
 import {
   fontSize,
   fontFamilyRight,
@@ -38,14 +41,6 @@ $effect(() => {
     sidebarComponent.scrollToTop();
   }
 });
-
-function getFontByFamilyName(familyName: string) {
-  return data.fonts.find((font) => font.family === familyName);
-}
-
-function slug(family: string) {
-  return encodeURIComponent(family.replace(/\s+/g, ''));
-}
 </script>
 
 <AppFrame>
@@ -67,15 +62,10 @@ function slug(family: string) {
             <summary
               class="flex cursor-pointer list-none items-center justify-between gap-2 text-sm font-medium select-none [&::-webkit-details-marker]:hidden">
               <span>{currentFont.variants.length} styles</span>
-              <svg
-                class="chevron size-4 shrink-0 opacity-60 transition-transform"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+              <Icon
+                name="chevron"
+                size={16}
+                class="chevron shrink-0 opacity-60 transition-transform" />
             </summary>
             <div class="mt-2 flex flex-wrap gap-2">
               {#each currentFont.variants as variant (variant)}
@@ -94,15 +84,10 @@ function slug(family: string) {
             <summary
               class="flex cursor-pointer list-none items-center justify-between gap-2 text-sm font-medium select-none [&::-webkit-details-marker]:hidden">
               <span>Download &amp; links</span>
-              <svg
-                class="chevron size-4 shrink-0 opacity-60 transition-transform"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+              <Icon
+                name="chevron"
+                size={16}
+                class="chevron shrink-0 opacity-60 transition-transform" />
             </summary>
             <div class="mt-2 table-wrap !overflow-x-hidden !rounded-none">
               <table class="table !whitespace-nowrap !rounded-none text-left">
@@ -156,7 +141,7 @@ function slug(family: string) {
                   : ''}">
                 <td class="max-w-[9rem] !whitespace-nowrap p-0">
                   <a
-                    href="{base}/{slug(font.family)}"
+                    href="{base}/{fontSlug(font.family)}"
                     style="font-family: '{font.family}'"
                     aria-current={currentFont?.family === font.family
                       ? 'page'
@@ -178,23 +163,7 @@ function slug(family: string) {
                   </button>
                 </td>
                 <td>
-                  <div
-                    class="btn-group preset-outlined-surface-500 [&>*+*]:border-surface-400-600">
-                    <a
-                      class="btn !p-2 !pl-3"
-                      href={font.siteUrl}
-                      target="_blank"
-                      rel="noopener"
-                      aria-label="Visit {font.family} website">
-                      <Icon name="external" size={16} />
-                    </a>
-                    <a
-                      class="btn !p-2 !pr-3"
-                      href={font.downloadUrl}
-                      aria-label="Download {font.family}">
-                      <Icon name="download" size={16} />
-                    </a>
-                  </div>
+                  <FontLinks font={font} details={false} />
                 </td>
               </tr>
             {/each}
@@ -214,22 +183,16 @@ function slug(family: string) {
       <div
         class="flex flex-col gap-4"
         class:col-span-2={!fontFamilyRight.value}>
-        <FontHeader font={currentFont} />
-        <FontPreview
-          class="overflow-hidden rounded-lg"
+        <FontColumn
+          font={currentFont}
           fontSize={fontSize.value}
-          family={currentFont.family}
-          category={currentFont.category}
           ligatures={ligatures.value} />
       </div>
       {#if fontFamilyRight.value}
         <div class="relative hidden flex-col gap-4 md:flex">
-          <FontHeader font={getFontByFamilyName(fontFamilyRight.value)} />
-          <FontPreview
-            class="overflow-hidden rounded-lg"
+          <FontColumn
+            font={getFontByFamily(fontFamilyRight.value)}
             fontSize={fontSize.value}
-            family={fontFamilyRight.value}
-            category={getFontByFamilyName(fontFamilyRight.value)?.category}
             ligatures={ligatures.value} />
           <button
             class="btn preset-filled-surface-500 absolute bottom-10 self-center"
@@ -249,7 +212,7 @@ function slug(family: string) {
 
 <style>
 /* Rotate the disclosure chevron when its <details> is open. */
-.disclosure[open] .chevron {
+.disclosure[open] :global(.chevron) {
   transform: rotate(180deg);
 }
 </style>

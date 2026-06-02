@@ -116,7 +116,10 @@ function gVariants(f) {
         family: f.family,
         category: b,
         source: 'bunny',
-        designer: f.designers && f.designers.length ? f.designers.join(', ') : undefined,
+        designer:
+          f.designers && f.designers.length
+            ? f.designers.join(', ')
+            : undefined,
         // Google Fonts' policy: new families are SIL OFL-1.1.
         license: 'OFL-1.1',
         variants: gVariants(f)
@@ -281,23 +284,19 @@ function bunnyId(family: string): string {
   return family.toLowerCase().replace(/\\s+/g, '-');
 }
 
-function siteUrl(s: FontSeed): string {
+// Bunny links to the family page; Fontsource to its font page. Visit and
+// Download resolve to the same canonical page (the source has no direct file
+// download), so both fields share one URL.
+function infoUrl(s: FontSeed): string {
   return s.source === 'bunny'
     ? \`https://fonts.bunny.net/family/\${bunnyId(s.family)}\`
     : \`https://fontsource.org/fonts/\${s.id}\`;
 }
 
-function downloadUrl(s: FontSeed): string {
-  return s.source === 'bunny'
-    ? \`https://fonts.bunny.net/family/\${bunnyId(s.family)}\`
-    : \`https://fontsource.org/fonts/\${s.id}\`;
-}
-
-const fonts: Font[] = seeds.map((seed) => ({
-  ...seed,
-  siteUrl: siteUrl(seed),
-  downloadUrl: downloadUrl(seed)
-}));
+const fonts: Font[] = seeds.map((seed) => {
+  const url = infoUrl(seed);
+  return { ...seed, siteUrl: url, downloadUrl: url };
+});
 
 export default fonts;
 `;

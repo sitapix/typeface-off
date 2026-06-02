@@ -118,7 +118,8 @@ export function createGame(initialPlayers: Font[]): Tournament {
     getNextMatchup() {
       const currentRoundMatches = this.rounds[this.currentRound];
       return (
-        currentRoundMatches && currentRoundMatches.find((match) => !match.winner)
+        currentRoundMatches &&
+        currentRoundMatches.find((match) => !match.winner)
       );
     }
   };
@@ -157,11 +158,15 @@ export function placeFonts(
   const champion = rounds[finalRound]?.[0]?.winner;
   if (!champion) return [];
 
+  // The engine appends a champion-only bye round at `finalRound`; the actual
+  // final (where the finalist lost) is the round before it.
+  const realFinal = finalRound - 1;
+
   const tiers: PlacementTier[] = [
     { place: 0, label: 'Champion', fonts: [champion] }
   ];
 
-  for (let r = finalRound; r >= 0; r--) {
+  for (let r = realFinal; r >= 0; r--) {
     const losers: Font[] = [];
     for (const m of rounds[r] ?? []) {
       if (m.players.length === 2 && m.winner) {
@@ -170,7 +175,7 @@ export function placeFonts(
       }
     }
     if (losers.length)
-      tiers.push({ place: 0, label: tierLabel(finalRound - r), fonts: losers });
+      tiers.push({ place: 0, label: tierLabel(realFinal - r), fonts: losers });
   }
 
   // Assign places (champion = 1; each subsequent tier ties at the next slot).

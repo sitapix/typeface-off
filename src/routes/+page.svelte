@@ -5,17 +5,29 @@ import {
   Header,
   Sidebar,
   FontHeader,
+  FontLinks,
+  CategoryFilter,
   Controls,
   AppFrame,
   FontPreview,
   FontDuel,
   PlayerBadge,
   WinnerBadge,
+  ResultsCard,
   createGame,
-  createConfetti
+  createConfetti,
+  placeFonts
 } from '$lib';
+import type { Tournament, MatchupResult, Matchup } from '$lib/game';
+import type { Font, FontCategory } from '$lib/fonts';
 import { base } from '$app/paths';
 import { lazyFont } from '$lib/lazyFont';
+import { CATEGORIES, categoryLabel } from '$lib/categories';
+import {
+  downloadElement,
+  shareElement,
+  canShareFiles
+} from '$lib/captureImage';
 import {
   menuOpen,
   showName,
@@ -26,24 +38,24 @@ import {
 
 let { data } = $props();
 
-// No "All" here: a tournament only makes sense within a category — pitting a
-// script face against a coding mono isn't a real preference. ("All" stays on
-// Browse, where it's just a table filter.)
-const categories = [
-  { id: 'sans', label: 'Sans' },
-  { id: 'serif', label: 'Serif' },
-  { id: 'display', label: 'Display' },
-  { id: 'script', label: 'Script' },
-  { id: 'mono', label: 'Mono' }
-] as const;
-type Category = (typeof categories)[number]['id'];
-
-let selectedCategory = $state<Category>('sans');
-let game = $state<any>(null);
-let currentBracket = $state<any>(null);
+let selectedCategory = $state<FontCategory>('sans');
+let game = $state<Tournament | null>(null);
+let currentBracket = $state<MatchupResult | undefined>(undefined);
 let leftButton = $state<HTMLButtonElement>();
 let rightButton = $state<HTMLButtonElement>();
 let poolSize = $state(0);
+let resultsCardEl = $state<HTMLDivElement>();
+let canShare = $state(false);
+let sharing = $state(false);
+
+// Active two-player matchup vs. the crowned champion — derived views over the
+// raw bracket so the template stays null-safe.
+const duel = $derived(
+  currentBracket?.players?.length ? (currentBracket as Matchup) : null
+);
+const champion = $derived(
+  !duel && currentBracket?.winner ? currentBracket.winner : null
+);
 
 // Progress toward a champion. In single-elimination, deciding a winner takes
 // exactly poolSize − 1 real (2-player) matchups; byes don't need a tap. We count
@@ -58,22 +70,25 @@ const picksMade = $derived.by(() => {
 });
 const progress = $derived(totalPicks ? Math.min(1, picksMade / totalPicks) : 0);
 
+// Bracket-placement tiers for the shareable results card (champion → quarters).
+const tiers = $derived(
+  game && champion ? placeFonts(game.rounds, game.finalRound, 10) : []
+);
+
 onMount(() => {
   // The game has no mobile drawer (filters are inline + the header omits the
   // menu toggle), so make sure a drawer left open on Browse/detail doesn't
   // carry over here as an un-closeable full-screen overlay.
   menuOpen.value = false;
+  canShare = canShareFiles();
   startGame();
 });
 
 function handleKeydown(event: KeyboardEvent) {
-  if (currentBracket?.players?.length) {
-    if (event.key === 'ArrowLeft') {
-      chooseWinner(currentBracket.players[0], leftButton);
-    } else if (event.key === 'ArrowRight') {
-      chooseWinner(currentBracket.players[1], rightButton);
-    }
-  }
+  if (!duel) return;
+  if (event.key === 'ArrowLeft') chooseWinner(duel.players[0], leftButton);
+  else if (event.key === 'ArrowRight')
+    chooseWinner(duel.players[1], rightButton);
 }
 
 function startGame() {
@@ -84,18 +99,14 @@ function startGame() {
   currentBracket = game.startGame();
 }
 
-function selectCategory(id: Category) {
+function selectCategory(id: FontCategory) {
   selectedCategory = id;
   showName.value = false;
   startGame();
 }
 
-function getFontByFamilyName(familyName: string) {
-  return data.fonts.find((font) => font.family === familyName);
-}
-
-async function chooseWinner(player: any, button: HTMLElement | undefined) {
-  currentBracket = game.setWinner(player);
+async function chooseWinner(player: Font, button?: HTMLElement) {
+  currentBracket = game?.setWinner(player);
   if (currentBracket?.winner) {
     createConfetti();
     showName.value = true;
@@ -118,6 +129,24 @@ function scrollToBracket() {
     .querySelector('.font-bracket.active')
     ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
+
+function resultsFilename() {
+  return `typeface-off-top-${selectedCategory}.jpg`;
+}
+
+async function saveImage() {
+  if (resultsCardEl) await downloadElement(resultsCardEl, resultsFilename());
+}
+
+async function shareImage() {
+  if (!resultsCardEl) return;
+  sharing = true;
+  try {
+    await shareElement(resultsCardEl, resultsFilename(), 'My Top Fonts');
+  } finally {
+    sharing = false;
+  }
+}
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -133,17 +162,10 @@ function scrollToBracket() {
     <Sidebar>
       <div class="flex flex-col gap-2">
         <span class="text-sm opacity-70">Filter by type</span>
-        <div class="flex flex-wrap gap-1">
-          {#each categories as category (category.id)}
-            <button
-              class="btn btn-sm {selectedCategory === category.id
-                ? 'preset-filled-primary-500'
-                : 'preset-outlined-surface-500'}"
-              aria-pressed={selectedCategory === category.id}
-              onclick={() => selectCategory(category.id)}
-              >{category.label}</button>
-          {/each}
-        </div>
+        <CategoryFilter
+          categories={CATEGORIES}
+          selected={selectedCategory}
+          onselect={selectCategory} />
       </div>
       <button class="btn preset-filled-primary-500" onclick={startGame}
         >Restart Game</button>
@@ -156,8 +178,8 @@ function scrollToBracket() {
               {#if game.finalRound === index}
                 <div class="round-winner">
                   <WinnerBadge>
-                    <span style="font-family: '{round[0].winner.family}'">
-                      {round[0].winner.family}
+                    <span style="font-family: '{round[0].winner?.family}'">
+                      {round[0].winner?.family}
                     </span>
                   </WinnerBadge>
                 </div>
@@ -167,9 +189,9 @@ function scrollToBracket() {
                     <div
                       class="font-bracket"
                       class:active={bracket === currentBracket}>
-                      {#each bracket?.players as font (font.family)}
+                      {#each bracket.players as font (font.family)}
                         <PlayerBadge
-                          class={bracket?.winner?.family == font.family
+                          class={bracket.winner?.family == font.family
                             ? 'preset-tonal-primary'
                             : 'preset-tonal-surface'}>
                           <span use:lazyFont={font.family}>
@@ -199,7 +221,7 @@ function scrollToBracket() {
 
   <div class="h-full overflow-hidden bg-surface-50-950">
     <h1 class="sr-only">Font Face-Off — pick your favorite font</h1>
-    {#if currentBracket?.players?.length}
+    {#if duel}
       <!-- MOBILE / TABLET: tap-to-pick duel — both fonts on screen, no scroll -->
       <div class="flex h-full flex-col p-3 pt-2 lg:hidden">
         <!-- always-visible toolbar: collapse chrome · progress · restart -->
@@ -208,19 +230,11 @@ function scrollToBracket() {
             class="btn-icon preset-tonal-surface shrink-0"
             onclick={() => (topCollapsed.value = !topCollapsed.value)}
             aria-label={topCollapsed.value ? 'Show controls' : 'Hide controls'}>
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-              style="transition: transform 0.2s; transform: rotate({topCollapsed.value
-                ? 180
-                : 0}deg);"><path d="m18 15-6-6-6 6" /></svg>
+            <span
+              class="inline-flex transition-transform duration-200"
+              style="transform: rotate({topCollapsed.value ? 0 : 180}deg);">
+              <Icon name="chevron" size={18} />
+            </span>
           </button>
           <div
             class="h-2 flex-1 overflow-hidden rounded-full bg-surface-300-700"
@@ -243,23 +257,16 @@ function scrollToBracket() {
         <!-- collapsible: category filters -->
         {#if !topCollapsed.value}
           <div class="flex shrink-0 items-center gap-2 overflow-x-auto pb-2">
-            <div
-              class="btn-group preset-outlined-surface-500 shrink-0 [&>*+*]:border-surface-400-600">
-              {#each categories as category (category.id)}
-                <button
-                  class="btn btn-sm {selectedCategory === category.id
-                    ? 'preset-filled-primary-500'
-                    : ''}"
-                  aria-pressed={selectedCategory === category.id}
-                  onclick={() => selectCategory(category.id)}
-                  >{category.label}</button>
-              {/each}
-            </div>
+            <CategoryFilter
+              variant="group"
+              categories={CATEGORIES}
+              selected={selectedCategory}
+              onselect={selectCategory} />
           </div>
         {/if}
 
         <FontDuel
-          players={currentBracket.players}
+          players={duel.players}
           fontSize={fontSize.value}
           ligatures={ligatures.value}
           showName={showName.value}
@@ -270,43 +277,41 @@ function scrollToBracket() {
       <div
         class="hidden h-full gap-4 p-4 lg:grid lg:grid-cols-2 lg:grid-rows-1">
         <div class="relative flex h-full flex-col gap-3">
-          <FontHeader
-            font={getFontByFamilyName(currentBracket.players[0].family)} />
+          <FontHeader font={duel.players[0]} />
           <FontPreview
             class="min-h-0 flex-1 overflow-hidden rounded-lg"
             fontSize={fontSize.value}
-            family={currentBracket.players[0].family}
-            category={currentBracket.players[0].category}
+            family={duel.players[0].family}
+            category={duel.players[0].category}
             ligatures={ligatures.value} />
           <button
             bind:this={leftButton}
             class="btn preset-filled-primary-500 absolute bottom-10 left-1/2 -translate-x-1/2 shadow-xl"
-            onclick={() => chooseWinner(currentBracket.players[0], leftButton)}
+            onclick={() => chooseWinner(duel.players[0], leftButton)}
             >Choose or press <kbd class="kbd">⇽</kbd></button>
         </div>
         <div class="relative flex h-full flex-col gap-3">
-          <FontHeader
-            font={getFontByFamilyName(currentBracket.players[1].family)} />
+          <FontHeader font={duel.players[1]} />
           <FontPreview
             class="min-h-0 flex-1 overflow-hidden rounded-lg"
             fontSize={fontSize.value}
-            family={currentBracket.players[1].family}
-            category={currentBracket.players[1].category}
+            family={duel.players[1].family}
+            category={duel.players[1].category}
             ligatures={ligatures.value} />
           <button
             bind:this={rightButton}
             class="btn preset-filled-primary-500 absolute bottom-10 left-1/2 -translate-x-1/2 shadow-xl"
-            onclick={() => chooseWinner(currentBracket.players[1], rightButton)}
+            onclick={() => chooseWinner(duel.players[1], rightButton)}
             >Choose or press <kbd class="kbd">⇾</kbd></button>
         </div>
       </div>
-    {:else if currentBracket?.winner}
+    {:else if champion}
       <div class="h-full overflow-auto">
         <div
           class="relative min-h-full overflow-hidden border-4 border-surface-950-50 bg-surface-50-950 p-6 text-center lg:p-10">
           <img
-            class="absolute bottom-0 left-0 right-0 mx-auto max-w-full opacity-60"
-            src="/trophy.png"
+            class="absolute right-0 bottom-0 left-0 mx-auto max-w-full opacity-60"
+            src="{base}/trophy.png"
             alt="Trophy of Font"
             width="395"
             height="440" />
@@ -319,32 +324,44 @@ function scrollToBracket() {
             </div>
             <div
               class="my-4 text-4xl md:text-6xl"
-              style="font-family: '{currentBracket?.winner.family}'">
-              {currentBracket?.winner.family}
+              style="font-family: '{champion.family}'">
+              {champion.family}
             </div>
-            <div class="btn-group preset-tonal-surface self-center">
-              <a
-                class="btn"
-                href={currentBracket?.winner.siteUrl}
-                target="_blank">
-                <Icon name="external" size={24} />
-                <span class="hidden 2xl:block"
-                  >Visit {currentBracket?.winner.family}</span>
-              </a>
-              <a class="btn" href={currentBracket?.winner.downloadUrl}>
-                <Icon name="download" size={24} />
-                <span class="hidden 2xl:block"
-                  >Download {currentBracket?.winner.family}</span>
-              </a>
-              <a
-                class="btn"
-                href="{base}/{encodeURIComponent(
-                  currentBracket?.winner.family.replace(/\s+/g, '')
-                )}">
-                <Icon name="maximize" size={24} />
-                <span class="hidden 2xl:block">View Font Detail</span>
-              </a>
-            </div>
+            <FontLinks
+              font={champion}
+              size={24}
+              showLabels
+              detailLabel="View Font Detail"
+              groupClass="preset-tonal-surface self-center" />
+
+            <!-- Shareable Top-10 placement card -->
+            {#if tiers.length}
+              <div class="flex flex-col items-center gap-3">
+                <div bind:this={resultsCardEl} class="mx-auto w-full max-w-xl">
+                  <ResultsCard
+                    tiers={tiers}
+                    categoryLabel={categoryLabel(selectedCategory)} />
+                </div>
+                <div class="flex flex-wrap justify-center gap-2">
+                  <button
+                    class="btn preset-filled-primary-500"
+                    onclick={saveImage}>
+                    <Icon name="download" size={20} />
+                    <span>Save as image</span>
+                  </button>
+                  {#if canShare}
+                    <button
+                      class="btn preset-tonal-surface"
+                      onclick={shareImage}
+                      disabled={sharing}>
+                      <Icon name="external" size={20} />
+                      <span>{sharing ? 'Sharing…' : 'Share'}</span>
+                    </button>
+                  {/if}
+                </div>
+              </div>
+            {/if}
+
             <h4 class="h4">
               For mastering the art of bézier curve pageantry, where serifs and
               counters stand heroic — triumphing in the tumultuous tournament of

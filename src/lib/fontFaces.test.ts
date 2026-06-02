@@ -81,6 +81,8 @@ describe('withBase', () => {
     expect(withBase('/fonts/x.woff2')).toBe('/fonts/x.woff2');
   });
   it('never touches absolute URLs', () => {
-    expect(withBase('https://cdn/x.woff2', '/repo')).toBe('https://cdn/x.woff2');
+    expect(withBase('https://cdn/x.woff2', '/repo')).toBe(
+      'https://cdn/x.woff2'
+    );
   });
 });

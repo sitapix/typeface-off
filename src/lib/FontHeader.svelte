@@ -22,7 +22,7 @@ const slug = $derived(font ? fontSlug(font.family) : '');
       {/if}
     </div>
     <FontLinks
-      {font}
+      font={font}
       size={24}
       showLabels
       groupClass="preset-outlined-surface-500 shrink-0 [&>*+*]:border-surface-400-600" />
