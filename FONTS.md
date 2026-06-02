@@ -1,8 +1,8 @@
 # Managing Fonts
 
-This app compares open-source fonts. The font catalog comes from **three sources**, and **`src/lib/fonts.ts` + `src/lib/localFonts.ts` are the single source of truth** — add a font there and it loads automatically and shows up in the Game, Browse, and type filters.
+This app compares open-source fonts. The catalog comes from **three sources** (Bunny, Fontsource, self-hosted). To **hand-add** fonts you edit one file — **`scripts/fonts.yaml`** — then run a generator; everything then loads automatically and shows up in the Game, Browse, and type filters. The bulk of the catalog is auto-selected by popularity.
 
-- **Current catalog:** ~236 fonts across 5 categories (`sans`, `serif`, `display`, `script`, `mono`).
+- **Current catalog:** ~237 fonts across 5 categories (`sans`, `serif`, `display`, `script`, `mono`).
 
 ---
 
@@ -50,7 +50,11 @@ interface FontFace {
 }
 ```
 
-`fonts.ts` is **auto-generated** (don't hand-edit it). `localFonts.ts` is **hand-maintained** and is **never touched by the generator**, so your self-hosted fonts survive every regeneration. The two are merged in `src/lib/index.ts` (local entries override a same-named generated font).
+Three files feed the catalog, merged in `src/lib/index.ts` (precedence: manual local → generated local → catalog; a local font overrides a same-named catalog font):
+
+- `src/lib/fonts.ts` — **auto-generated** Bunny + Fontsource catalog (+ `fonts.yaml` `google:`). Don't hand-edit.
+- `src/lib/localFonts.generated.ts` — **auto-generated** from `fonts.yaml` `local:`. Don't hand-edit.
+- `src/lib/localFonts.ts` — **manual** escape hatch, never touched by a generator.
 
 ---
 
@@ -219,10 +223,17 @@ They're filled in per source:
 
 | File | Role |
 | --- | --- |
+| `scripts/fonts.yaml` | **the one file you hand-edit** — `google:` (extra Bunny names) + `local:` (self-hosted) |
+| `scripts/generate-fonts.cjs` | regenerates `fonts.ts` from Bunny + Fontsource + `fonts.yaml` `google:` (`npm run fonts:generate`) |
+| `scripts/generate-local-fonts.cjs` | regenerates `localFonts.generated.ts` from `fonts.yaml` `local:` (`npm run fonts:local`) |
 | `src/lib/fonts.ts` | **generated** Bunny + Fontsource catalog (don't hand-edit) |
-| `src/lib/localFonts.ts` | **hand-edited** self-hosted fonts (regenerator-safe) |
-| `src/lib/index.ts` | merges generated + local into the exported `fonts` |
-| `src/routes/+layout.svelte` | loads each source (Bunny link / Fontsource links / local `@font-face`) |
-| `src/lib/FontPreview.svelte` | picks code vs article specimen by category |
-| `scripts/generate-fonts.cjs` | regenerates `fonts.ts` (`npm run fonts:generate`) |
+| `src/lib/localFonts.generated.ts` | **generated** self-hosted fonts (don't hand-edit) |
+| `src/lib/localFonts.ts` | **manual** local-font escape hatch (regenerator-safe) |
+| `src/lib/index.ts` | merges all sources into the exported `fonts` (manual local > generated local > catalog) |
+| `src/routes/+layout.svelte` | loads each source (Bunny `<link>` / inline `@font-face` for Fontsource + local) |
+| `src/lib/fontFaces.ts` | builds the inline `@font-face` CSS (base-path aware) |
+| `src/lib/lazyFont.ts` | `use:lazyFont` action — loads a specimen's font on scroll-into-view |
+| `src/lib/filterFonts.ts` | search + category filtering (Browse) |
+| `src/lib/FontPreview.svelte` | picks code vs article specimen by category (`mono` → code) |
 | `static/fonts/` | self-hosted font files |
+| `src/lib/*.test.ts` | Vitest unit tests (`npm test`) |
