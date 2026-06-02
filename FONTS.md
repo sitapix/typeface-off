@@ -22,7 +22,7 @@ All loading happens in **`src/routes/+layout.svelte`**, which reads the merged f
 
 > No requests ever go to Google (`googleapis.com` / `gstatic.com`). Bunny is the drop-in replacement.
 
-> ⚠️ **Bunny gotcha:** the combined stylesheet must **pipe-join** families — `…/css?family=A|B|C`. Repeated `&family=` params are the *css2* syntax; the v1 `/css` endpoint silently keeps only the **first** family, so every other Bunny font renders as a system fallback. (Bug fixed once already — don't reintroduce it.)
+> ⚠️ **Bunny gotcha:** the combined stylesheet must **pipe-join** families — `…/css?family=A|B|C`. Repeated `&family=` params are the _css2_ syntax; the v1 `/css` endpoint silently keeps only the **first** family, so every other Bunny font renders as a system fallback. (Bug fixed once already — don't reintroduce it.)
 
 > 🎮 **Game vs Browse:** the Game quiz draws from a hand-curated **`src/lib/featured.ts`** (~24 fonts per category), not the whole catalog. Browse shows everything. Adding a font to the catalog puts it in Browse; to make it compete in the quiz, add it to `featured.ts` too.
 
