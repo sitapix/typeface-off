@@ -62,12 +62,26 @@ function slug(family: string) {
             <span>{currentFont.family}</span>
           </nav>
           <h1 class="h2">{currentFont.family}</h1>
-          <p>{`${currentFont.variants.length} styles`}</p>
-          <div class="flex flex-wrap gap-2">
-            {#each currentFont.variants as variant (variant)}
-              <span class="code">{variant}</span>
-            {/each}
-          </div>
+          <details class="disclosure">
+            <summary
+              class="flex cursor-pointer list-none items-center justify-between gap-2 text-sm font-medium select-none [&::-webkit-details-marker]:hidden">
+              <span>{currentFont.variants.length} styles</span>
+              <svg
+                class="chevron size-4 shrink-0 opacity-60 transition-transform"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            </summary>
+            <div class="mt-2 flex flex-wrap gap-2">
+              {#each currentFont.variants as variant (variant)}
+                <span class="code">{variant}</span>
+              {/each}
+            </div>
+          </details>
           <div class="h-64">
             <FontPreview
               family={currentFont.family}
@@ -75,36 +89,51 @@ function slug(family: string) {
               fontSize={18}
               ligatures={ligatures.value} />
           </div>
-          <div class="table-wrap !overflow-x-hidden !rounded-none">
-            <table class="table !whitespace-nowrap !rounded-none text-left">
-              <tbody>
-                <tr>
-                  <th>Download URL</th>
-                  <td>
-                    <a class="btn" href={currentFont.downloadUrl}>
-                      <Icon name="download" size={16} />
-                      <span class="max-w-[16rem] truncate"
-                        >{currentFont.downloadUrl}</span>
-                    </a>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Website URL</th>
-                  <td>
-                    <a
-                      class="btn"
-                      href={currentFont.siteUrl}
-                      target="_blank"
-                      rel="noopener">
-                      <Icon name="external" size={16} />
-                      <span class="max-w-[16rem] truncate"
-                        >{currentFont.siteUrl}</span>
-                    </a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <details class="disclosure">
+            <summary
+              class="flex cursor-pointer list-none items-center justify-between gap-2 text-sm font-medium select-none [&::-webkit-details-marker]:hidden">
+              <span>Download &amp; links</span>
+              <svg
+                class="chevron size-4 shrink-0 opacity-60 transition-transform"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            </summary>
+            <div class="mt-2 table-wrap !overflow-x-hidden !rounded-none">
+              <table class="table !whitespace-nowrap !rounded-none text-left">
+                <tbody>
+                  <tr>
+                    <th>Download URL</th>
+                    <td>
+                      <a class="btn" href={currentFont.downloadUrl}>
+                        <Icon name="download" size={16} />
+                        <span class="max-w-[16rem] truncate"
+                          >{currentFont.downloadUrl}</span>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Website URL</th>
+                    <td>
+                      <a
+                        class="btn"
+                        href={currentFont.siteUrl}
+                        target="_blank"
+                        rel="noopener">
+                        <Icon name="external" size={16} />
+                        <span class="max-w-[16rem] truncate"
+                          >{currentFont.siteUrl}</span>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
         </div>
         <hr class="hr" />
       {/if}
@@ -209,3 +238,10 @@ function slug(family: string) {
     </div>
   {/if}
 </AppFrame>
+
+<style>
+/* Rotate the disclosure chevron when its <details> is open. */
+.disclosure[open] .chevron {
+  transform: rotate(180deg);
+}
+</style>

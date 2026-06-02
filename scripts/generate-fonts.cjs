@@ -10,6 +10,7 @@
  * Tune the counts in GTAKE / FSTAKE below. Requires Node 18+ (global fetch).
  */
 const fs = require('fs');
+const YAML = require('yaml');
 
 // How many of each category to take from Google (by popularity).
 const GTAKE = { sans: 44, serif: 32, display: 32, script: 24, mono: 24 };
@@ -122,7 +123,7 @@ function gVariants(f) {
     }
   }
 
-  // ---- Extra hand-picked Google fonts (scripts/extra-fonts.txt) ----
+  // ---- Extra hand-picked Google fonts (google: in scripts/fonts.yaml) ----
   // One family name per line; '#' comments and blank lines ignored. These are
   // added regardless of popularity. Each is looked up in the Google metadata
   // (for category + weights) and verified to exist on Bunny so it can't break
@@ -130,13 +131,12 @@ function gVariants(f) {
   const report = { added: [], duplicate: [], notFound: [], notOnBunny: [] };
   let extraNames = [];
   try {
-    extraNames = fs
-      .readFileSync('scripts/extra-fonts.txt', 'utf8')
-      .split('\n')
-      .map((s) => s.trim())
-      .filter((s) => s && !s.startsWith('#'));
+    const cfg = YAML.parse(fs.readFileSync('scripts/fonts.yaml', 'utf8')) || {};
+    extraNames = Array.isArray(cfg.google)
+      ? cfg.google.map((s) => String(s).trim()).filter(Boolean)
+      : [];
   } catch {
-    /* no extras file — fine */
+    /* no fonts.yaml — fine */
   }
   if (extraNames.length) {
     const gfByName = new Map(gfList.map((f) => [f.family.toLowerCase(), f]));
@@ -289,7 +289,7 @@ export default fonts;
       `  sans=${byCat('sans')} serif=${byCat('serif')} display=${byCat('display')} script=${byCat('script')} mono=${byCat('mono')}`
   );
 
-  // Report on scripts/extra-fonts.txt processing.
+  // Report on the google: extras from scripts/fonts.yaml.
   if (report.added.length)
     console.log(
       `Extra fonts added (${report.added.length}): ${report.added.join(', ')}`

@@ -1,19 +1,21 @@
 import type { Font } from './fonts';
 
-// AUTO-GENERATED from scripts/local-fonts.yaml by scripts/generate-local-fonts.cjs.
+// AUTO-GENERATED from the local: section of scripts/fonts.yaml by scripts/generate-local-fonts.cjs.
 // Run: npm run fonts:local  — do not edit by hand (use localFonts.ts for manual entries).
 export const localGeneratedFonts: Font[] = [
   {
-    family: 'Space Grotesk',
-    category: 'sans',
-    source: 'local',
-    faces: [
+    "family": "Space Grotesk",
+    "category": "sans",
+    "source": "local",
+    "faces": [
       {
-        src: '/fonts/SpaceGrotesk.ttf'
+        "src": "/fonts/SpaceGrotesk.ttf"
       }
     ],
-    variants: ['regular'],
-    siteUrl: '/fonts/SpaceGrotesk.ttf',
-    downloadUrl: '/fonts/SpaceGrotesk.ttf'
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "/fonts/SpaceGrotesk.ttf",
+    "downloadUrl": "/fonts/SpaceGrotesk.ttf"
   }
 ];

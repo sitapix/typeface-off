@@ -1,17 +1,18 @@
 /**
- * Turns scripts/local-fonts.yaml into src/lib/localFonts.generated.ts.
+ * Turns the `local:` section of scripts/fonts.yaml into
+ * src/lib/localFonts.generated.ts.
  *
  *   node scripts/generate-local-fonts.cjs    (or: npm run fonts:local)
  *
  * Offline — reads the YAML config + checks files exist in static/fonts/.
- * See scripts/local-fonts.yaml for the schema.
+ * See scripts/fonts.yaml for the schema.
  */
 const fs = require('fs');
 const path = require('path');
 const YAML = require('yaml');
 
 const STATIC_DIR = 'static/fonts';
-const YAML_FILE = 'scripts/local-fonts.yaml';
+const YAML_FILE = 'scripts/fonts.yaml';
 const OUT = 'src/lib/localFonts.generated.ts';
 const CATEGORIES = ['sans', 'serif', 'display', 'script', 'mono'];
 
@@ -47,13 +48,10 @@ function variantLabel(face) {
 
 let entries = [];
 try {
-  entries = YAML.parse(fs.readFileSync(YAML_FILE, 'utf8')) || [];
+  const cfg = YAML.parse(fs.readFileSync(YAML_FILE, 'utf8')) || {};
+  entries = Array.isArray(cfg.local) ? cfg.local : [];
 } catch (e) {
   console.error(`Could not parse ${YAML_FILE}: ${e.message}`);
-  process.exit(1);
-}
-if (!Array.isArray(entries)) {
-  console.error(`${YAML_FILE} must be a YAML list of font entries.`);
   process.exit(1);
 }
 
@@ -121,7 +119,7 @@ for (const entry of entries) {
 
 const out =
   `import type { Font } from './fonts';\n\n` +
-  `// AUTO-GENERATED from scripts/local-fonts.yaml by scripts/generate-local-fonts.cjs.\n` +
+  `// AUTO-GENERATED from the local: section of scripts/fonts.yaml by scripts/generate-local-fonts.cjs.\n` +
   `// Run: npm run fonts:local  — do not edit by hand (use localFonts.ts for manual entries).\n` +
   `export const localGeneratedFonts: Font[] = ${JSON.stringify(fontsArr, null, 2)};\n`;
 fs.writeFileSync(OUT, out);

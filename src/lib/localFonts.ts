@@ -4,7 +4,7 @@ import type { Font } from './fonts';
 //
 // For most self-hosted fonts, prefer the easy YAML config:
 //   1. Put file(s) in  static/fonts/
-//   2. Add an entry to  scripts/local-fonts.yaml
+//   2. Add an entry under  local:  in  scripts/fonts.yaml
 //   3. Run  npm run fonts:local
 // …which generates src/lib/localFonts.generated.ts.
 //
