@@ -17,6 +17,15 @@ import { showName, fontSize } from '$lib/store.svelte';
 
 let { data } = $props();
 
+const categories = [
+  { id: 'all', label: 'All' },
+  { id: 'sans', label: 'Sans' },
+  { id: 'serif', label: 'Serif' },
+  { id: 'display', label: 'Display' }
+] as const;
+type Category = (typeof categories)[number]['id'];
+
+let selectedCategory = $state<Category>('all');
 let game = $state<any>(null);
 let currentBracket = $state<any>(null);
 let leftButton = $state<HTMLButtonElement>();
@@ -37,8 +46,19 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 function startGame() {
-  game = createGame(data.fonts);
+  const pool =
+    selectedCategory === 'all'
+      ? data.fonts
+      : data.fonts.filter((font) => font.category === selectedCategory);
+  // copy the pool so createGame's in-place shuffle doesn't mutate shared data
+  game = createGame([...pool]);
   currentBracket = game.startGame();
+}
+
+function selectCategory(id: Category) {
+  selectedCategory = id;
+  showName.value = false;
+  startGame();
 }
 
 function getFontByFamilyName(familyName: string) {
@@ -80,6 +100,19 @@ function scrollToBracket() {
 
   {#snippet sidebar()}
     <Sidebar>
+      <div class="flex flex-col gap-2">
+        <span class="text-sm opacity-70">Filter by type</span>
+        <div
+          class="btn-group preset-outlined-surface-500 w-full [&>*+*]:border-surface-400-500">
+          {#each categories as category (category.id)}
+            <button
+              class="btn btn-sm {selectedCategory === category.id
+                ? 'preset-filled-primary-500'
+                : ''}"
+              onclick={() => selectCategory(category.id)}>{category.label}</button>
+          {/each}
+        </div>
+      </div>
       <button class="btn preset-filled-primary-500" onclick={startGame}
         >Restart Game</button>
       {#if game?.rounds.length}
