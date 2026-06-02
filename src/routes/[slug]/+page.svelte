@@ -18,7 +18,8 @@ import {
   fontFamilyRight,
   menuOpen,
   searchTerm,
-  ligatures
+  ligatures,
+  previewText
 } from '$lib/store.svelte';
 
 let { data } = $props();
@@ -78,7 +79,8 @@ $effect(() => {
               family={currentFont.family}
               category={currentFont.category}
               fontSize={18}
-              ligatures={ligatures.value} />
+              ligatures={ligatures.value}
+              text={previewText.value} />
           </div>
           <details class="disclosure">
             <summary
@@ -186,14 +188,16 @@ $effect(() => {
         <FontColumn
           font={currentFont}
           fontSize={fontSize.value}
-          ligatures={ligatures.value} />
+          ligatures={ligatures.value}
+          editable />
       </div>
       {#if fontFamilyRight.value}
         <div class="relative hidden flex-col gap-4 md:flex">
           <FontColumn
             font={getFontByFamily(fontFamilyRight.value)}
             fontSize={fontSize.value}
-            ligatures={ligatures.value} />
+            ligatures={ligatures.value}
+            text={previewText.value} />
           <button
             class="btn preset-filled-surface-500 absolute bottom-10 self-center"
             onclick={() => (fontFamilyRight.value = '')}

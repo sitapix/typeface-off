@@ -21,7 +21,8 @@ import {
   fontFamily,
   fontFamilyRight,
   searchTerm,
-  ligatures
+  ligatures,
+  previewText
 } from '$lib/store.svelte';
 
 let { data } = $props();
@@ -52,7 +53,8 @@ const fonts = $derived(
             fontSize={fontSize.value}
             family={fontFamily.value}
             category={getFontByFamily(fontFamily.value)?.category}
-            ligatures={ligatures.value} />
+            ligatures={ligatures.value}
+            text={previewText.value} />
         </div>
       {/snippet}
       <SearchBar />
@@ -76,14 +78,16 @@ const fonts = $derived(
       <FontColumn
         font={getFontByFamily(fontFamily.value)}
         fontSize={fontSize.value}
-        ligatures={ligatures.value} />
+        ligatures={ligatures.value}
+        editable />
     </div>
     {#if fontFamilyRight.value}
       <div class="relative hidden flex-col gap-4 md:flex">
         <FontColumn
           font={getFontByFamily(fontFamilyRight.value)}
           fontSize={fontSize.value}
-          ligatures={ligatures.value} />
+          ligatures={ligatures.value}
+          text={previewText.value} />
         <button
           class="btn preset-filled-surface-500 absolute bottom-4 self-center"
           onclick={() => (fontFamilyRight.value = '')}>Clear Comparison</button>

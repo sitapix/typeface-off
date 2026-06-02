@@ -49,6 +49,7 @@ let poolSize = $state(0);
 let resultsCardEl = $state<HTMLDivElement>();
 let canShare = $state(false);
 let sharing = $state(false);
+let showBracket = $state(false);
 
 // Active two-player matchup vs. the crowned champion — derived views over the
 // raw bracket so the template stays null-safe.
@@ -170,6 +171,45 @@ async function shareImage() {
 
 <svelte:window onkeydown={handleKeydown} />
 
+<!-- The bracket tree, shared by the desktop sidebar and the mobile overlay. -->
+{#snippet bracketTree()}
+  <div class="font-brackets">
+    {#each game?.rounds ?? [] as round, index (index)}
+      {#if game?.finalRound === index}
+        <div class="round-winner">
+          <WinnerBadge>
+            <span style="font-family: '{round[0].winner?.family}'">
+              {round[0].winner?.family}
+            </span>
+          </WinnerBadge>
+        </div>
+      {:else}
+        <div class="bracket-round" class:first-round={index === 0}>
+          {#each round as bracket (bracket)}
+            <div class="font-bracket" class:active={bracket === currentBracket}>
+              {#each bracket.players as font (font.family)}
+                <PlayerBadge
+                  class={bracket.winner?.family == font.family
+                    ? 'preset-tonal-primary'
+                    : 'preset-tonal-surface'}>
+                  <span use:lazyFont={font.family}>
+                    {showName.value ? font.family : 'ABC abc 123'}
+                  </span>
+                </PlayerBadge>
+              {/each}
+              <div
+                class="line-bracket {bracket.players.length === 1
+                  ? 'bottom-1/2'
+                  : ''}">
+              </div>
+            </div>
+          {/each}
+        </div>
+      {/if}
+    {/each}
+  </div>
+{/snippet}
+
 <AppFrame
   headerClass={topCollapsed.value ? 'hidden lg:block' : ''}
   pageHeaderClass={topCollapsed.value ? 'hidden lg:block' : ''}>
@@ -189,46 +229,10 @@ async function shareImage() {
       <button class="btn preset-filled-primary-500" onclick={startGame}
         >Restart Game</button>
       {#if game?.rounds.length}
-        <!-- Bracket needs horizontal room; show it only where the sidebar is
-             static (lg+). On smaller screens the inline filters cover control. -->
+        <!-- Bracket needs horizontal room; a static sidebar column on lg+. On
+             mobile it's reached via the toolbar's bracket button (overlay). -->
         <div class="table-wrap hidden rounded-none p-2 lg:block">
-          <div class="font-brackets">
-            {#each game.rounds as round, index (index)}
-              {#if game.finalRound === index}
-                <div class="round-winner">
-                  <WinnerBadge>
-                    <span style="font-family: '{round[0].winner?.family}'">
-                      {round[0].winner?.family}
-                    </span>
-                  </WinnerBadge>
-                </div>
-              {:else}
-                <div class="bracket-round" class:first-round={index === 0}>
-                  {#each round as bracket (bracket)}
-                    <div
-                      class="font-bracket"
-                      class:active={bracket === currentBracket}>
-                      {#each bracket.players as font (font.family)}
-                        <PlayerBadge
-                          class={bracket.winner?.family == font.family
-                            ? 'preset-tonal-primary'
-                            : 'preset-tonal-surface'}>
-                          <span use:lazyFont={font.family}>
-                            {showName.value ? font.family : 'ABC abc 123'}
-                          </span>
-                        </PlayerBadge>
-                      {/each}
-                      <div
-                        class="line-bracket {bracket.players.length === 1
-                          ? 'bottom-1/2'
-                          : ''}">
-                      </div>
-                    </div>
-                  {/each}
-                </div>
-              {/if}
-            {/each}
-          </div>
+          {@render bracketTree()}
         </div>
       {/if}
     </Sidebar>
@@ -239,7 +243,7 @@ async function shareImage() {
   {/snippet}
 
   <div class="h-full overflow-hidden bg-surface-50-950">
-    <h1 class="sr-only">Font Face-Off — pick your favorite font</h1>
+    <h1 class="sr-only">TypefaceOff — pick your favorite font</h1>
     {#if duel}
       <!-- MOBILE / TABLET: tap-to-pick duel — both fonts on screen, no scroll -->
       <div class="flex h-full flex-col p-3 pt-2 lg:hidden">
@@ -268,6 +272,14 @@ async function shareImage() {
           </div>
           <span class="shrink-0 text-xs tabular-nums opacity-60"
             >{picksMade}/{totalPicks}</span>
+          {#if game?.rounds.length}
+            <button
+              class="btn-icon preset-tonal-surface shrink-0"
+              onclick={() => (showBracket = true)}
+              aria-label="View bracket">
+              <Icon name="bracket" size={18} />
+            </button>
+          {/if}
           <button
             class="btn btn-sm preset-filled-primary-500 shrink-0"
             onclick={startGame}>Restart</button>
@@ -337,9 +349,9 @@ async function shareImage() {
           <div
             class="relative mx-auto flex max-w-5xl flex-col gap-12 p-4 md:p-10">
             <div
-              class="flex flex-col gap-6 border-t-2 border-surface-700-300 pt-10 tracking-widest">
-              <h2 class="h2">CERTIFICATE OF ABSOLUTE AWESOMENESS</h2>
-              <h3 class="h4">HEREBY UNLEASHED UPON</h3>
+              class="flex flex-col gap-3 border-t-2 border-surface-700-300 pt-10">
+              <h2 class="h2 text-balance">Certificate of Distinction</h2>
+              <h3 class="h4">Hereby crowned champion</h3>
             </div>
             <div
               class="my-4 text-4xl md:text-6xl"
@@ -381,19 +393,19 @@ async function shareImage() {
               </div>
             {/if}
 
-            <h4 class="h4">
+            <h4 class="h4 text-pretty">
               For mastering the art of bézier curve pageantry, where serifs and
-              counters stand heroic — triumphing in the tumultuous tournament of
-              type!
+              counters stand heroic and triumphant in the tumultuous tournament
+              of type.
             </h4>
             <div class="mt-20 hidden justify-between md:flex">
               <div>
                 <p class="mb-2">__________________________</p>
-                <p class="text-center">HEAD OF DEPARTMENT</p>
+                <p class="text-center">Head of Kerning</p>
               </div>
               <div>
                 <p class="mb-2">__________________________</p>
-                <p class="text-center">COORDINATOR</p>
+                <p class="text-center">Master of Ceremonies</p>
               </div>
             </div>
           </div>
@@ -402,3 +414,22 @@ async function shareImage() {
     {/if}
   </div>
 </AppFrame>
+
+{#if showBracket}
+  <!-- MOBILE: the full bracket as a scrollable overlay (desktop has the sidebar). -->
+  <div class="fixed inset-0 z-40 flex flex-col bg-surface-50-950 lg:hidden">
+    <div
+      class="flex shrink-0 items-center justify-between border-b border-surface-200-800 bg-surface-100-900 p-4">
+      <span class="font-semibold">Bracket</span>
+      <button
+        class="btn-icon preset-tonal-surface"
+        onclick={() => (showBracket = false)}
+        aria-label="Close bracket">
+        <Icon name="x" size={22} />
+      </button>
+    </div>
+    <div class="min-h-0 flex-1 overflow-auto p-4">
+      {@render bracketTree()}
+    </div>
+  </div>
+{/if}

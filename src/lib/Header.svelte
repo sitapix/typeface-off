@@ -20,8 +20,8 @@ const norm = (p: string) => p.replace(/\/+$/, '') || '/';
 </script>
 
 <div
-  class="flex flex-row items-center justify-between gap-4 border-b border-surface-200-800 bg-surface-100-900 p-4">
-  <div class="flex items-center justify-center gap-4">
+  class="flex flex-row items-center justify-between gap-2 border-b border-surface-200-800 bg-surface-100-900 p-3 sm:gap-4 sm:p-4">
+  <div class="flex items-center justify-center gap-2 sm:gap-4">
     {#if showMenu}
       <button
         class="btn-icon preset-tonal-surface lg:hidden"
@@ -33,21 +33,23 @@ const norm = (p: string) => p.replace(/\/+$/, '') || '/';
       </button>
     {/if}
     <a href="{base}/" aria-label="TypefaceOff home"
-      ><Logo class="text-2xl sm:text-3xl" /></a>
+      ><Logo class="text-xl sm:text-3xl" /></a>
   </div>
 
-  <nav class="hidden items-center gap-2 md:flex">
+  <nav class="flex items-center gap-1 sm:gap-2">
     {#each links as link (link.href)}
       <a
         href={link.href}
         aria-current={norm(page.url.pathname) === norm(link.href)
           ? 'page'
           : undefined}
-        class="btn {norm(page.url.pathname) === norm(link.href)
+        class="btn btn-sm {norm(page.url.pathname) === norm(link.href)
           ? 'preset-tonal-primary'
           : 'hover:preset-tonal-surface'}">{link.label}</a>
     {/each}
-    <a href="https://typogram.co/studio/" class="btn hover:preset-tonal-surface"
+    <a
+      href="https://typogram.co/studio/"
+      class="btn btn-sm hidden hover:preset-tonal-surface md:inline-flex"
       >Studio</a>
   </nav>
 
@@ -58,7 +60,7 @@ const norm = (p: string) => p.replace(/\/+$/, '') || '/';
       rel="noopener"
       aria-label="TypefaceOff on GitHub"
       title="View source on GitHub"
-      class="btn-icon preset-tonal-surface">
+      class="btn-icon preset-tonal-surface hidden md:inline-flex">
       <Icon name="github" size={22} />
     </a>
     <ThemePicker />

@@ -4,6 +4,10 @@ export const fontSize = persisted<number>('fontSize', 20);
 export const fontFamily = persisted<string>('fontFamily', 'Inter');
 export const fontFamilyRight = persisted<string>('fontFamilyRight', '');
 export const searchTerm = persisted<string>('searchTerm', '');
+// Browse/detail type-tester text: type your own copy and compare it across
+// fonts. Persisted, so it survives reloads and font switches. The Game ignores
+// it (its duel specimens stay fixed for a fair comparison).
+export const previewText = persisted<string>('previewText', '');
 export const menuOpen = persisted<boolean>('menuOpen', false);
 export const showName = persisted<boolean>('showName', false);
 export const ligatures = persisted<boolean>('ligatures', true);

@@ -10,13 +10,17 @@ let {
   category = 'sans',
   fontSize = 20,
   ligatures = true,
-  class: className = ''
+  class: className = '',
+  editable = false,
+  text = ''
 }: {
   family?: string;
   category?: FontCategory;
   fontSize?: number;
   ligatures?: boolean;
   class?: string;
+  editable?: boolean;
+  text?: string;
 } = $props();
 </script>
 
@@ -27,5 +31,10 @@ let {
     ligatures={ligatures}
     class={className} />
 {:else}
-  <NotePreview fontFamily={family} fontSize={fontSize} class={className} />
+  <NotePreview
+    fontFamily={family}
+    fontSize={fontSize}
+    class={className}
+    editable={editable}
+    text={text} />
 {/if}

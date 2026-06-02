@@ -65,5 +65,8 @@ let {
     <path d="m6 9 6 6 6-6" />
   {:else if name === 'check'}
     <path d="M20 6 9 17l-5-5" />
+  {:else if name === 'bracket'}
+    <path d="M5 7h4v5h6" />
+    <path d="M5 17h4v-5" />
   {/if}
 </svg>

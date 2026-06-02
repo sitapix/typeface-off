@@ -41,7 +41,7 @@ let {
          static left column and this is the main content beside it. -->
     <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
       {#if pageHeader}
-        <div class="z-20 shrink-0 {pageHeaderClass}">
+        <div class="z-10 shrink-0 {pageHeaderClass}">
           {@render pageHeader()}
         </div>
       {/if}

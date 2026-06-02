@@ -2,12 +2,25 @@
 // A "natural" specimen: renders a real encyclopedia-style article (heading,
 // running prose with links, bold, italics, a citation, and a glyph row) inside
 // a browser-window frame — so you judge the font the way you'd actually read it
-// on the web, not as abstract pangram lines.
+// on the web, not as abstract pangram lines. When `editable`, the headline turns
+// into an in-place type tester bound to the shared `previewText` store, so you
+// can set your own copy once and compare it across fonts.
+import { previewText } from '$lib/store.svelte';
 let {
   fontFamily = 'Inter',
   fontSize = 20,
-  class: className = ''
-}: { fontFamily?: string; fontSize?: number; class?: string } = $props();
+  class: className = '',
+  editable = false,
+  text = ''
+}: {
+  fontFamily?: string;
+  fontSize?: number;
+  class?: string;
+  /** Make the headline an in-place tester bound to `previewText`. */
+  editable?: boolean;
+  /** Headline text for read-only specimens (falls back to the sample heading). */
+  text?: string;
+} = $props();
 </script>
 
 <div
@@ -26,11 +39,25 @@ let {
   <article
     class="article-body flex-1 overflow-auto px-6 py-5"
     style="font-family: '{fontFamily}', sans-serif; font-size: {fontSize}px; line-height: 1.6;">
-    <h1
-      class="font-bold"
-      style="font-size: {fontSize * 1.9}px; line-height: 1.2;">
-      Kola nut
-    </h1>
+    {#if editable}
+      <div
+        class="tester-heading cursor-text rounded font-bold outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-500"
+        style="font-size: {fontSize * 1.9}px; line-height: 1.2;"
+        contenteditable="plaintext-only"
+        role="textbox"
+        aria-multiline="true"
+        aria-label="Preview text"
+        spellcheck="false"
+        data-placeholder="Type to preview"
+        bind:textContent={previewText.value}>
+      </div>
+    {:else}
+      <h1
+        class="font-bold"
+        style="font-size: {fontSize * 1.9}px; line-height: 1.2;">
+        {text || 'Kola nut'}
+      </h1>
+    {/if}
     <p class="mt-3">
       The <strong class="font-semibold">kola nut</strong> is the seed of certain
       species of plant of the genus <em class="italic">Cola</em>, native to the
@@ -55,3 +82,11 @@ let {
     </p>
   </article>
 </div>
+
+<style>
+/* Placeholder for the empty type-tester headline. */
+.tester-heading:empty::before {
+  content: attr(data-placeholder);
+  opacity: 0.4;
+}
+</style>
