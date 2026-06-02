@@ -88,9 +88,9 @@ describe('seedBracket', () => {
     const order = seedBracket([1, 2, 3, 4, 5, 6]); // → bracket of 8
     expect(order).toHaveLength(8);
     expect(order.filter((x) => x === null)).toHaveLength(2); // 2 byes
-    expect(order.filter((x): x is number => x !== null).sort((a, b) => a - b)).toEqual([
-      1, 2, 3, 4, 5, 6
-    ]);
+    expect(
+      order.filter((x): x is number => x !== null).sort((a, b) => a - b)
+    ).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it('gives the top seed a bye (seed 1 paired with a null)', () => {
@@ -104,7 +104,8 @@ describe('seedBracket', () => {
     const game = createGame(fonts, { shuffle: false });
     let b: any = game.startGame();
     let guard = 0;
-    while (b?.players?.length && guard++ < 5000) b = game.setWinner(b.players[0]);
+    while (b?.players?.length && guard++ < 5000)
+      b = game.setWinner(b.players[0]);
     expect(b?.winner).toBeTruthy();
   });
 
