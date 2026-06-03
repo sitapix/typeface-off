@@ -1,4 +1,5 @@
 <script lang="ts">
+import { tick } from 'svelte';
 import type { PlacementTier } from './game';
 
 // Shareable ranking card — the snapshot target for the square JPEG export.
@@ -15,8 +16,15 @@ import type { PlacementTier } from './game';
 // only; it isn't baked into the JPEG.
 let {
   tiers,
-  categoryLabel = ''
-}: { tiers: PlacementTier[]; categoryLabel?: string } = $props();
+  categoryLabel = '',
+  onmeasured
+}: {
+  tiers: PlacementTier[];
+  categoryLabel?: string;
+  // Fired once the per-font x-height sizes have been measured and applied to
+  // the DOM, so a capture of this card reflects the final layout.
+  onmeasured?: () => void;
+} = $props();
 
 const champ = $derived(tiers[0]);
 const championFamily = $derived(champ?.fonts[0]?.family ?? '');
@@ -62,6 +70,8 @@ $effect(() => {
       next[f] = x > 0 ? x / 100 : TARGET_X;
     }
     xRatios = next;
+    await tick(); // let the new per-font sizes land in the DOM before capture
+    if (!cancelled) onmeasured?.();
   })();
   return () => {
     cancelled = true;

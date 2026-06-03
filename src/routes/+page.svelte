@@ -29,6 +29,7 @@ import { quickRoster, fullRoster } from '$lib/roster';
 import {
   downloadElement,
   shareElement,
+  renderElementToImage,
   canShareFiles
 } from '$lib/captureImage';
 import {
@@ -48,6 +49,11 @@ let leftButton = $state<HTMLButtonElement>();
 let rightButton = $state<HTMLButtonElement>();
 let poolSize = $state(0);
 let resultsCardEl = $state<HTMLDivElement>();
+// The results card is shown as its rendered image (what you save/share), with
+// the live card kept behind it as the capture source + a11y fallback. null
+// until the first render completes for the current results.
+let cardImage = $state<string | null>(null);
+let cardRenderToken = 0;
 let canShare = $state(false);
 let sharing = $state(false);
 let showBracket = $state(false);
@@ -78,6 +84,16 @@ const progress = $derived(totalPicks ? Math.min(1, picksMade / totalPicks) : 0);
 const tiers = $derived(
   game && champion ? placeFonts(game.rounds, game.finalRound, 10) : []
 );
+
+// Alt text for the rendered card image, so screen readers still get the
+// ranking the image now carries instead of live text.
+const cardAlt = $derived.by(() => {
+  if (!tiers.length) return '';
+  const [winner, ...rest] = tiers.flatMap((t) => t.fonts).map((f) => f.family);
+  return rest.length
+    ? `Type-specimen card. Winner: ${winner}. Runners-up: ${rest.join(', ')}.`
+    : `Type-specimen card. Winner: ${winner}.`;
+});
 
 onMount(() => {
   // The game has no mobile drawer (filters are inline + the header omits the
@@ -182,6 +198,29 @@ async function shareImage() {
     sharing = false;
   }
 }
+
+// Render the live card to the image shown on the page. Fired by the card's
+// onmeasured once its metric-based sizes have landed, so the capture is of the
+// final layout. The token guards against an earlier render finishing last.
+async function renderCardImage() {
+  if (!resultsCardEl) return;
+  const token = ++cardRenderToken;
+  try {
+    const url = await renderElementToImage(resultsCardEl);
+    if (token === cardRenderToken) cardImage = url;
+  } catch {
+    // Leave the live card showing as the fallback if the capture fails.
+  }
+}
+
+// Drop a stale image the instant results clear, so starting a new game never
+// flashes the previous winner.
+$effect(() => {
+  if (!tiers.length) {
+    cardImage = null;
+    cardRenderToken++;
+  }
+});
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -445,10 +484,29 @@ async function shareImage() {
                     </button>
                   {/if}
                 </div>
-                <div
-                  bind:this={resultsCardEl}
-                  class="@container mx-auto w-[85%] max-w-[490px]">
-                  <ResultsCard tiers={tiers} categoryLabel={resultsLabel} />
+                <!-- The card is shown as its rendered image (exactly what Save
+                     and Share produce). The live card stays mounted underneath
+                     as the capture source and as the text fallback if the image
+                     hasn't rendered yet or snapdom fails. -->
+                <div class="relative mx-auto w-[85%] max-w-[490px]">
+                  <!-- `isolate` keeps the card's inner z-10 layers in their own
+                       stacking context so the overlaid image covers them fully
+                       (without it, the text paints over the image). -->
+                  <div
+                    bind:this={resultsCardEl}
+                    class="@container isolate"
+                    aria-hidden={cardImage ? 'true' : undefined}>
+                    <ResultsCard
+                      tiers={tiers}
+                      categoryLabel={resultsLabel}
+                      onmeasured={renderCardImage} />
+                  </div>
+                  {#if cardImage}
+                    <img
+                      src={cardImage}
+                      alt={cardAlt}
+                      class="absolute inset-0 block h-full w-full" />
+                  {/if}
                 </div>
               </div>
             {/if}
