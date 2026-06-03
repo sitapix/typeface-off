@@ -447,7 +447,7 @@ async function shareImage() {
                 </div>
                 <div
                   bind:this={resultsCardEl}
-                  class="mx-auto w-[85%] max-w-[490px]">
+                  class="@container mx-auto w-[85%] max-w-[490px]">
                   <ResultsCard tiers={tiers} categoryLabel={resultsLabel} />
                 </div>
               </div>
