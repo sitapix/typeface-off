@@ -30,13 +30,11 @@ async function ensureFontsLoaded(el: HTMLElement): Promise<void> {
 }
 
 /** Layout width (px) the card is captured at, so the export is device-
- *  independent AND matches what's on screen. Must equal the card's own max
- *  width (the wrapper's `max-w-[490px]` in +page.svelte) so the saved image has
- *  the same type-to-frame proportions, padding ratio and line wrapping as the
- *  live card — capturing wider would bake in extra margin and smaller-looking
- *  type. The live card shrinks below this on narrow phones; pinning it here
- *  keeps the export the consistent desktop layout. Square, so height is pinned
- *  to the same value. */
+ *  independent. Must equal the card's design width (the wrapper's
+ *  `max-w-[490px]` in +page.svelte, also ResultsCard's REF_WIDTH): the card
+ *  sizes itself in container-query units, so capturing at 490 resolves every
+ *  cqw to its designed pixel size no matter the phone's screen width. Square,
+ *  so height is pinned to the same value. */
 const CARD_EXPORT_WIDTH = 490;
 /** snapdom render scale. We render large (supersample) and shrink to
  *  CARD_OUTPUT_WIDTH so glyph edges come out smooth, not aliased. */
