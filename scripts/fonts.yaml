@@ -49,7 +49,8 @@ google:
 # --- Self-hosted fonts. Required: family, category, and files: (or faces:).
 #     Optional: variable: true · url: https://… · license: OFL-1.1 · designer: …
 #     IMPORTANT: you redistribute these files, so also drop the font's license
-#     text in  static/fonts/licenses/  (most OSS fonts are OFL-1.1). See FONTS.md.
+#     text in  static/fonts/licenses/  (most OSS fonts are OFL-1.1).
+#     Full guide: docs/add-a-font-by-hand.md
 local:
   - family: Space Grotesk
     category: sans
