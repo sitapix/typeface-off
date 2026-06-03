@@ -4,6 +4,14 @@
  * never runs during SSR/prerender — call only from a client event handler).
  * snapdom does DOM→canvas (embedding web fonts); the standard canvas API does
  * the JPEG encode so we don't depend on snapdom's encoder signatures.
+ *
+ * Glyph edges are smoothed by supersampling: we capture at SUPERSAMPLE× the
+ * layout size, then downscale to the final square with high-quality smoothing
+ * (elementToCanvas). White-on-pure-black text aliases hard at 1:1 and JPEG adds
+ * ringing on top — rendering big and shrinking turns those jagged max-contrast
+ * edges into clean anti-aliased ones before the encoder ever sees them. snapdom
+ * paints an opaque background (below) so the JPEG has no transparency or
+ * triangle artifacts.
  */
 
 /** Pre-load every inline `font-family` in the subtree so the snapshot isn't a
@@ -21,14 +29,21 @@ async function ensureFontsLoaded(el: HTMLElement): Promise<void> {
   await document.fonts.ready;
 }
 
-/** Fixed capture width (px) for the share card, so the exported JPEG is the same
- *  size on every device. Matches the card's own max width (Tailwind `max-w-xl` =
- *  36rem); the live card shrinks below this on narrow phones, which would
- *  otherwise bake the phone's width — and its different line wrapping — into the
- *  saved image. Final pixels = this × CARD_EXPORT_SCALE (dpr is pinned below so
- *  the device's pixel ratio doesn't change the output size). */
-const CARD_EXPORT_WIDTH = 576;
-const CARD_EXPORT_SCALE = 2;
+/** Layout width (px) the card is captured at, so the export is device-
+ *  independent AND matches what's on screen. Must equal the card's own max
+ *  width (the wrapper's `max-w-[490px]` in +page.svelte) so the saved image has
+ *  the same type-to-frame proportions, padding ratio and line wrapping as the
+ *  live card — capturing wider would bake in extra margin and smaller-looking
+ *  type. The live card shrinks below this on narrow phones; pinning it here
+ *  keeps the export the consistent desktop layout. Square, so height is pinned
+ *  to the same value. */
+const CARD_EXPORT_WIDTH = 490;
+/** snapdom render scale. We render large (supersample) and shrink to
+ *  CARD_OUTPUT_WIDTH so glyph edges come out smooth, not aliased. */
+const CARD_SUPERSAMPLE = 4;
+/** Final saved square size (px). 1080 is the standard social square; the 4×
+ *  capture (2304²) downsamples into it cleanly. */
+const CARD_OUTPUT_WIDTH = 1080;
 
 async function elementToCanvas(el: HTMLElement): Promise<HTMLCanvasElement> {
   const { snapdom } = await import('@zumer/snapdom');
@@ -42,6 +57,10 @@ async function elementToCanvas(el: HTMLElement): Promise<HTMLCanvasElement> {
   const clone = el.cloneNode(true) as HTMLElement;
   clone.style.width = `${CARD_EXPORT_WIDTH}px`;
   clone.style.maxWidth = `${CARD_EXPORT_WIDTH}px`;
+  // Force a square (1:1) export. The card is aspect-square on-screen too, but
+  // pinning the height makes the saved image square even if content would
+  // otherwise stretch the box; overflow-hidden on the card clips any spill.
+  clone.style.height = `${CARD_EXPORT_WIDTH}px`;
   clone.style.position = 'fixed';
   clone.style.top = '0';
   clone.style.left = '-100000px';
@@ -49,13 +68,25 @@ async function elementToCanvas(el: HTMLElement): Promise<HTMLCanvasElement> {
   document.body.appendChild(clone);
   try {
     const result = await snapdom(clone, {
-      scale: CARD_EXPORT_SCALE,
+      scale: CARD_SUPERSAMPLE,
       dpr: 1, // pin to 1 so a retina vs non-retina device can't change the size
       embedFonts: true,
       backgroundColor
     });
     // Await the canvas before `finally` removes the clone — toCanvas() is async.
-    return await result.toCanvas();
+    const hi = await result.toCanvas(); // supersampled square (490 × 4 = 1960)
+    // Downsample to the final square with high-quality smoothing. This is what
+    // makes the text crisp: averaging 4× pixels turns hard-aliased white-on-
+    // black edges into smooth ones (and pins the output size for every device).
+    const out = document.createElement('canvas');
+    out.width = CARD_OUTPUT_WIDTH;
+    out.height = CARD_OUTPUT_WIDTH;
+    const ctx = out.getContext('2d');
+    if (!ctx) return hi; // no 2D context: fall back to the raw supersample
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(hi, 0, 0, CARD_OUTPUT_WIDTH, CARD_OUTPUT_WIDTH);
+    return out;
   } finally {
     clone.remove();
   }
