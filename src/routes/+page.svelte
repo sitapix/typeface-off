@@ -49,6 +49,10 @@ let currentBracket = $state<MatchupResult | undefined>(undefined);
 let leftButton = $state<HTMLButtonElement>();
 let rightButton = $state<HTMLButtonElement>();
 let poolSize = $state(0);
+// Per-bracket counter, bumped each deal: the duel specimen rotates by this
+// (seed) between games, constant within a bracket. See specimenContent.ts.
+let dealCount = $state(0);
+const specimenSeed = $derived(Math.max(0, dealCount - 1));
 let resultsCardEl = $state<HTMLDivElement>();
 // The results card is shown as its rendered image (what you save/share), with
 // the live card kept behind it as the capture source + a11y fallback. null
@@ -239,6 +243,7 @@ function startGame() {
   const players = seedBracket(roster);
   game = createGame(players, { shuffle: false });
   currentBracket = game.startGame();
+  dealCount += 1;
   saveGame();
 }
 
@@ -501,6 +506,7 @@ $effect(() => {
           fontSize={fontSize.value}
           ligatures={ligatures.value}
           showName={showName.value}
+          seed={specimenSeed}
           onpick={chooseWinner} />
       </div>
 
@@ -514,7 +520,9 @@ $effect(() => {
             fontSize={fontSize.value}
             family={duel.players[0].family}
             category={duel.players[0].category}
-            ligatures={ligatures.value} />
+            ligatures={ligatures.value}
+            variant="specimen"
+            seed={specimenSeed} />
           <button
             bind:this={leftButton}
             class="btn preset-filled-primary-500 absolute bottom-10 left-1/2 -translate-x-1/2 shadow-xl"
@@ -528,7 +536,9 @@ $effect(() => {
             fontSize={fontSize.value}
             family={duel.players[1].family}
             category={duel.players[1].category}
-            ligatures={ligatures.value} />
+            ligatures={ligatures.value}
+            variant="specimen"
+            seed={specimenSeed} />
           <button
             bind:this={rightButton}
             class="btn preset-filled-primary-500 absolute bottom-10 left-1/2 -translate-x-1/2 shadow-xl"
