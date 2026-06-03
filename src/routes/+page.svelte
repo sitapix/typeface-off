@@ -254,6 +254,13 @@ function selectCategory(id: FontCategory) {
   startGame();
 }
 
+// The logo / Game link clicked while already on the game route. On a finished
+// result it's the obvious "start over" escape; mid-game we leave the in-progress
+// bracket alone (you aren't stuck there — the duel and its toolbar are present).
+function goHome() {
+  if (champion) startGame();
+}
+
 async function chooseWinner(player: Font, button?: HTMLElement) {
   currentBracket = game?.setWinner(player);
   saveGame();
@@ -386,10 +393,14 @@ $effect(() => {
 {/snippet}
 
 <AppFrame
-  headerClass={topCollapsed.value ? 'hidden lg:block' : ''}
-  pageHeaderClass={topCollapsed.value ? 'hidden lg:block' : ''}>
+  headerClass={!champion && topCollapsed.value ? 'hidden lg:block' : ''}
+  pageHeaderClass={champion
+    ? 'hidden'
+    : topCollapsed.value
+      ? 'hidden lg:block'
+      : ''}>
   {#snippet header()}
-    <Header showMenu={false} />
+    <Header showMenu={false} onhome={goHome} />
   {/snippet}
 
   {#snippet sidebar()}
@@ -614,8 +625,11 @@ $effect(() => {
             <!-- Mobile post-game controls. The desktop sidebar carries restart,
                  the category filter, and the bracket the whole game; the mobile
                  results screen has no toolbar, so without this there's no way to
-                 start over, pick a different matchup, or review the bracket. -->
-            <div class="flex flex-col gap-3 lg:hidden">
+                 start over, pick a different matchup, or review the bracket.
+                 Sits on a solid surface so the outlined controls keep their
+                 contrast over the decorative trophy behind them (WCAG AA). -->
+            <div
+              class="relative flex flex-col gap-3 rounded-xl border border-surface-200-800 bg-surface-50-950 p-4 lg:hidden">
               <div class="flex flex-wrap justify-center gap-2">
                 <button
                   class="btn preset-filled-primary-500"
