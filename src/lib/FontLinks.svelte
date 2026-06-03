@@ -11,6 +11,7 @@ let {
   font,
   size = 16,
   showLabels = false,
+  shortLabels = false,
   details = true,
   detailLabel = '',
   groupClass = 'preset-outlined-surface-500 [&>*+*]:border-surface-400-600',
@@ -21,6 +22,9 @@ let {
   size?: number;
   /** Show Visit/Download text alongside the icons (revealed at 2xl). */
   showLabels?: boolean;
+  /** Drop the family name from the visible labels (just "Visit"/"Download") so
+      the group fits one compact row; the aria-labels keep the full text. */
+  shortLabels?: boolean;
   /** Include the "view detail" (maximize) link. */
   details?: boolean;
   /** Text for the detail link when showLabels is on (empty = icon only). */
@@ -41,11 +45,15 @@ let {
     rel="noopener"
     aria-label="Visit {font.family} website">
     <Icon name="external" size={size} />
-    {#if showLabels}<span class={labelClass}>Visit {font.family}</span>{/if}
+    {#if showLabels}<span class={labelClass}
+        >{shortLabels ? 'Visit' : `Visit ${font.family}`}</span
+      >{/if}
   </a>
   <a class="btn" href={font.downloadUrl} aria-label="Download {font.family}">
     <Icon name="download" size={size} />
-    {#if showLabels}<span class={labelClass}>Download {font.family}</span>{/if}
+    {#if showLabels}<span class={labelClass}
+        >{shortLabels ? 'Download' : `Download ${font.family}`}</span
+      >{/if}
   </a>
   {#if details}
     <a
