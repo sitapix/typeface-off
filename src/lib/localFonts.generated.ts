@@ -235,5 +235,56 @@ export const localGeneratedFonts: Font[] = [
     ],
     "siteUrl": "https://kabeech.github.io/serious-shanns/",
     "downloadUrl": "https://kabeech.github.io/serious-shanns/"
+  },
+  {
+    "family": "Phlatt Grotesk",
+    "category": "sans",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/PhlattGrotesk-Regular.woff2"
+      }
+    ],
+    "designer": "RandomMaerks",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://randommaerks.gumroad.com",
+    "downloadUrl": "https://randommaerks.gumroad.com"
+  },
+  {
+    "family": "Fixel",
+    "category": "sans",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/FixelText-Regular.woff2"
+      }
+    ],
+    "designer": "Alfabravo & MacPaw",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://github.com/macpaw/Fixel",
+    "downloadUrl": "https://github.com/macpaw/Fixel"
+  },
+  {
+    "family": "Overused Grotesk",
+    "category": "sans",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/OverusedGrotesk-Regular.woff2"
+      }
+    ],
+    "designer": "RandomMaerks",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://github.com/RandomMaerks/Overused-Grotesk",
+    "downloadUrl": "https://github.com/RandomMaerks/Overused-Grotesk"
   }
 ];

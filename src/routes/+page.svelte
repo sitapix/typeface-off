@@ -25,6 +25,7 @@ import { base } from '$app/paths';
 import { lazyFont } from '$lib/lazyFont';
 import { CATEGORIES, categoryLabel } from '$lib/categories';
 import { FEATURED } from '$lib/featured';
+import { quickRoster, fullRoster } from '$lib/roster';
 import {
   downloadElement,
   shareElement,
@@ -94,21 +95,29 @@ function handleKeydown(event: KeyboardEvent) {
     chooseWinner(duel.players[1], rightButton);
 }
 
-// The quiz roster per category: a hand-curated FEATURED list when one exists
-// (see featured.ts), else the top-N most popular as a fallback. Kept short so
-// the quiz is a quick 4-round / 15-pick bracket; the full catalog still powers
-// Browse. Bump to lengthen the fallback.
-const BRACKET_SIZE = 24;
+// Two deterministic play modes (see roster.ts): Quick draws the most popular
+// Google fonts straight from the catalog; Full adds the curated non-Google
+// extras (FEATURED) on top. FEATURED only needs your extras — the popular set
+// arrives automatically. Browse still shows the whole catalog regardless.
+let quizMode = $state<'quick' | 'full'>('quick');
+
+// Mode sizes for the toggle labels; the toggle hides when Full adds nothing.
+const quickSize = $derived(quickRoster(data.fonts, selectedCategory).length);
+const fullRosterSize = $derived(
+  fullRoster(data.fonts, selectedCategory, FEATURED[selectedCategory]).length
+);
+
+// Collection label for the share card, tagged with which bracket was played so
+// a Top-24 result isn't mistaken for a Full one.
+const resultsLabel = $derived(
+  `${categoryLabel(selectedCategory)} · ${quizMode === 'quick' ? `Top ${poolSize}` : `Full ${poolSize}`}`
+);
 
 function startGame() {
-  const pool = data.fonts.filter((font) => font.category === selectedCategory);
-  const featured = FEATURED[selectedCategory];
-  // Curated roster (resolved from the catalog, in listed order) or top-N.
-  const roster = featured
-    ? (featured
-        .map((name) => pool.find((f) => f.family === name))
-        .filter(Boolean) as Font[])
-    : pool.slice(0, BRACKET_SIZE);
+  const roster =
+    quizMode === 'quick'
+      ? quickRoster(data.fonts, selectedCategory)
+      : fullRoster(data.fonts, selectedCategory, FEATURED[selectedCategory]);
   // poolSize counts real contestants (roster − 1 = taps); seedBracket may pad
   // with null byes for a non-power-of-two roster, so measure before seeding.
   poolSize = roster.length;
@@ -117,6 +126,12 @@ function startGame() {
   const players = seedBracket(roster);
   game = createGame(players, { shuffle: false });
   currentBracket = game.startGame();
+}
+
+function setMode(mode: 'quick' | 'full') {
+  if (quizMode === mode) return;
+  quizMode = mode;
+  startGame();
 }
 
 function selectCategory(id: FontCategory) {
@@ -170,6 +185,28 @@ async function shareImage() {
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
+
+<!-- Bracket-size toggle, shared by the desktop sidebar and the mobile filter
+     bar. Caller guards on fullRosterSize > quickSize (hidden when Quick = Full). -->
+{#snippet modeToggle()}
+  <div
+    class="btn-group preset-outlined-surface-500 flex w-full [&>*+*]:border-surface-400-600"
+    role="group"
+    aria-label="Bracket size">
+    <button
+      class="btn btn-sm flex-1 {quizMode === 'quick'
+        ? 'preset-filled-primary-500'
+        : ''}"
+      aria-pressed={quizMode === 'quick'}
+      onclick={() => setMode('quick')}>Top {quickSize}</button>
+    <button
+      class="btn btn-sm flex-1 {quizMode === 'full'
+        ? 'preset-filled-primary-500'
+        : ''}"
+      aria-pressed={quizMode === 'full'}
+      onclick={() => setMode('full')}>Full {fullRosterSize}</button>
+  </div>
+{/snippet}
 
 <!-- The bracket tree, shared by the desktop sidebar and the mobile overlay. -->
 {#snippet bracketTree()}
@@ -226,6 +263,12 @@ async function shareImage() {
           selected={selectedCategory}
           onselect={selectCategory} />
       </div>
+      {#if fullRosterSize > quickSize}
+        <div class="flex flex-col gap-2">
+          <span class="text-sm opacity-70">Bracket size</span>
+          {@render modeToggle()}
+        </div>
+      {/if}
       <button class="btn preset-filled-primary-500" onclick={startGame}
         >Restart Game</button>
       {#if game?.rounds.length}
@@ -247,7 +290,25 @@ async function shareImage() {
     {#if duel}
       <!-- MOBILE / TABLET: tap-to-pick duel — both fonts on screen, no scroll -->
       <div class="flex h-full flex-col p-3 pt-2 lg:hidden">
-        <!-- always-visible toolbar: collapse chrome · progress · restart -->
+        <!-- collapsible: category filter + bracket size. Each on its own row,
+             wrapping (no horizontal scroll). Sits above the toolbar so the
+             toolbar's collapse control keeps a fixed spot. -->
+        {#if !topCollapsed.value}
+          <div class="flex shrink-0 flex-col gap-2 pb-2">
+            <CategoryFilter
+              categories={CATEGORIES}
+              selected={selectedCategory}
+              onselect={selectCategory} />
+            {#if fullRosterSize > quickSize}
+              {@render modeToggle()}
+            {/if}
+          </div>
+        {/if}
+
+        <!-- Always-visible toolbar (progress · bracket · restart · collapse). It
+             sits directly above the duel in both states, so the collapse control
+             doesn't jump to the middle when the chrome above is shown. The
+             chevron points up to reveal that chrome, down to hide it. -->
         <div class="flex shrink-0 items-center gap-3 pb-2">
           <button
             class="btn-icon preset-tonal-surface shrink-0"
@@ -255,7 +316,7 @@ async function shareImage() {
             aria-label={topCollapsed.value ? 'Show controls' : 'Hide controls'}>
             <span
               class="inline-flex transition-transform duration-200"
-              style="transform: rotate({topCollapsed.value ? 0 : 180}deg);">
+              style="transform: rotate({topCollapsed.value ? 180 : 0}deg);">
               <Icon name="chevron" size={18} />
             </span>
           </button>
@@ -284,17 +345,6 @@ async function shareImage() {
             class="btn btn-sm preset-filled-primary-500 shrink-0"
             onclick={startGame}>Restart</button>
         </div>
-
-        <!-- collapsible: category filters -->
-        {#if !topCollapsed.value}
-          <div class="flex shrink-0 items-center gap-2 overflow-x-auto pb-2">
-            <CategoryFilter
-              variant="group"
-              categories={CATEGORIES}
-              selected={selectedCategory}
-              onselect={selectCategory} />
-          </div>
-        {/if}
 
         <FontDuel
           players={duel.players}
@@ -360,14 +410,16 @@ async function shareImage() {
                 {champion.family}
               </div>
               <!-- Labelled font actions: bare icons here read as "download the
-                   image" next to the share card, so always show the text. -->
+                   image" next to the share card, so always show the text. Stack
+                   on mobile — the family-name labels overflow a single row on a
+                   phone. -->
               <FontLinks
                 font={champion}
                 size={20}
                 showLabels
                 labelClass=""
                 detailLabel="Details"
-                groupClass="preset-tonal-surface text-sm" />
+                groupClass="preset-tonal-surface text-sm w-full max-w-xs flex-col sm:w-auto sm:max-w-none sm:flex-row" />
             </div>
 
             <!-- Shareable Top-10 placement card. The Save/Share actions are the
@@ -393,9 +445,7 @@ async function shareImage() {
                   {/if}
                 </div>
                 <div bind:this={resultsCardEl} class="mx-auto w-full max-w-xl">
-                  <ResultsCard
-                    tiers={tiers}
-                    categoryLabel={categoryLabel(selectedCategory)} />
+                  <ResultsCard tiers={tiers} categoryLabel={resultsLabel} />
                 </div>
               </div>
             {/if}
