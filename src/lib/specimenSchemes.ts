@@ -19,23 +19,76 @@ export interface SpecimenScheme {
   fg: string;
   /** Ground colour. */
   bg: string;
+  /** Link colour for rich specimen text — scheme-aware, ≥4.5:1 on `bg`. */
+  link: string;
 }
 
+// `link` is per scheme: a hue distinct from the ink, ≥4.5:1 on `bg`. Vermilion's
+// saturated ground only allows a deep navy.
 export const SPECIMEN_SCHEMES: readonly SpecimenScheme[] = [
-  { id: 'ink', label: 'Black on white', fg: '#000000', bg: '#ffffff' },
-  { id: 'reverse', label: 'White on black', fg: '#ffffff', bg: '#000000' },
-  { id: 'azure', label: 'Blue on black', fg: '#0070ff', bg: '#000000' },
-  { id: 'lime', label: 'Black on lime', fg: '#000000', bg: '#8ace00' },
+  {
+    id: 'ink',
+    label: 'Black on white',
+    fg: '#000000',
+    bg: '#ffffff',
+    link: '#1a55c4'
+  },
+  {
+    id: 'reverse',
+    label: 'White on black',
+    fg: '#ffffff',
+    bg: '#000000',
+    link: '#6ea8ff'
+  },
+  {
+    id: 'azure',
+    label: 'Blue on black',
+    fg: '#0070ff',
+    bg: '#000000',
+    link: '#fbbf24'
+  },
+  {
+    id: 'lime',
+    label: 'Black on lime',
+    fg: '#000000',
+    bg: '#8ace00',
+    link: '#11237a'
+  },
   {
     id: 'vermilion',
     label: 'Black on vermilion',
     fg: '#000000',
-    bg: '#fe531d'
+    bg: '#fe531d',
+    link: '#06164f'
   },
-  { id: 'indigo', label: 'White on indigo', fg: '#ffffff', bg: '#593eff' },
-  { id: 'klein', label: 'Blue on off-white', fg: '#1c26fd', bg: '#f3f1ea' },
-  { id: 'acid', label: 'Yellow on black', fg: '#ebf80d', bg: '#000000' },
-  { id: 'sun', label: 'Black on yellow', fg: '#000000', bg: '#ffeb01' }
+  {
+    id: 'indigo',
+    label: 'White on indigo',
+    fg: '#ffffff',
+    bg: '#593eff',
+    link: '#9af7ef'
+  },
+  {
+    id: 'klein',
+    label: 'Blue on off-white',
+    fg: '#1c26fd',
+    bg: '#f3f1ea',
+    link: '#b3122f'
+  },
+  {
+    id: 'acid',
+    label: 'Yellow on black',
+    fg: '#ebf80d',
+    bg: '#000000',
+    link: '#38bdf8'
+  },
+  {
+    id: 'sun',
+    label: 'Black on yellow',
+    fg: '#000000',
+    bg: '#ffeb01',
+    link: '#1730b8'
+  }
 ] as const;
 
 /** The scheme at `index`, clamped into range (defaults to the first). */

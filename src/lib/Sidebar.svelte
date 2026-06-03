@@ -30,4 +30,21 @@ export function scrollToTop() {
     class="flex flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-4">
     {@render children?.()}
   </div>
+  <!-- App-wide license note for the Wikipedia specimen text (CC BY-SA); the
+       per-item credit is in SpecimenPreview. -->
+  <footer
+    class="shrink-0 border-t border-surface-200-800 px-4 py-3 text-xs text-surface-600-400">
+    Specimen text from <a
+      class="underline decoration-surface-400 underline-offset-2 hover:text-primary-500"
+      href="https://en.wikipedia.org/"
+      target="_blank"
+      rel="noopener noreferrer">Wikipedia</a
+    >, licensed
+    <a
+      class="underline decoration-surface-400 underline-offset-2 hover:text-primary-500"
+      href="https://creativecommons.org/licenses/by-sa/4.0/"
+      target="_blank"
+      rel="noopener noreferrer">CC BY-SA 4.0</a
+    >.
+  </footer>
 </div>

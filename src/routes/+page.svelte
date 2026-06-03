@@ -17,9 +17,10 @@ import {
   createGame,
   createConfetti,
   placeFonts,
-  seedBracket
+  seedBracket,
+  getFontByFamily
 } from '$lib';
-import type { Tournament, MatchupResult, Matchup } from '$lib/game';
+import type { Tournament, MatchupResult, Matchup, Round } from '$lib/game';
 import type { Font, FontCategory } from '$lib/fonts';
 import { base } from '$app/paths';
 import { lazyFont } from '$lib/lazyFont';
@@ -29,6 +30,7 @@ import { quickRoster, fullRoster } from '$lib/roster';
 import {
   downloadElement,
   shareElement,
+  renderElementToImage,
   canShareFiles
 } from '$lib/captureImage';
 import {
@@ -47,7 +49,16 @@ let currentBracket = $state<MatchupResult | undefined>(undefined);
 let leftButton = $state<HTMLButtonElement>();
 let rightButton = $state<HTMLButtonElement>();
 let poolSize = $state(0);
+// Per-bracket counter, bumped each deal: the duel specimen rotates by this
+// (seed) between games, constant within a bracket. See specimenContent.ts.
+let dealCount = $state(0);
+const specimenSeed = $derived(Math.max(0, dealCount - 1));
 let resultsCardEl = $state<HTMLDivElement>();
+// The results card is shown as its rendered image (what you save/share), with
+// the live card kept behind it as the capture source + a11y fallback. null
+// until the first render completes for the current results.
+let cardImage = $state<string | null>(null);
+let cardRenderToken = 0;
 let canShare = $state(false);
 let sharing = $state(false);
 let showBracket = $state(false);
@@ -79,13 +90,25 @@ const tiers = $derived(
   game && champion ? placeFonts(game.rounds, game.finalRound, 10) : []
 );
 
+// Alt text for the rendered card image, so screen readers still get the
+// ranking the image now carries instead of live text.
+const cardAlt = $derived.by(() => {
+  if (!tiers.length) return '';
+  const [winner, ...rest] = tiers.flatMap((t) => t.fonts).map((f) => f.family);
+  return rest.length
+    ? `Type-specimen card. Winner: ${winner}. Runners-up: ${rest.join(', ')}.`
+    : `Type-specimen card. Winner: ${winner}.`;
+});
+
 onMount(() => {
   // The game has no mobile drawer (filters are inline + the header omits the
   // menu toggle), so make sure a drawer left open on Browse/detail doesn't
   // carry over here as an un-closeable full-screen overlay.
   menuOpen.value = false;
   canShare = canShareFiles();
-  startGame();
+  // Resume a saved game (e.g. after tapping a font-detail link, or a refresh);
+  // only deal a fresh bracket when there's nothing to restore.
+  if (!restoreSavedGame()) startGame();
 });
 
 function handleKeydown(event: KeyboardEvent) {
@@ -113,6 +136,100 @@ const resultsLabel = $derived(
   `${quizMode === 'quick' ? 'Top' : 'Full'} ${poolSize}: ${categoryLabel(selectedCategory)}`
 );
 
+// --- progress persistence -------------------------------------------------
+// Keep the bracket in sessionStorage so leaving the page (a font-detail link,
+// an accidental tap, a refresh) and coming back resumes the game — or the
+// finished result — instead of silently resetting it. Scoped to the tab, so a
+// fresh tab starts a new game. Stores font families, not whole Font objects,
+// and rehydrates from the catalog.
+const SAVE_KEY = 'typeface-off:game:v1';
+
+function saveGame() {
+  if (typeof sessionStorage === 'undefined' || !game) return;
+  try {
+    sessionStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        v: 1,
+        category: selectedCategory,
+        mode: quizMode,
+        poolSize,
+        currentRound: game.currentRound,
+        finalRound: game.finalRound,
+        rounds: game.rounds.map((round) =>
+          round.map((m) => ({
+            players: m.players.map((p) => p.family),
+            winner: m.winner?.family ?? null
+          }))
+        )
+      })
+    );
+  } catch {
+    // Storage full or unavailable — the in-memory game still works.
+  }
+}
+
+function restoreSavedGame(): boolean {
+  if (typeof sessionStorage === 'undefined') return false;
+  let snap: {
+    v?: number;
+    category?: FontCategory;
+    mode?: 'quick' | 'full';
+    poolSize?: number;
+    currentRound?: number;
+    finalRound?: number | null;
+    rounds?: { players: string[]; winner: string | null }[][];
+  };
+  try {
+    const raw = sessionStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    snap = JSON.parse(raw);
+  } catch {
+    return false;
+  }
+  if (snap.v !== 1 || !Array.isArray(snap.rounds) || !snap.rounds.length)
+    return false;
+
+  // Rehydrate every font from the catalog. If a saved name is gone (the roster
+  // changed between builds), abandon the restore and start fresh rather than
+  // render a broken bracket.
+  const rounds: Round[] = [];
+  for (const round of snap.rounds) {
+    const rebuilt: Matchup[] = [];
+    for (const m of round) {
+      const players = m.players
+        .map((f) => getFontByFamily(f))
+        .filter(Boolean) as Font[];
+      if (players.length !== m.players.length) return false;
+      const winner = m.winner ? (getFontByFamily(m.winner) ?? null) : null;
+      if (m.winner && !winner) return false;
+      rebuilt.push({ players, winner });
+    }
+    rounds.push(rebuilt);
+  }
+
+  const restored = createGame([], { shuffle: false });
+  restored.rounds = rounds;
+  restored.currentRound = snap.currentRound ?? rounds.length - 1;
+  restored.finalRound = snap.finalRound ?? null;
+
+  if (snap.category) selectedCategory = snap.category;
+  if (snap.mode) quizMode = snap.mode;
+  if (typeof snap.poolSize === 'number') poolSize = snap.poolSize;
+  game = restored;
+
+  // Drive the engine through the reactive `game` proxy (as startGame does), not
+  // the raw object, so resumed play stays tracked.
+  if (game.finalRound != null) {
+    const champ = game.rounds[game.finalRound]?.[0]?.winner ?? null;
+    currentBracket = champ ? { winner: champ } : game.startGame();
+    if (champ) showName.value = true;
+  } else {
+    currentBracket = game.startGame();
+  }
+  return true;
+}
+
 function startGame() {
   const roster =
     quizMode === 'quick'
@@ -126,6 +243,8 @@ function startGame() {
   const players = seedBracket(roster);
   game = createGame(players, { shuffle: false });
   currentBracket = game.startGame();
+  dealCount += 1;
+  saveGame();
 }
 
 function setMode(mode: 'quick' | 'full') {
@@ -140,8 +259,16 @@ function selectCategory(id: FontCategory) {
   startGame();
 }
 
+// The logo / Game link clicked while already on the game route. On a finished
+// result it's the obvious "start over" escape; mid-game we leave the in-progress
+// bracket alone (you aren't stuck there — the duel and its toolbar are present).
+function goHome() {
+  if (champion) startGame();
+}
+
 async function chooseWinner(player: Font, button?: HTMLElement) {
   currentBracket = game?.setWinner(player);
+  saveGame();
   if (currentBracket?.winner) {
     createConfetti();
     showName.value = true;
@@ -182,6 +309,29 @@ async function shareImage() {
     sharing = false;
   }
 }
+
+// Render the live card to the image shown on the page. Fired by the card's
+// onmeasured once its metric-based sizes have landed, so the capture is of the
+// final layout. The token guards against an earlier render finishing last.
+async function renderCardImage() {
+  if (!resultsCardEl) return;
+  const token = ++cardRenderToken;
+  try {
+    const url = await renderElementToImage(resultsCardEl);
+    if (token === cardRenderToken) cardImage = url;
+  } catch {
+    // Leave the live card showing as the fallback if the capture fails.
+  }
+}
+
+// Drop a stale image the instant results clear, so starting a new game never
+// flashes the previous winner.
+$effect(() => {
+  if (!tiers.length) {
+    cardImage = null;
+    cardRenderToken++;
+  }
+});
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -248,10 +398,14 @@ async function shareImage() {
 {/snippet}
 
 <AppFrame
-  headerClass={topCollapsed.value ? 'hidden lg:block' : ''}
-  pageHeaderClass={topCollapsed.value ? 'hidden lg:block' : ''}>
+  headerClass={!champion && topCollapsed.value ? 'hidden lg:block' : ''}
+  pageHeaderClass={champion
+    ? 'hidden'
+    : topCollapsed.value
+      ? 'hidden lg:block'
+      : ''}>
   {#snippet header()}
-    <Header showMenu={false} />
+    <Header showMenu={false} onhome={goHome} />
   {/snippet}
 
   {#snippet sidebar()}
@@ -352,6 +506,7 @@ async function shareImage() {
           fontSize={fontSize.value}
           ligatures={ligatures.value}
           showName={showName.value}
+          seed={specimenSeed}
           onpick={chooseWinner} />
       </div>
 
@@ -365,7 +520,9 @@ async function shareImage() {
             fontSize={fontSize.value}
             family={duel.players[0].family}
             category={duel.players[0].category}
-            ligatures={ligatures.value} />
+            ligatures={ligatures.value}
+            variant="specimen"
+            seed={specimenSeed} />
           <button
             bind:this={leftButton}
             class="btn preset-filled-primary-500 absolute bottom-10 left-1/2 -translate-x-1/2 shadow-xl"
@@ -379,7 +536,9 @@ async function shareImage() {
             fontSize={fontSize.value}
             family={duel.players[1].family}
             category={duel.players[1].category}
-            ligatures={ligatures.value} />
+            ligatures={ligatures.value}
+            variant="specimen"
+            seed={specimenSeed} />
           <button
             bind:this={rightButton}
             class="btn preset-filled-primary-500 absolute bottom-10 left-1/2 -translate-x-1/2 shadow-xl"
@@ -411,16 +570,17 @@ async function shareImage() {
                 {champion.family}
               </div>
               <!-- Labelled font actions: bare icons here read as "download the
-                   image" next to the share card, so always show the text. Stack
-                   on mobile — the family-name labels overflow a single row on a
-                   phone. -->
+                   image" next to the share card, so always show the text. Short
+                   labels (no family name) keep all three on one compact row
+                   instead of a tall stack; the aria-labels stay descriptive. -->
               <FontLinks
                 font={champion}
                 size={20}
                 showLabels
+                shortLabels
                 labelClass=""
                 detailLabel="Details"
-                groupClass="preset-tonal-surface text-sm w-full max-w-xs flex-col sm:w-auto sm:max-w-none sm:flex-row" />
+                groupClass="preset-tonal-surface text-sm" />
             </div>
 
             <!-- Shareable Top-10 placement card. The Save/Share actions are the
@@ -445,13 +605,63 @@ async function shareImage() {
                     </button>
                   {/if}
                 </div>
-                <div
-                  bind:this={resultsCardEl}
-                  class="mx-auto w-[85%] max-w-[490px]">
-                  <ResultsCard tiers={tiers} categoryLabel={resultsLabel} />
+                <!-- The card is shown as its rendered image (exactly what Save
+                     and Share produce). The live card stays mounted underneath
+                     as the capture source and as the text fallback if the image
+                     hasn't rendered yet or snapdom fails. -->
+                <div class="relative mx-auto w-[85%] max-w-[490px]">
+                  <!-- `isolate` keeps the card's inner z-10 layers in their own
+                       stacking context so the overlaid image covers them fully
+                       (without it, the text paints over the image). -->
+                  <div
+                    bind:this={resultsCardEl}
+                    class="@container isolate"
+                    aria-hidden={cardImage ? 'true' : undefined}>
+                    <ResultsCard
+                      tiers={tiers}
+                      categoryLabel={resultsLabel}
+                      onmeasured={renderCardImage} />
+                  </div>
+                  {#if cardImage}
+                    <img
+                      src={cardImage}
+                      alt={cardAlt}
+                      class="absolute inset-0 block h-full w-full" />
+                  {/if}
                 </div>
               </div>
             {/if}
+
+            <!-- Mobile post-game controls. The desktop sidebar carries restart,
+                 the category filter, and the bracket the whole game; the mobile
+                 results screen has no toolbar, so without this there's no way to
+                 start over, pick a different matchup, or review the bracket.
+                 Sits on a solid surface so the outlined controls keep their
+                 contrast over the decorative trophy behind them (WCAG AA). -->
+            <div
+              class="relative flex flex-col gap-3 rounded-xl border border-surface-200-800 bg-surface-50-950 p-4 lg:hidden">
+              <div class="flex flex-wrap justify-center gap-2">
+                <button
+                  class="btn preset-filled-primary-500"
+                  onclick={startGame}>Play again</button>
+                {#if game?.rounds.length}
+                  <button
+                    class="btn preset-tonal-surface"
+                    onclick={() => (showBracket = true)}>
+                    <Icon name="bracket" size={18} />
+                    <span>View full bracket</span>
+                  </button>
+                {/if}
+              </div>
+              <!-- Start a different game: another type, or a bigger bracket. -->
+              <CategoryFilter
+                categories={CATEGORIES}
+                selected={selectedCategory}
+                onselect={selectCategory} />
+              {#if fullRosterSize > quickSize}
+                {@render modeToggle()}
+              {/if}
+            </div>
 
             <h4 class="h4 text-pretty">
               For mastering the art of bézier curve pageantry, where serifs and

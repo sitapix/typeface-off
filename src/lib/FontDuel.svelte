@@ -6,19 +6,21 @@ import FontPreview from './FontPreview.svelte';
 // the half you prefer to pick it. No scrolling, one tap, both visible at once.
 // The specimen fills the whole half and is display-only (pointer-events: none)
 // so the entire half is the tap target. The only chrome is a small "Tap to
-// choose" chip tucked into the window's title-bar strip, clear of the article
-// body.
+// choose" chip in the corner. Game-only, so it always uses the specimen variant.
 let {
   players,
   fontSize = 20,
   ligatures = true,
   showName = false,
+  seed = 0,
   onpick
 }: {
   players: Font[];
   fontSize?: number;
   ligatures?: boolean;
   showName?: boolean;
+  /** Per-bracket counter passed to the specimen (rotates the entry). */
+  seed?: number;
   onpick: (player: Font, el: HTMLElement) => void;
 } = $props();
 
@@ -61,7 +63,10 @@ function pick(i: number, event: MouseEvent) {
           family={font.family}
           category={font.category}
           fontSize={fontSize}
-          ligatures={ligatures} />
+          ligatures={ligatures}
+          variant="specimen"
+          seed={seed}
+          compact={true} />
 
         <span class="duel-cta">
           <svg

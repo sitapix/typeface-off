@@ -30,13 +30,11 @@ async function ensureFontsLoaded(el: HTMLElement): Promise<void> {
 }
 
 /** Layout width (px) the card is captured at, so the export is device-
- *  independent AND matches what's on screen. Must equal the card's own max
- *  width (the wrapper's `max-w-[490px]` in +page.svelte) so the saved image has
- *  the same type-to-frame proportions, padding ratio and line wrapping as the
- *  live card — capturing wider would bake in extra margin and smaller-looking
- *  type. The live card shrinks below this on narrow phones; pinning it here
- *  keeps the export the consistent desktop layout. Square, so height is pinned
- *  to the same value. */
+ *  independent. Must equal the card's design width (the wrapper's
+ *  `max-w-[490px]` in +page.svelte, also ResultsCard's REF_WIDTH): the card
+ *  sizes itself in container-query units, so capturing at 490 resolves every
+ *  cqw to its designed pixel size no matter the phone's screen width. Square,
+ *  so height is pinned to the same value. */
 const CARD_EXPORT_WIDTH = 490;
 /** snapdom render scale. We render large (supersample) and shrink to
  *  CARD_OUTPUT_WIDTH so glyph edges come out smooth, not aliased. */
@@ -92,10 +90,15 @@ async function elementToCanvas(el: HTMLElement): Promise<HTMLCanvasElement> {
   }
 }
 
+// One encoding for every export path (preview, Save, Share) so the on-screen
+// image is exactly the saved/shared file. Change it here, not per call site.
+const EXPORT_TYPE = 'image/jpeg';
+const EXPORT_QUALITY = 0.95;
+
 function canvasToBlob(
   canvas: HTMLCanvasElement,
-  type = 'image/jpeg',
-  quality = 0.95
+  type = EXPORT_TYPE,
+  quality = EXPORT_QUALITY
 ): Promise<Blob> {
   return new Promise((resolve, reject) =>
     canvas.toBlob(
@@ -130,14 +133,21 @@ export function canShareFiles(): boolean {
   }
 }
 
-/** Capture `el` and save it as a JPEG download. */
+/** Capture `el` to a JPEG data URL for on-page display — the same render the
+ *  Save/Share actions produce, so the on-screen preview is exactly the file the
+ *  user gets. Client-only (snapdom), like the others. */
+export async function renderElementToImage(el: HTMLElement): Promise<string> {
+  await ensureFontsLoaded(el);
+  const canvas = await elementToCanvas(el);
+  return canvas.toDataURL(EXPORT_TYPE, EXPORT_QUALITY);
+}
+
+/** Capture `el` and save it as a JPEG download. Same render as the preview. */
 export async function downloadElement(
   el: HTMLElement,
   filename: string
 ): Promise<void> {
-  await ensureFontsLoaded(el);
-  const canvas = await elementToCanvas(el);
-  triggerDownload(canvas.toDataURL('image/jpeg', 0.95), filename);
+  triggerDownload(await renderElementToImage(el), filename);
 }
 
 /** Capture `el` and open the native share sheet (falls back to download). */
@@ -149,7 +159,7 @@ export async function shareElement(
   await ensureFontsLoaded(el);
   const canvas = await elementToCanvas(el);
   const blob = await canvasToBlob(canvas);
-  const file = new File([blob], filename, { type: 'image/jpeg' });
+  const file = new File([blob], filename, { type: EXPORT_TYPE });
   if (canShareFiles()) {
     await navigator.share({ files: [file], title });
     return;
