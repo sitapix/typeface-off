@@ -286,5 +286,32 @@ export const localGeneratedFonts: Font[] = [
     ],
     "siteUrl": "https://github.com/RandomMaerks/Overused-Grotesk",
     "downloadUrl": "https://github.com/RandomMaerks/Overused-Grotesk"
+  },
+  {
+    "family": "D-DIN",
+    "category": "sans",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/D-DIN.woff2"
+      },
+      {
+        "src": "/fonts/D-DIN-Bold.woff2",
+        "weight": "700"
+      },
+      {
+        "src": "/fonts/D-DIN-Italic.woff2",
+        "style": "italic"
+      }
+    ],
+    "designer": "Datto Inc.",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular",
+      "700",
+      "regularitalic"
+    ],
+    "siteUrl": "https://www.datto.com/fonts/d-din",
+    "downloadUrl": "https://www.datto.com/fonts/d-din"
   }
 ];

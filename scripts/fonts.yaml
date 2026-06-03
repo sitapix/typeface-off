@@ -168,6 +168,14 @@ local:
     license: OFL-1.1
     url: https://github.com/RandomMaerks/Overused-Grotesk
 
+  # Free DIN 1451 revival; ships regular, bold, and italic faces.
+  - family: D-DIN
+    category: sans
+    files: [D-DIN.woff2, D-DIN-Bold.woff2, D-DIN-Italic.woff2]
+    designer: Datto Inc.
+    license: OFL-1.1
+    url: https://www.datto.com/fonts/d-din
+
   # - family: My Serif
   #   category: serif
   #   files: [MySerif-Regular.woff2, MySerif-Bold.woff2, MySerif-Italic.woff2]
