@@ -511,6 +511,21 @@ $effect(() => {
               </div>
             {/if}
 
+            <!-- Mobile-only: the desktop sidebar keeps the bracket on screen the
+                 whole game, but the results screen has no toolbar, so phones
+                 otherwise can't get back to the full bracket and every matchup.
+                 Opens the same overlay the in-game bracket button uses. -->
+            {#if game?.rounds.length}
+              <div class="flex justify-center lg:hidden">
+                <button
+                  class="btn preset-tonal-surface"
+                  onclick={() => (showBracket = true)}>
+                  <Icon name="bracket" size={18} />
+                  <span>View full bracket</span>
+                </button>
+              </div>
+            {/if}
+
             <h4 class="h4 text-pretty">
               For mastering the art of bézier curve pageantry, where serifs and
               counters stand heroic and triumphant in the tumultuous tournament
