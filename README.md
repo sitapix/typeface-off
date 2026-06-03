@@ -1,38 +1,27 @@
-# create-svelte
+# TypefaceOff
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+> Forked from [Typogram/coding-font-sveltekit](https://github.com/Typogram/coding-font-sveltekit). The original pits coding fonts head-to-head; this fork expands it into a multi-category typeface bracket with Browse, per-font detail pages, and a shareable Top-10 card.
 
-## Creating a project
+Picking a font from a catalog of hundreds is a slog. TypefaceOff turns it into a single-elimination bracket: you tap A or B, round after round, until a champion is crowned. Finish a bracket and you get a Top-10 placement card worth screenshotting.
 
-If you're seeing this, you've probably already done this step. Congrats!
+Built with SvelteKit 2 + Svelte 5 (runes), Skeleton v4, and Tailwind v4. Prerendered with `adapter-static` and deployed to GitHub Pages.
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Develop
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+npm install
+npm run dev      # Vite dev server (auto-picks a free port)
 ```
 
-## Building
-
-To create a production version of your app:
+## Other commands
 
 ```bash
-npm run build
+npm run check     # svelte-check, the type gate
+npm run test      # vitest
+npm run build     # prerender every route
+npm run fonts:all # regenerate font catalogs (needs network)
 ```
 
-You can preview the production build with `npm run preview`.
+## Adding fonts
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+Edit `scripts/fonts.yaml`, then run `npm run fonts:all`. Use `google:` for Bunny-hosted families or `local:` for self-hosted faces in `static/fonts/`. See [FONTS.md](FONTS.md) for the full guide.

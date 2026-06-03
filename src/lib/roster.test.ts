@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   QUICK_SIZE,
   popularFonts,
+  selfHostedFonts,
   curatedExtras,
   quickRoster,
   fullRoster
@@ -52,25 +53,40 @@ describe('popularFonts', () => {
   });
 });
 
-describe('curatedExtras', () => {
-  it('resolves names to non-popular catalog fonts, preserving order', () => {
-    expect(
-      curatedExtras(sample, 'sans', ['Karrik', 'Metropolis']).map(
-        (x) => x.family
-      )
-    ).toEqual(['Karrik', 'Metropolis']);
+describe('selfHostedFonts', () => {
+  it('returns only local fonts of the category', () => {
+    expect(selfHostedFonts(sample, 'sans').map((x) => x.family)).toEqual([
+      'Karrik'
+    ]);
   });
 
-  it('drops names that are already popular Google fonts (no duplicates)', () => {
+  it('excludes bunny and fontsource fonts', () => {
+    const fams = selfHostedFonts(sample, 'sans').map((x) => x.family);
+    expect(fams).not.toContain('Inter');
+    expect(fams).not.toContain('Metropolis');
+  });
+});
+
+describe('curatedExtras', () => {
+  it('resolves names to catalog fonts, preserving order', () => {
     expect(
-      curatedExtras(sample, 'sans', ['Inter', 'Metropolis']).map(
+      curatedExtras(sample, 'sans', ['Metropolis']).map((x) => x.family)
+    ).toEqual(['Metropolis']);
+  });
+
+  it('drops names already in Full via populars or self-hosting (no duplicates)', () => {
+    // Inter is popular, Karrik is self-hosted; both reach Full another way.
+    expect(
+      curatedExtras(sample, 'sans', ['Inter', 'Karrik', 'Metropolis']).map(
         (x) => x.family
       )
     ).toEqual(['Metropolis']);
   });
 
   it('skips names absent from the catalog', () => {
-    expect(curatedExtras(sample, 'sans', ['Nope', 'Karrik'])).toHaveLength(1);
+    expect(curatedExtras(sample, 'sans', ['Nope', 'Metropolis'])).toHaveLength(
+      1
+    );
   });
 
   it('returns an empty array when no names are given', () => {
@@ -99,17 +115,26 @@ describe('quickRoster', () => {
 });
 
 describe('fullRoster', () => {
-  it('is every popular font followed by the curated extras', () => {
+  it('is populars, then self-hosted, then the curated extras', () => {
     expect(
-      fullRoster(sample, 'sans', ['Metropolis', 'Karrik']).map((x) => x.family)
-    ).toEqual(['Inter', 'Roboto', 'Metropolis', 'Karrik']);
+      fullRoster(sample, 'sans', ['Metropolis']).map((x) => x.family)
+    ).toEqual(['Inter', 'Roboto', 'Karrik', 'Metropolis']);
   });
 
-  it('does not duplicate a popular font listed in the extras', () => {
-    const fams = fullRoster(sample, 'sans', ['Inter', 'Metropolis']).map(
-      (x) => x.family
-    );
-    expect(fams).toEqual(['Inter', 'Roboto', 'Metropolis']);
-    expect(fams.filter((x) => x === 'Inter')).toHaveLength(1);
+  it('auto-includes a self-hosted font without listing it in names', () => {
+    const fams = fullRoster(sample, 'sans').map((x) => x.family);
+    expect(fams).toEqual(['Inter', 'Roboto', 'Karrik']);
+  });
+
+  it('does not duplicate a font reachable another way', () => {
+    // Inter (popular) and Karrik (self-hosted) listed redundantly in names.
+    const fams = fullRoster(sample, 'sans', ['Inter', 'Karrik', 'Metropolis']);
+    expect(fams.map((x) => x.family)).toEqual([
+      'Inter',
+      'Roboto',
+      'Karrik',
+      'Metropolis'
+    ]);
+    expect(fams.filter((x) => x.family === 'Karrik')).toHaveLength(1);
   });
 });

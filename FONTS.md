@@ -2,7 +2,7 @@
 
 This app compares open-source fonts. The catalog comes from **three sources** (Bunny, Fontsource, self-hosted). To **hand-add** fonts you edit one file — **`scripts/fonts.yaml`** — then run a generator; everything then loads automatically and shows up in the Game, Browse, and type filters. The bulk of the catalog is auto-selected by popularity.
 
-- **Current catalog:** ~240 fonts across 5 categories (`sans`, `serif`, `display`, `script`, `mono`). Run `npm run fonts:names` to dump the current list to `font-names.txt`.
+- **Current catalog:** ~270 fonts across 5 categories (`sans`, `serif`, `display`, `script`, `mono`). Run `npm run fonts:all` to regenerate every catalog plus `font-names.txt`, or `npm run fonts:names` to refresh just the name dump.
 
 ---
 
@@ -24,7 +24,7 @@ All loading happens in **`src/routes/+layout.svelte`**, which reads the merged f
 
 > ⚠️ **Bunny gotcha:** the combined stylesheet must **pipe-join** families — `…/css?family=A|B|C`. Repeated `&family=` params are the _css2_ syntax; the v1 `/css` endpoint silently keeps only the **first** family, so every other Bunny font renders as a system fallback. (Bug fixed once already — don't reintroduce it.)
 
-> 🎮 **Game vs Browse:** the Game quiz draws from a hand-curated **`src/lib/featured.ts`** (~24 fonts per category), not the whole catalog. Browse shows everything. Adding a font to the catalog puts it in Browse; to make it compete in the quiz, add it to `featured.ts` too.
+> 🎮 **Game vs Browse:** the Game builds two deterministic brackets per category in **`src/lib/roster.ts`**. **Quick** takes the top 24 popular Google families straight from the catalog, no curation. **Full** takes every popular family, then every self-hosted font, then the curated catalog extras in **`src/lib/featured.ts`**. A self-hosted (`source: 'local'`) font joins Full automatically: you host it to play it, so there's no second list to maintain. `featured.ts` is only for promoting auto-generated **Fontsource** fonts (e.g. Metropolis) that popularity didn't pull in. Browse always shows the whole catalog.
 
 ---
 
@@ -39,6 +39,8 @@ interface Font {
   source: FontSource; // 'bunny' | 'fontsource' | 'local'
   id?: string; // Fontsource slug (fontsource only)
   faces?: FontFace[]; // @font-face list (local only)
+  designer?: string; // foundry/designer, when known (mostly Bunny)
+  license?: string; // SPDX-ish id, when known (Fontsource & local)
   variants: string[]; // informational (drives the "N styles" count)
   siteUrl: string; // "Visit" link
   downloadUrl: string; // "Download" link
@@ -52,7 +54,7 @@ interface FontFace {
 }
 ```
 
-Three files feed the catalog, merged in `src/lib/index.ts` (precedence: manual local → generated local → catalog; a local font overrides a same-named catalog font):
+Three files feed the catalog, merged in **`src/lib/fontCatalog.ts`** (precedence: manual local → generated local → catalog; a local font overrides a same-named catalog font). `fontCatalog.ts` also base-prefixes the Visit/Download URLs and exposes `getFontByFamily` (O(1) Map lookup). `src/lib/index.ts` is a pure barrel that re-exports `fonts` and `getFontByFamily` from it:
 
 - `src/lib/fonts.ts` — **auto-generated** Bunny + Fontsource catalog (+ `fonts.yaml` `google:`). Don't hand-edit.
 - `src/lib/localFonts.generated.ts` — **auto-generated** from `fonts.yaml` `local:`. Don't hand-edit.
@@ -74,6 +76,9 @@ For any OSS font that isn't on Bunny or Fontsource. The easy path is the `local:
    local:
      - family: My Cool Font
        category: display # sans | serif | display | script | mono
+       designer: A. Designer # required — hand-typed (no API for self-hosted)
+       license: OFL-1.1 # required — SPDX-ish id
+       url: https://example.com/my-cool-font # Visit/Download link
        files:
          [
            MyCoolFont-Regular.woff2,
@@ -82,7 +87,7 @@ For any OSS font that isn't on Bunny or Fontsource. The easy path is the `local:
          ]
    ```
 
-   Weight & style are inferred from each filename (`-Bold` → 700, `-Italic`, etc.; default 400 normal). Options:
+   `designer` and `license` are **required**: there's no API to fill them in for a self-hosted font, so the catalog test fails if either is blank. Weight & style are inferred from each filename (`-Bold` → 700, `-Italic`, etc.; default 400 normal). Options:
    - **Variable font** (one file, all weights): add `variable: true`.
    - **Explicit control** instead of `files`:
      ```yaml
@@ -93,11 +98,12 @@ For any OSS font that isn't on Bunny or Fontsource. The easy path is the `local:
          - { file: Precise-Bold.woff2, weight: '700' }
          - { file: Precise-Italic.woff2, weight: '400', style: italic }
      ```
-   - `url: https://…` sets the Visit/Download link (defaults to the font file).
 
-4. **Run `npm run fonts:local`.** It validates the files exist, infers weights/styles, and writes `src/lib/localFonts.generated.ts`. Missing files or bad categories are reported and skipped. Done — the font joins the Game, Browse, and filters.
+4. **Drop the license text in `static/fonts/licenses/`.** You redistribute these font files, so the license (usually OFL-1.1) must ship with them. Name it after the family, spaces removed: `My Cool Font` → `static/fonts/licenses/MyCoolFont-OFL.txt`.
 
-(Working example already in the repo: **Space Grotesk**, self-hosted from `static/fonts/SpaceGrotesk.ttf` via that YAML file.)
+5. **Run `npm run fonts:local`.** It validates the files exist, infers weights/styles, and writes `src/lib/localFonts.generated.ts`. It **warns** (without failing) about a missing license text file, a missing `designer`/`license`, or any font file in `static/fonts/` that no entry references. Read the output. Done: the font joins the Game (Full bracket), Browse, and filters.
+
+(Working examples already in the repo: any of the `local:` entries in `scripts/fonts.yaml`, each with its license text under `static/fonts/licenses/`.)
 
 **Advanced / manual:** for anything the YAML can't express, add a full `Font` object to `src/lib/localFonts.ts` (hand-maintained, never overwritten; overrides a same-named font). See "How many files per font?" below for `faces` details.
 
@@ -193,6 +199,8 @@ Unit tests cover the pure logic (no network, no DOM):
 - `filterFonts.test.ts` — search + category filtering (`filterFonts`).
 - `fontFaces.test.ts` — the `@font-face` CSS builder (`buildFontFaceCss`, `faceFormat`).
 - `fonts.test.ts` — catalog integrity (required fields, valid category/source, Fontsource faces, no duplicate families).
+- `roster.test.ts` — Quick/Full bracket construction (`popularFonts`, `curatedExtras`, `quickRoster`, `fullRoster`).
+- `lazyFont.test.ts` — the scroll-into-view loader (`lazyFont` action) applies a font only once it's visible.
 
 ---
 
@@ -233,10 +241,14 @@ They're filled in per source:
 | `scripts/fonts.yaml` | **the one file you hand-edit** — `google:` (extra Bunny names) + `local:` (self-hosted) |
 | `scripts/generate-fonts.cjs` | regenerates `fonts.ts` from Bunny + Fontsource + `fonts.yaml` `google:` (`npm run fonts:generate`) |
 | `scripts/generate-local-fonts.cjs` | regenerates `localFonts.generated.ts` from `fonts.yaml` `local:` (`npm run fonts:local`) |
+| `scripts/fonts-shared.cjs` | shared by both generators: the category list, Bunny slug rule, and `fonts.yaml` loader (keeps them from drifting) |
 | `src/lib/fonts.ts` | **generated** Bunny + Fontsource catalog (don't hand-edit) |
 | `src/lib/localFonts.generated.ts` | **generated** self-hosted fonts (don't hand-edit) |
 | `src/lib/localFonts.ts` | **manual** local-font escape hatch (regenerator-safe) |
-| `src/lib/index.ts` | merges all sources into the exported `fonts` (manual local > generated local > catalog) |
+| `src/lib/fontCatalog.ts` | merges all sources into the exported `fonts` (manual local > generated local > catalog), base-prefixes URLs, exposes `getFontByFamily` |
+| `src/lib/roster.ts` | builds the Game's Quick/Full brackets per category (pure, unit-tested) |
+| `src/lib/featured.ts` | curated Full-mode extras (the fonts popularity misses) |
+| `src/lib/index.ts` | pure barrel; re-exports components plus `fonts`/`getFontByFamily` |
 | `src/routes/+layout.svelte` | loads each source (Bunny `<link>` / inline `@font-face` for Fontsource + local) |
 | `src/lib/fontFaces.ts` | builds the inline `@font-face` CSS (base-path aware) |
 | `src/lib/lazyFont.ts` | `use:lazyFont` action — loads a specimen's font on scroll-into-view |

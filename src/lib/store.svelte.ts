@@ -1,6 +1,12 @@
 import { persisted } from './persisted.svelte';
 
-export const fontSize = persisted<number>('fontSize', 20);
+// Specimen size. Default smaller on phones/tablets (the stacked tap-duel has
+// less room than the desktop two-column view); only the initial value, the
+// user's own adjustment persists from there. `lg` (1024px) is where the layout
+// switches. SSR/prerender has no window, so it falls back to the desktop size.
+const defaultFontSize =
+  typeof window !== 'undefined' && window.innerWidth < 1024 ? 14 : 20;
+export const fontSize = persisted<number>('fontSize', defaultFontSize);
 export const fontFamily = persisted<string>('fontFamily', 'Inter');
 export const fontFamilyRight = persisted<string>('fontFamilyRight', '');
 export const searchTerm = persisted<string>('searchTerm', '');
