@@ -5,6 +5,6 @@ let { class: className = '' }: { class?: string } = $props();
 
 <span
   class="inline-flex items-baseline font-bold tracking-tight whitespace-nowrap {className}"
-  style="font-family: 'Newsreader', Georgia, serif;">
+  style="font-family: 'Poppins', system-ui, sans-serif;">
   <span>Typeface</span><span class="text-primary-500">Off</span>
 </span>

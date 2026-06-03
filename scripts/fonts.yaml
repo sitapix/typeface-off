@@ -147,6 +147,27 @@ local:
     license: MIT
     url: https://kabeech.github.io/serious-shanns/
 
+  - family: Phlatt Grotesk
+    category: sans
+    files: [PhlattGrotesk-Regular.woff2]
+    designer: RandomMaerks
+    license: OFL-1.1
+    url: https://randommaerks.gumroad.com
+
+  - family: Fixel
+    category: sans
+    files: [FixelText-Regular.woff2]
+    designer: Alfabravo & MacPaw
+    license: OFL-1.1
+    url: https://github.com/macpaw/Fixel
+
+  - family: Overused Grotesk
+    category: sans
+    files: [OverusedGrotesk-Regular.woff2]
+    designer: RandomMaerks
+    license: OFL-1.1
+    url: https://github.com/RandomMaerks/Overused-Grotesk
+
   # - family: My Serif
   #   category: serif
   #   files: [MySerif-Regular.woff2, MySerif-Bold.woff2, MySerif-Italic.woff2]

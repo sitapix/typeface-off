@@ -82,6 +82,7 @@ Fira Code
 Fira Mono
 Fira Sans
 FiraGO
+Fixel
 Fjalla One
 Forum
 Fragment Mono
@@ -184,6 +185,7 @@ Ostrich Sans
 Oswald
 Outfit
 Overpass Mono
+Overused Grotesk
 Oxanium
 Pacifico
 Passion One
@@ -191,6 +193,7 @@ Patrick Hand
 Patua One
 Peace Sans
 Permanent Marker
+Phlatt Grotesk
 Pitagon Sans
 Pitagon Sans Mono
 Pitagon Sans Text
