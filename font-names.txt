@@ -64,6 +64,7 @@ Creepster
 Crimson Pro
 Crimson Text
 Cutive Mono
+D-DIN
 Dancing Script
 DejaVu Math
 DejaVu Mono

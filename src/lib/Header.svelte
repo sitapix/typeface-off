@@ -6,17 +6,32 @@ import { menuOpen } from '$lib/store.svelte';
 
 // `showMenu` controls the mobile hamburger. Pages without a mobile drawer
 // (e.g. the game, whose filters are surfaced inline) pass showMenu={false}.
-let { showMenu = true }: { showMenu?: boolean } = $props();
+// `onhome` lets a page act on a click of the logo / Game link when you're
+// already on the home route (otherwise a no-op) — the game uses it to escape a
+// finished result instead of leaving the logo feeling dead.
+let { showMenu = true, onhome }: { showMenu?: boolean; onhome?: () => void } =
+  $props();
 
 // Prefix with `base` so links resolve on a GitHub Pages project site
 // (you.github.io/REPO); `base` is '' for a root/custom-domain deploy.
+const homeHref = `${base}/`;
 const links = [
-  { href: `${base}/`, label: 'Game' },
+  { href: homeHref, label: 'Game' },
   { href: `${base}/browse`, label: 'Browse' }
 ];
 
 // Trailing-slash-insensitive match so the base root ('' vs '/') still highlights.
 const norm = (p: string) => p.replace(/\/+$/, '') || '/';
+const isHome = $derived(norm(page.url.pathname) === norm(homeHref));
+
+// On the home route the home links would just re-navigate to the current URL
+// (a no-op). Hand that click to the page instead, if it wants it.
+function handleHomeNav(event: MouseEvent) {
+  if (isHome && onhome) {
+    event.preventDefault();
+    onhome();
+  }
+}
 </script>
 
 <div
@@ -32,7 +47,7 @@ const norm = (p: string) => p.replace(/\/+$/, '') || '/';
         <Icon name={menuOpen.value ? 'x' : 'menu'} size={24} />
       </button>
     {/if}
-    <a href="{base}/" aria-label="TypefaceOff home"
+    <a href="{base}/" aria-label="TypefaceOff home" onclick={handleHomeNav}
       ><Logo class="text-xl sm:text-3xl" /></a>
   </div>
 
@@ -40,6 +55,9 @@ const norm = (p: string) => p.replace(/\/+$/, '') || '/';
     {#each links as link (link.href)}
       <a
         href={link.href}
+        onclick={(e) => {
+          if (norm(link.href) === norm(homeHref)) handleHomeNav(e);
+        }}
         aria-current={norm(page.url.pathname) === norm(link.href)
           ? 'page'
           : undefined}

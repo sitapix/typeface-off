@@ -49,7 +49,8 @@ google:
 # --- Self-hosted fonts. Required: family, category, and files: (or faces:).
 #     Optional: variable: true · url: https://… · license: OFL-1.1 · designer: …
 #     IMPORTANT: you redistribute these files, so also drop the font's license
-#     text in  static/fonts/licenses/  (most OSS fonts are OFL-1.1). See FONTS.md.
+#     text in  static/fonts/licenses/  (most OSS fonts are OFL-1.1).
+#     Full guide: docs/add-a-font-by-hand.md
 local:
   - family: Space Grotesk
     category: sans
@@ -167,6 +168,14 @@ local:
     designer: RandomMaerks
     license: OFL-1.1
     url: https://github.com/RandomMaerks/Overused-Grotesk
+
+  # Free DIN 1451 revival; ships regular, bold, and italic faces.
+  - family: D-DIN
+    category: sans
+    files: [D-DIN.woff2, D-DIN-Bold.woff2, D-DIN-Italic.woff2]
+    designer: Datto Inc.
+    license: OFL-1.1
+    url: https://www.datto.com/fonts/d-din
 
   # - family: My Serif
   #   category: serif
