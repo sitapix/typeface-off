@@ -39,12 +39,13 @@ const faceCss = buildFontFaceCss(fonts, base);
     href="https://cdn.jsdelivr.net"
     crossorigin="anonymous" />
   <link rel="stylesheet" href={bunnyHref} />
-  <!-- Wordmark face. The combined sheet above loads only weight 400, so the
-       logo's display weight (700) is requested explicitly to avoid faux-bold.
-       Keep this family in sync with Logo.svelte. -->
+  <!-- Poppins powers the wordmark (Logo.svelte, 700/bold) and the share-card
+       chrome (ResultsCard.svelte, 400 + 600). The combined sheet above loads
+       only weight 400, so the heavier weights are requested explicitly to avoid
+       faux-bold. Keep these weights in sync with those components. -->
   <link
     rel="stylesheet"
-    href="https://fonts.bunny.net/css?family=Newsreader:700&display=swap" />
+    href="https://fonts.bunny.net/css?family=Poppins:400,600,700&display=swap" />
   {#if faceCss}
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html `<style>${faceCss}</style>`}

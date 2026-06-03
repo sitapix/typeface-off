@@ -16,3 +16,7 @@ export const topCollapsed = persisted<boolean>('topCollapsed', false);
 // Active color scheme (Skeleton theme name). Applied to <html data-theme> by
 // ThemePicker; must be one of the themes imported in app.css.
 export const theme = persisted<string>('theme', 'cerberus');
+// Active specimen colour scheme for non-mono previews (Game + Browse + detail).
+// Stored as an index into SPECIMEN_SCHEMES; mono specimens (CodePreview) ignore
+// it. Theme-independent — see specimenSchemes.ts.
+export const specimenScheme = persisted<number>('specimenScheme', 0);
