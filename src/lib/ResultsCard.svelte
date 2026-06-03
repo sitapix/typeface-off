@@ -48,34 +48,71 @@ const TARGET_X = 0.52; // x-height as a fraction of em every runner is matched t
 let xRatios = $state<Record<string, number>>({});
 let measureCanvas: HTMLCanvasElement | undefined;
 
+// --- fit-to-box -----------------------------------------------------------
+// A long champion name or a full runner list can overrun the fixed square and
+// clip under overflow-hidden. After sizing, measure the content and scale it
+// down just enough to fit. The ratio is width-independent (everything is cqw),
+// so the value measured on screen also fits the pinned-490px export.
+let cardEl = $state<HTMLDivElement>();
+let fitInner = $state<HTMLDivElement>();
+let fit = $state(1);
+const PAD_FRAC = 0.0816; // matches p-[8.16cqw]
+const CAPTION_RESERVE_FRAC = 0.05; // keep content clear of the pinned caption
+const MIN_FIT = 0.5; // never shrink past half size; clip is better than illegible
+
+function measureFit() {
+  if (!cardEl || !fitInner) return;
+  const w = cardEl.clientWidth;
+  const reserve = 2 * PAD_FRAC + (categoryLabel ? CAPTION_RESERVE_FRAC : 0);
+  const available = cardEl.clientHeight - reserve * w;
+  const natural = fitInner.scrollHeight; // layout height; the scale doesn't change it
+  fit =
+    natural > available && available > 0
+      ? Math.max(MIN_FIT, available / natural)
+      : 1;
+}
+
 $effect(() => {
   const families = runnersUp.map((f) => f.family);
-  if (typeof document === 'undefined' || families.length === 0) return;
+  const all = championFamily ? [championFamily, ...families] : families;
+  if (typeof document === 'undefined' || all.length === 0) return;
   let cancelled = false;
   (async () => {
     await Promise.all(
-      families.map((f) =>
-        document.fonts.load(`400 100px '${f}'`).catch(() => {})
-      )
+      all.map((f) => document.fonts.load(`400 100px '${f}'`).catch(() => {}))
     );
     if (cancelled) return;
     const ctx = (measureCanvas ??= document.createElement('canvas')).getContext(
       '2d'
     );
-    if (!ctx) return;
-    const next: Record<string, number> = {};
-    for (const f of families) {
-      ctx.font = `400 100px '${f}', sans-serif`;
-      const x = ctx.measureText('x').actualBoundingBoxAscent;
-      next[f] = x > 0 ? x / 100 : TARGET_X;
+    if (ctx) {
+      const next: Record<string, number> = {};
+      for (const f of families) {
+        ctx.font = `400 100px '${f}', sans-serif`;
+        const x = ctx.measureText('x').actualBoundingBoxAscent;
+        next[f] = x > 0 ? x / 100 : TARGET_X;
+      }
+      xRatios = next;
     }
-    xRatios = next;
-    await tick(); // let the new per-font sizes land in the DOM before capture
+    await tick(); // per-font sizes are in the DOM…
+    if (cancelled) return;
+    measureFit(); // …now they have a height to fit
+    await tick(); // …and the scale is applied before capture
     if (!cancelled) onmeasured?.();
   })();
   return () => {
     cancelled = true;
   };
+});
+
+// Re-fit when the card resizes (responsive width) or a late font reflows the
+// content. The scale doesn't alter layout height, so this can't loop.
+$effect(() => {
+  if (typeof ResizeObserver === 'undefined' || !cardEl || !fitInner) return;
+  const ro = new ResizeObserver(() => measureFit());
+  ro.observe(cardEl);
+  ro.observe(fitInner);
+  return () => ro.disconnect();
 });
 
 // font-size (cqw, so it tracks the card width) that puts this family's x-height
@@ -88,6 +125,7 @@ function runnerSize(family: string): string {
 </script>
 
 <div
+  bind:this={cardEl}
   class="results-card relative mx-auto flex aspect-square w-full flex-col overflow-hidden p-[8.16cqw] text-left text-white shadow-[0_18px_50px_-12px_rgba(0,0,0,0.45)]"
   style="background-color:#000000; font-family:'Poppins', system-ui, -apple-system, sans-serif;">
   <!-- film grain: specular-lit fractal noise — a soft periwinkle sheen where
@@ -120,32 +158,40 @@ function runnerSize(family: string): string {
     <rect width="100%" height="100%" filter="url(#card-grain)" />
   </svg>
 
-  {#if champ}
-    <!-- champion: the winner set huge in its own face -->
-    <div
-      class="champion relative z-10 text-[13.06cqw] leading-[0.9] tracking-[-0.03em] break-words text-balance text-white"
-      style="font-family: '{championFamily}'">
-      {championFamily}
-    </div>
-  {/if}
+  <!-- Everything but the grain and the pinned caption scales together via
+       `fit`, so a long champion name or a full runner list never overruns the
+       square (see measureFit). -->
+  <div
+    bind:this={fitInner}
+    class="relative z-10 origin-top-left"
+    style="transform: scale({fit});">
+    {#if champ}
+      <!-- champion: the winner set huge in its own face -->
+      <div
+        class="champion relative z-10 text-[13.06cqw] leading-[0.9] tracking-[-0.03em] break-words text-balance text-white"
+        style="font-family: '{championFamily}'">
+        {championFamily}
+      </div>
+    {/if}
 
-  {#if runnersUp.length}
-    <!-- runners-up: a plain white list, each name in its own letterform, scaled
+    {#if runnersUp.length}
+      <!-- runners-up: a plain white list, each name in its own letterform, scaled
          to one x-height (runnerSize) so the column reads even. line-height is a
          constant cqw, set on the list so every row inherits the same rhythm
          regardless of its font-size. -->
-    <ol class="relative z-10 mt-[6.53cqw] flex flex-col leading-[8.16cqw]">
-      {#each runnersUp as font (font.family)}
-        <li
-          class="tracking-tight break-words text-[#ffffffd1]"
-          style="font-family: '{font.family}'; font-size: {runnerSize(
-            font.family
-          )};">
-          {font.family}
-        </li>
-      {/each}
-    </ol>
-  {/if}
+      <ol class="relative z-10 mt-[6.53cqw] flex flex-col leading-[8.16cqw]">
+        {#each runnersUp as font (font.family)}
+          <li
+            class="tracking-tight break-words text-[#ffffffd1]"
+            style="font-family: '{font.family}'; font-size: {runnerSize(
+              font.family
+            )};">
+            {font.family}
+          </li>
+        {/each}
+      </ol>
+    {/if}
+  </div>
 
   <!-- caption: the collection played, plain white, bottom-right -->
   {#if categoryLabel}
