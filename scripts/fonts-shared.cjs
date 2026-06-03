@@ -22,4 +22,41 @@ function loadFontsConfig() {
   return YAML.parse(fs.readFileSync(FONTS_YAML, 'utf8')) || {};
 }
 
-module.exports = { CATEGORIES, FONTS_YAML, bunnyId, loadFontsConfig };
+// Google's category string → our internal category.
+const ANATOMICAL_CATEGORY = {
+  'Sans Serif': 'sans',
+  Serif: 'serif',
+  Display: 'display',
+  Handwriting: 'script',
+  Monospace: 'mono'
+};
+
+// A "headline cut": Display-tagged and single-weight. Italics of that weight
+// aren't a separate weight, so drop the `…i` keys before counting.
+function isGoogleHeadlineCut(meta) {
+  if (!(meta.classifications || []).includes('Display')) return false;
+  const weights = Object.keys(meta.fonts || {}).filter((k) => !/i$/.test(k));
+  return weights.length === 1;
+}
+
+// Which bucket a Google family lands in (null if unsupported). Single-weight
+// Display-tagged sans/serif move to `display` so headline cuts don't crowd the
+// text brackets; multi-weight Display families stay. Why: docs/how-the-google-fonts-get-in.md.
+function googleBucket(meta) {
+  const anatomical = ANATOMICAL_CATEGORY[meta.category] || null;
+  if (
+    (anatomical === 'sans' || anatomical === 'serif') &&
+    isGoogleHeadlineCut(meta)
+  )
+    return 'display';
+  return anatomical;
+}
+
+module.exports = {
+  CATEGORIES,
+  FONTS_YAML,
+  bunnyId,
+  loadFontsConfig,
+  googleBucket,
+  isGoogleHeadlineCut
+};
