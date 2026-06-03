@@ -1,92 +1,32 @@
 import type { FontCategory } from './fonts';
 
 /**
- * Hand-picked quiz rosters per category — distinctive, argue-worthy fonts that
- * make fun head-to-heads, deliberately BLENDING famous anchors, distinctive
- * mid-tier faces, and a few under-the-radar indies (so David-vs-Goliath fights
- * happen in one bracket).
+ * Curated EXTRAS for the Game's Full (rigorous) mode — your hand-picked fonts
+ * that AREN'T already popular Google fonts. The Game builds its brackets as:
  *
- * - The QUIZ draws from these; Browse still shows the full catalog.
- * - Order = seeding (index 0 is the top seed). Put the two most iconic first so
- *   they land in opposite halves and can only meet in the final; seed wildcards
- *   last for first-round upsets.
- * - A category with no list here falls back to top-by-popularity (zero risk).
- * - Names must exist in the catalog; unknown names are skipped.
+ *   Quick — the top-24 most popular Google fonts per category, straight from the
+ *           catalog (generated in Google-Fonts popularity order). No curation.
+ *   Full  — EVERY popular Google font PLUS the extras below. Big on purpose.
+ *
+ * So don't list popular Google families here: they arrive automatically (and are
+ * deduped out if you do). List only what popularity misses — Fontsource gems
+ * (e.g. Metropolis), self-hosted indies, and cross-category oddities. To add a
+ * font to Full, drop its family name in the right bucket. Names must exist in the
+ * catalog; unknown names are skipped. Browse still shows the whole catalog.
+ *
+ * Order is the Full-mode seeding tail (populars seed first, these follow), so
+ * earlier = stronger seed among the extras. Quick is unaffected by this list.
  */
 export const FEATURED: Partial<Record<FontCategory, string[]>> = {
-  mono: [
-    'JetBrains Mono',
-    'Fira Code',
-    'IBM Plex Mono',
-    'Source Code Pro',
-    'Space Mono',
-    'Geist Mono',
-    'Commit Mono',
-    'Maple Mono',
-    'Monaspace Neon',
-    'Iosevka',
-    'Roboto Mono',
-    'Inconsolata',
-    'Fira Mono',
-    'Intel One Mono',
-    'Anonymous Pro',
-    'VT323',
-    'Sixtyfour',
-    'Comic Mono',
-    'Red Hat Mono',
-    'iA Writer Mono',
-    'DM Mono',
-    'Ubuntu Mono',
-    'Monaspace Argon',
-    'Iosevka Curly',
-    'Cousine',
-    'Sometype Mono',
-    'Martian Mono',
-    'Spline Sans Mono',
-    'B612 Mono',
-    'Courier Prime',
-    'Overpass Mono',
-    'Mononoki',
-    'Departure Mono',
-    'Victor Mono',
-    'Serious Shanns'
-  ],
   sans: [
-    'Inter',
     'Geist Sans',
-    'Roboto',
-    'Open Sans',
-    'Cal Sans',
     'Space Grotesk',
-    'Bricolage Grotesque',
-    'Outfit',
-    'Plus Jakarta Sans',
-    'Manrope',
-    'DM Sans',
-    'Work Sans',
-    'Source Sans 3',
-    'Fira Sans',
-    'Hanken Grotesk',
-    'Public Sans',
-    'Jost',
-    'Onest',
-    'Figtree',
     'Uncut Sans',
     'Open Runde',
-    'Oswald',
-    'Bebas Neue',
-    'Anton',
-    'Montserrat',
-    'Poppins',
-    'Lato',
-    'Archivo',
-    'IBM Plex Sans',
-    'Rubik',
-    'Atkinson Hyperlegible',
-    'League Spartan',
     'Hauora Sans',
     'Pretendard',
-    'Quicksand',
+    'Metropolis',
+    'Cooper Hewitt',
     'LINE Seed Sans',
     'Nimbus Sans L',
     'Karrik',
@@ -94,96 +34,29 @@ export const FEATURED: Partial<Record<FontCategory, string[]>> = {
     'Hanken Round'
   ],
   serif: [
-    'Playfair Display',
-    'Fraunces',
-    'EB Garamond',
-    'Lora',
-    'Merriweather',
-    'Source Serif 4',
-    'Alegreya',
-    'Literata',
-    'Cormorant',
-    'Instrument Serif',
-    'Bodoni Moda',
-    'DM Serif Display',
-    'Spectral',
-    'Newsreader',
-    'PT Serif',
-    'Crimson Pro',
-    'Crimson Text',
-    'Cardo',
-    'Sorts Mill Goudy',
-    'Domine',
-    'IBM Plex Serif',
-    'Bitter',
-    'Libre Baskerville',
-    'Gentium Plus',
-    'Tinos',
-    'Cinzel',
-    'Zilla Slab',
-    'Roboto Slab',
-    'Vollkorn',
+    'Libre Caslon Condensed',
     'Redaction',
     'Chunk Five',
-    'Monaspace Xenon',
-    'Marcellus'
+    'Monaspace Xenon'
   ],
-  display: [
-    'Lobster',
-    'Abril Fatface',
-    'Bungee',
-    'Monoton',
-    'Press Start 2P',
-    'Bangers',
-    'Alfa Slab One',
-    'Shrikhand',
-    'Lilita One',
-    'Titan One',
-    'Luckiest Guy',
-    'Righteous',
-    'Bagel Fat One',
-    'Corben',
-    'Creepster',
-    'Comfortaa',
-    'Pixelify Sans',
-    'Oxanium',
-    'Special Elite',
-    'Fugaz One',
-    'Passion One',
-    'Patua One',
-    'Baloo 2',
-    'Gabarito',
-    'UnifrakturMaguntia',
-    'Rampart One',
-    'Climate Crisis',
-    'Poiret One',
-    'Black Ops One',
-    'Blackout Midnight'
+  mono: [
+    'Commit Mono',
+    'Maple Mono',
+    'Monaspace Neon',
+    'Iosevka',
+    'Comic Mono',
+    'iA Writer Mono',
+    'Monaspace Argon',
+    'Iosevka Curly',
+    'iA Writer Duo',
+    'League Mono',
+    'Monaspace Krypton',
+    'Adwaita Mono',
+    'Mononoki',
+    'Departure Mono',
+    'Victor Mono',
+    'Serious Shanns'
   ],
-  script: [
-    'Dancing Script',
-    'Pacifico',
-    'Caveat',
-    'Great Vibes',
-    'Permanent Marker',
-    'Satisfy',
-    'Kaushan Script',
-    'Sacramento',
-    'Shadows Into Light',
-    'Indie Flower',
-    'Yellowtail',
-    'Allura',
-    'Courgette',
-    'Comic Neue',
-    'Patrick Hand',
-    'Berkshire Swash',
-    'Kalam',
-    'Architects Daughter',
-    'Homemade Apple',
-    'Rock Salt',
-    'Tangerine',
-    'Zeyada',
-    'Delius',
-    'Monaspace Radon'
-  ]
+  display: ['Blackout Midnight'],
+  script: ['Monaspace Radon']
 };
