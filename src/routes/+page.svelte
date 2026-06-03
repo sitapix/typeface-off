@@ -311,14 +311,15 @@ async function shareImage() {
              chevron points up to reveal that chrome, down to hide it. -->
         <div class="flex shrink-0 items-center gap-3 pb-2">
           <button
-            class="btn-icon preset-tonal-surface shrink-0"
+            class="btn btn-sm preset-tonal-surface shrink-0"
             onclick={() => (topCollapsed.value = !topCollapsed.value)}
             aria-label={topCollapsed.value ? 'Show controls' : 'Hide controls'}>
             <span
               class="inline-flex transition-transform duration-200"
               style="transform: rotate({topCollapsed.value ? 180 : 0}deg);">
-              <Icon name="chevron" size={18} />
+              <Icon name="chevron" size={16} />
             </span>
+            <span>{topCollapsed.value ? 'Show' : 'Hide'}</span>
           </button>
           <div
             class="h-2 flex-1 overflow-hidden rounded-full bg-surface-300-700"
