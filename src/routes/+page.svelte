@@ -110,7 +110,7 @@ const fullRosterSize = $derived(
 // Collection label for the share card, tagged with which bracket was played so
 // a Top-24 result isn't mistaken for a Full one.
 const resultsLabel = $derived(
-  `${categoryLabel(selectedCategory)} · ${quizMode === 'quick' ? `Top ${poolSize}` : `Full ${poolSize}`}`
+  `${quizMode === 'quick' ? 'Top' : 'Full'} ${poolSize}: ${categoryLabel(selectedCategory)}`
 );
 
 function startGame() {
@@ -445,7 +445,9 @@ async function shareImage() {
                     </button>
                   {/if}
                 </div>
-                <div bind:this={resultsCardEl} class="mx-auto w-full max-w-xl">
+                <div
+                  bind:this={resultsCardEl}
+                  class="mx-auto w-[85%] max-w-[490px]">
                   <ResultsCard tiers={tiers} categoryLabel={resultsLabel} />
                 </div>
               </div>
