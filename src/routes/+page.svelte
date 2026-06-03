@@ -190,17 +190,17 @@ async function shareImage() {
      bar. Caller guards on fullRosterSize > quickSize (hidden when Quick = Full). -->
 {#snippet modeToggle()}
   <div
-    class="btn-group preset-outlined-surface-500 shrink-0 [&>*+*]:border-surface-400-600"
+    class="btn-group preset-outlined-surface-500 flex w-full [&>*+*]:border-surface-400-600"
     role="group"
     aria-label="Bracket size">
     <button
-      class="btn btn-sm {quizMode === 'quick'
+      class="btn btn-sm flex-1 {quizMode === 'quick'
         ? 'preset-filled-primary-500'
         : ''}"
       aria-pressed={quizMode === 'quick'}
       onclick={() => setMode('quick')}>Top {quickSize}</button>
     <button
-      class="btn btn-sm {quizMode === 'full'
+      class="btn btn-sm flex-1 {quizMode === 'full'
         ? 'preset-filled-primary-500'
         : ''}"
       aria-pressed={quizMode === 'full'}
@@ -290,7 +290,25 @@ async function shareImage() {
     {#if duel}
       <!-- MOBILE / TABLET: tap-to-pick duel — both fonts on screen, no scroll -->
       <div class="flex h-full flex-col p-3 pt-2 lg:hidden">
-        <!-- always-visible toolbar: collapse chrome · progress · restart -->
+        <!-- collapsible: category filter + bracket size. Each on its own row,
+             wrapping (no horizontal scroll). Sits above the toolbar so the
+             toolbar's collapse control keeps a fixed spot. -->
+        {#if !topCollapsed.value}
+          <div class="flex shrink-0 flex-col gap-2 pb-2">
+            <CategoryFilter
+              categories={CATEGORIES}
+              selected={selectedCategory}
+              onselect={selectCategory} />
+            {#if fullRosterSize > quickSize}
+              {@render modeToggle()}
+            {/if}
+          </div>
+        {/if}
+
+        <!-- Always-visible toolbar (progress · bracket · restart · collapse). It
+             sits directly above the duel in both states, so the collapse control
+             doesn't jump to the middle when the chrome above is shown. The
+             chevron points up to reveal that chrome, down to hide it. -->
         <div class="flex shrink-0 items-center gap-3 pb-2">
           <button
             class="btn-icon preset-tonal-surface shrink-0"
@@ -298,7 +316,7 @@ async function shareImage() {
             aria-label={topCollapsed.value ? 'Show controls' : 'Hide controls'}>
             <span
               class="inline-flex transition-transform duration-200"
-              style="transform: rotate({topCollapsed.value ? 0 : 180}deg);">
+              style="transform: rotate({topCollapsed.value ? 180 : 0}deg);">
               <Icon name="chevron" size={18} />
             </span>
           </button>
@@ -327,20 +345,6 @@ async function shareImage() {
             class="btn btn-sm preset-filled-primary-500 shrink-0"
             onclick={startGame}>Restart</button>
         </div>
-
-        <!-- collapsible: category filters -->
-        {#if !topCollapsed.value}
-          <div class="flex shrink-0 items-center gap-2 overflow-x-auto pb-2">
-            <CategoryFilter
-              variant="group"
-              categories={CATEGORIES}
-              selected={selectedCategory}
-              onselect={selectCategory} />
-            {#if fullRosterSize > quickSize}
-              {@render modeToggle()}
-            {/if}
-          </div>
-        {/if}
 
         <FontDuel
           players={duel.players}
@@ -406,14 +410,16 @@ async function shareImage() {
                 {champion.family}
               </div>
               <!-- Labelled font actions: bare icons here read as "download the
-                   image" next to the share card, so always show the text. -->
+                   image" next to the share card, so always show the text. Stack
+                   on mobile — the family-name labels overflow a single row on a
+                   phone. -->
               <FontLinks
                 font={champion}
                 size={20}
                 showLabels
                 labelClass=""
                 detailLabel="Details"
-                groupClass="preset-tonal-surface text-sm" />
+                groupClass="preset-tonal-surface text-sm w-full max-w-xs flex-col sm:w-auto sm:max-w-none sm:flex-row" />
             </div>
 
             <!-- Shareable Top-10 placement card. The Save/Share actions are the
