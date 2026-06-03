@@ -128,6 +128,15 @@ export function canShareFiles(): boolean {
   }
 }
 
+/** Capture `el` to a JPEG data URL for on-page display — the same render the
+ *  Save/Share actions produce, so the on-screen preview is exactly the file the
+ *  user gets. Client-only (snapdom), like the others. */
+export async function renderElementToImage(el: HTMLElement): Promise<string> {
+  await ensureFontsLoaded(el);
+  const canvas = await elementToCanvas(el);
+  return canvas.toDataURL('image/jpeg', 0.95);
+}
+
 /** Capture `el` and save it as a JPEG download. */
 export async function downloadElement(
   el: HTMLElement,
