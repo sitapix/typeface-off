@@ -90,10 +90,15 @@ async function elementToCanvas(el: HTMLElement): Promise<HTMLCanvasElement> {
   }
 }
 
+// One encoding for every export path (preview, Save, Share) so the on-screen
+// image is exactly the saved/shared file. Change it here, not per call site.
+const EXPORT_TYPE = 'image/jpeg';
+const EXPORT_QUALITY = 0.95;
+
 function canvasToBlob(
   canvas: HTMLCanvasElement,
-  type = 'image/jpeg',
-  quality = 0.95
+  type = EXPORT_TYPE,
+  quality = EXPORT_QUALITY
 ): Promise<Blob> {
   return new Promise((resolve, reject) =>
     canvas.toBlob(
@@ -134,17 +139,15 @@ export function canShareFiles(): boolean {
 export async function renderElementToImage(el: HTMLElement): Promise<string> {
   await ensureFontsLoaded(el);
   const canvas = await elementToCanvas(el);
-  return canvas.toDataURL('image/jpeg', 0.95);
+  return canvas.toDataURL(EXPORT_TYPE, EXPORT_QUALITY);
 }
 
-/** Capture `el` and save it as a JPEG download. */
+/** Capture `el` and save it as a JPEG download. Same render as the preview. */
 export async function downloadElement(
   el: HTMLElement,
   filename: string
 ): Promise<void> {
-  await ensureFontsLoaded(el);
-  const canvas = await elementToCanvas(el);
-  triggerDownload(canvas.toDataURL('image/jpeg', 0.95), filename);
+  triggerDownload(await renderElementToImage(el), filename);
 }
 
 /** Capture `el` and open the native share sheet (falls back to download). */
@@ -156,7 +159,7 @@ export async function shareElement(
   await ensureFontsLoaded(el);
   const canvas = await elementToCanvas(el);
   const blob = await canvasToBlob(canvas);
-  const file = new File([blob], filename, { type: 'image/jpeg' });
+  const file = new File([blob], filename, { type: EXPORT_TYPE });
   if (canShareFiles()) {
     await navigator.share({ files: [file], title });
     return;
