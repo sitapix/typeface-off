@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import generatedFonts from './fonts';
 import { localFonts } from './localFonts';
+import { localGeneratedFonts } from './localFonts.generated';
 
 const CATEGORIES = ['sans', 'serif', 'display', 'script', 'mono'];
 const SOURCES = ['bunny', 'fontsource', 'local'];
@@ -61,6 +62,19 @@ describe('localFonts.ts', () => {
       for (const face of f.faces!) {
         expect(face.src.startsWith('/')).toBe(true);
       }
+    }
+  });
+});
+
+describe('localFonts.generated.ts (from fonts.yaml)', () => {
+  // You redistribute these files, so attribution is mandatory. The generator
+  // can't auto-fill it (there's no API for self-hosted fonts); it's hand-typed
+  // in the YAML. This guards against shipping a self-hosted font with no credit.
+  it('every self-hosted font declares a designer and a license', () => {
+    for (const f of localGeneratedFonts) {
+      expect(f.source).toBe('local');
+      expect(f.designer, `designer of ${f.family}`).toBeTruthy();
+      expect(f.license, `license of ${f.family}`).toBeTruthy();
     }
   });
 });

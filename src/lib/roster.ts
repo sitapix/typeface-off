@@ -7,11 +7,14 @@ import type { Font, FontCategory } from './fonts';
  *   Quick — the top-N most popular Google fonts. The catalog is generated in
  *           Google-Fonts popularity order and tags Google families source
  *           'bunny', so "most popular" is simply the bunny fonts in array order.
- *   Full  — every popular Google font PLUS curated non-Google extras (Fontsource
- *           gems, self-hosted indies), seeded after the populars.
+ *   Full  — every popular Google font, then every self-hosted font, then curated
+ *           catalog extras (Fontsource gems named in featured.ts).
  *
- * Pure (no component state) so it's unit tested and the view stays thin. The
- * extras list lives in featured.ts.
+ * A self-hosted font joins Full automatically: you host it to play it, so
+ * there's no second list to maintain. featured.ts is only for promoting
+ * auto-generated catalog fonts (Fontsource) that popularity didn't pull in.
+ *
+ * Pure (no component state) so it's unit tested and the view stays thin.
  */
 
 /** Default Quick-mode bracket size. */
@@ -22,11 +25,16 @@ export function popularFonts(fonts: Font[], category: FontCategory): Font[] {
   return fonts.filter((f) => f.category === category && f.source === 'bunny');
 }
 
+/** Self-hosted fonts for a category, in catalog order (source 'local'). */
+export function selfHostedFonts(fonts: Font[], category: FontCategory): Font[] {
+  return fonts.filter((f) => f.category === category && f.source === 'local');
+}
+
 /**
  * Curated extras for Full mode: `names` resolved to catalog fonts of the
- * category, dropping unknown names and any that are already popular Google fonts
- * (those arrive via popularFonts, so listing them would only duplicate). Input
- * order is preserved for seeding.
+ * category, dropping unknown names plus any already in Full via another path
+ * (popular Google fonts and self-hosted fonts). So featured.ts only needs the
+ * Fontsource promotions. Input order is preserved for seeding.
  */
 export function curatedExtras(
   fonts: Font[],
@@ -34,10 +42,13 @@ export function curatedExtras(
   names: readonly string[] = []
 ): Font[] {
   const inCategory = fonts.filter((f) => f.category === category);
-  const popular = new Set(popularFonts(fonts, category).map((f) => f.family));
+  const alreadyIn = new Set([
+    ...popularFonts(fonts, category).map((f) => f.family),
+    ...selfHostedFonts(fonts, category).map((f) => f.family)
+  ]);
   return names
     .map((name) => inCategory.find((f) => f.family === name))
-    .filter((f): f is Font => !!f && !popular.has(f.family));
+    .filter((f): f is Font => !!f && !alreadyIn.has(f.family));
 }
 
 /** Quick bracket: the top `size` popular fonts. */
@@ -49,7 +60,7 @@ export function quickRoster(
   return popularFonts(fonts, category).slice(0, size);
 }
 
-/** Full bracket: every popular font, then the curated extras. */
+/** Full bracket: every popular font, then every self-hosted font, then extras. */
 export function fullRoster(
   fonts: Font[],
   category: FontCategory,
@@ -57,6 +68,7 @@ export function fullRoster(
 ): Font[] {
   return [
     ...popularFonts(fonts, category),
+    ...selfHostedFonts(fonts, category),
     ...curatedExtras(fonts, category, names)
   ];
 }

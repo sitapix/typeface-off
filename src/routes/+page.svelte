@@ -96,9 +96,9 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 // Two deterministic play modes (see roster.ts): Quick draws the most popular
-// Google fonts straight from the catalog; Full adds the curated non-Google
-// extras (FEATURED) on top. FEATURED only needs your extras — the popular set
-// arrives automatically. Browse still shows the whole catalog regardless.
+// Google fonts straight from the catalog; Full adds every self-hosted font plus
+// the FEATURED catalog promotions on top. FEATURED only needs Fontsource picks;
+// populars and self-hosted fonts join automatically. Browse shows everything.
 let quizMode = $state<'quick' | 'full'>('quick');
 
 // Mode sizes for the toggle labels; the toggle hides when Full adds nothing.
@@ -311,14 +311,15 @@ async function shareImage() {
              chevron points up to reveal that chrome, down to hide it. -->
         <div class="flex shrink-0 items-center gap-3 pb-2">
           <button
-            class="btn-icon preset-tonal-surface shrink-0"
+            class="btn btn-sm preset-tonal-surface shrink-0"
             onclick={() => (topCollapsed.value = !topCollapsed.value)}
             aria-label={topCollapsed.value ? 'Show controls' : 'Hide controls'}>
             <span
               class="inline-flex transition-transform duration-200"
               style="transform: rotate({topCollapsed.value ? 180 : 0}deg);">
-              <Icon name="chevron" size={18} />
+              <Icon name="chevron" size={16} />
             </span>
+            <span>{topCollapsed.value ? 'Show' : 'Hide'}</span>
           </button>
           <div
             class="h-2 flex-1 overflow-hidden rounded-full bg-surface-300-700"

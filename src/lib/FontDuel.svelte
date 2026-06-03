@@ -63,14 +63,14 @@ function pick(i: number, event: MouseEvent) {
           fontSize={fontSize}
           ligatures={ligatures} />
 
-        <span class="duel-cta bg-primary-500 text-white">
+        <span class="duel-cta">
           <svg
-            width="14"
-            height="14"
+            width="13"
+            height="13"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="3"
+            stroke-width="2.5"
             stroke-linecap="round"
             stroke-linejoin="round"
             aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
@@ -139,6 +139,9 @@ function pick(i: number, event: MouseEvent) {
 
 /* compact cue tucked into the window title-bar, right of the URL — out of the
    article body entirely */
+/* Quiet, theme-independent chip: a frosted neutral pill that recedes against
+   the specimen (and never clashes with the bold preview colour schemes). Dark
+   enough that white text clears AA on light and dark grounds alike. */
 .duel-cta {
   position: absolute;
   top: 0.5rem;
@@ -148,14 +151,21 @@ function pick(i: number, event: MouseEvent) {
   align-items: center;
   gap: 0.3rem;
   max-width: calc(100% - 1.2rem);
-  padding: 0.25rem 0.65rem;
+  padding: 0.25rem 0.6rem;
   border-radius: 9999px;
-  font-size: 0.78rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+.duel-cta svg {
+  opacity: 0.8;
 }
 
 @keyframes duel-enter {

@@ -20,11 +20,11 @@ const champ = $derived(tiers[0]);
 const rest = $derived(tiers.slice(1));
 const championFamily = $derived(champ?.fonts[0]?.family ?? '');
 const championDesigner = $derived(champ?.fonts[0]?.designer ?? '');
-// A tier's finishing slot as an en-dash range when fonts tie (e.g. 5–8 for four
+// A tier's finishing slot as a hyphen range when fonts tie (e.g. 5-8 for four
 // quarter-finalists), so the card reads like a results index.
 const rankRange = (tier: PlacementTier) => {
   const last = tier.place + tier.fonts.length - 1;
-  return last > tier.place ? `${tier.place}–${last}` : String(tier.place);
+  return last > tier.place ? `${tier.place}-${last}` : String(tier.place);
 };
 </script>
 
