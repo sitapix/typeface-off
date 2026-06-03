@@ -31,7 +31,10 @@ export const FEATURED: Partial<Record<FontCategory, string[]>> = {
     'Nimbus Sans L',
     'Karrik',
     'Techna Sans',
-    'Hanken Round'
+    'Hanken Round',
+    'Phlatt Grotesk',
+    'Fixel',
+    'Overused Grotesk'
   ],
   serif: [
     'Libre Caslon Condensed',
