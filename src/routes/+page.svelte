@@ -17,9 +17,10 @@ import {
   createGame,
   createConfetti,
   placeFonts,
-  seedBracket
+  seedBracket,
+  getFontByFamily
 } from '$lib';
-import type { Tournament, MatchupResult, Matchup } from '$lib/game';
+import type { Tournament, MatchupResult, Matchup, Round } from '$lib/game';
 import type { Font, FontCategory } from '$lib/fonts';
 import { base } from '$app/paths';
 import { lazyFont } from '$lib/lazyFont';
@@ -101,7 +102,9 @@ onMount(() => {
   // carry over here as an un-closeable full-screen overlay.
   menuOpen.value = false;
   canShare = canShareFiles();
-  startGame();
+  // Resume a saved game (e.g. after tapping a font-detail link, or a refresh);
+  // only deal a fresh bracket when there's nothing to restore.
+  if (!restoreSavedGame()) startGame();
 });
 
 function handleKeydown(event: KeyboardEvent) {
@@ -129,6 +132,100 @@ const resultsLabel = $derived(
   `${quizMode === 'quick' ? 'Top' : 'Full'} ${poolSize}: ${categoryLabel(selectedCategory)}`
 );
 
+// --- progress persistence -------------------------------------------------
+// Keep the bracket in sessionStorage so leaving the page (a font-detail link,
+// an accidental tap, a refresh) and coming back resumes the game — or the
+// finished result — instead of silently resetting it. Scoped to the tab, so a
+// fresh tab starts a new game. Stores font families, not whole Font objects,
+// and rehydrates from the catalog.
+const SAVE_KEY = 'typeface-off:game:v1';
+
+function saveGame() {
+  if (typeof sessionStorage === 'undefined' || !game) return;
+  try {
+    sessionStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        v: 1,
+        category: selectedCategory,
+        mode: quizMode,
+        poolSize,
+        currentRound: game.currentRound,
+        finalRound: game.finalRound,
+        rounds: game.rounds.map((round) =>
+          round.map((m) => ({
+            players: m.players.map((p) => p.family),
+            winner: m.winner?.family ?? null
+          }))
+        )
+      })
+    );
+  } catch {
+    // Storage full or unavailable — the in-memory game still works.
+  }
+}
+
+function restoreSavedGame(): boolean {
+  if (typeof sessionStorage === 'undefined') return false;
+  let snap: {
+    v?: number;
+    category?: FontCategory;
+    mode?: 'quick' | 'full';
+    poolSize?: number;
+    currentRound?: number;
+    finalRound?: number | null;
+    rounds?: { players: string[]; winner: string | null }[][];
+  };
+  try {
+    const raw = sessionStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    snap = JSON.parse(raw);
+  } catch {
+    return false;
+  }
+  if (snap.v !== 1 || !Array.isArray(snap.rounds) || !snap.rounds.length)
+    return false;
+
+  // Rehydrate every font from the catalog. If a saved name is gone (the roster
+  // changed between builds), abandon the restore and start fresh rather than
+  // render a broken bracket.
+  const rounds: Round[] = [];
+  for (const round of snap.rounds) {
+    const rebuilt: Matchup[] = [];
+    for (const m of round) {
+      const players = m.players
+        .map((f) => getFontByFamily(f))
+        .filter(Boolean) as Font[];
+      if (players.length !== m.players.length) return false;
+      const winner = m.winner ? (getFontByFamily(m.winner) ?? null) : null;
+      if (m.winner && !winner) return false;
+      rebuilt.push({ players, winner });
+    }
+    rounds.push(rebuilt);
+  }
+
+  const restored = createGame([], { shuffle: false });
+  restored.rounds = rounds;
+  restored.currentRound = snap.currentRound ?? rounds.length - 1;
+  restored.finalRound = snap.finalRound ?? null;
+
+  if (snap.category) selectedCategory = snap.category;
+  if (snap.mode) quizMode = snap.mode;
+  if (typeof snap.poolSize === 'number') poolSize = snap.poolSize;
+  game = restored;
+
+  // Drive the engine through the reactive `game` proxy (as startGame does), not
+  // the raw object, so resumed play stays tracked.
+  if (game.finalRound != null) {
+    const champ = game.rounds[game.finalRound]?.[0]?.winner ?? null;
+    currentBracket = champ ? { winner: champ } : game.startGame();
+    if (champ) showName.value = true;
+  } else {
+    currentBracket = game.startGame();
+  }
+  return true;
+}
+
 function startGame() {
   const roster =
     quizMode === 'quick'
@@ -142,6 +239,7 @@ function startGame() {
   const players = seedBracket(roster);
   game = createGame(players, { shuffle: false });
   currentBracket = game.startGame();
+  saveGame();
 }
 
 function setMode(mode: 'quick' | 'full') {
@@ -158,6 +256,7 @@ function selectCategory(id: FontCategory) {
 
 async function chooseWinner(player: Font, button?: HTMLElement) {
   currentBracket = game?.setWinner(player);
+  saveGame();
   if (currentBracket?.winner) {
     createConfetti();
     showName.value = true;
@@ -450,16 +549,17 @@ $effect(() => {
                 {champion.family}
               </div>
               <!-- Labelled font actions: bare icons here read as "download the
-                   image" next to the share card, so always show the text. Stack
-                   on mobile — the family-name labels overflow a single row on a
-                   phone. -->
+                   image" next to the share card, so always show the text. Short
+                   labels (no family name) keep all three on one compact row
+                   instead of a tall stack; the aria-labels stay descriptive. -->
               <FontLinks
                 font={champion}
                 size={20}
                 showLabels
+                shortLabels
                 labelClass=""
                 detailLabel="Details"
-                groupClass="preset-tonal-surface text-sm w-full max-w-xs flex-col sm:w-auto sm:max-w-none sm:flex-row" />
+                groupClass="preset-tonal-surface text-sm" />
             </div>
 
             <!-- Shareable Top-10 placement card. The Save/Share actions are the
@@ -511,20 +611,33 @@ $effect(() => {
               </div>
             {/if}
 
-            <!-- Mobile-only: the desktop sidebar keeps the bracket on screen the
-                 whole game, but the results screen has no toolbar, so phones
-                 otherwise can't get back to the full bracket and every matchup.
-                 Opens the same overlay the in-game bracket button uses. -->
-            {#if game?.rounds.length}
-              <div class="flex justify-center lg:hidden">
+            <!-- Mobile post-game controls. The desktop sidebar carries restart,
+                 the category filter, and the bracket the whole game; the mobile
+                 results screen has no toolbar, so without this there's no way to
+                 start over, pick a different matchup, or review the bracket. -->
+            <div class="flex flex-col gap-3 lg:hidden">
+              <div class="flex flex-wrap justify-center gap-2">
                 <button
-                  class="btn preset-tonal-surface"
-                  onclick={() => (showBracket = true)}>
-                  <Icon name="bracket" size={18} />
-                  <span>View full bracket</span>
-                </button>
+                  class="btn preset-filled-primary-500"
+                  onclick={startGame}>Play again</button>
+                {#if game?.rounds.length}
+                  <button
+                    class="btn preset-tonal-surface"
+                    onclick={() => (showBracket = true)}>
+                    <Icon name="bracket" size={18} />
+                    <span>View full bracket</span>
+                  </button>
+                {/if}
               </div>
-            {/if}
+              <!-- Start a different game: another type, or a bigger bracket. -->
+              <CategoryFilter
+                categories={CATEGORIES}
+                selected={selectedCategory}
+                onselect={selectCategory} />
+              {#if fullRosterSize > quickSize}
+                {@render modeToggle()}
+              {/if}
+            </div>
 
             <h4 class="h4 text-pretty">
               For mastering the art of bézier curve pageantry, where serifs and
