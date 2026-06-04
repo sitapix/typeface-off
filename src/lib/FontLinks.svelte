@@ -25,7 +25,7 @@ let {
   /** Drop the family name from the visible labels (just "Visit"/"Download") so
       the group fits one compact row; the aria-labels keep the full text. */
   shortLabels?: boolean;
-  /** Include the "view detail" (maximize) link. */
+  /** Include the "view details" (info) link. */
   details?: boolean;
   /** Text for the detail link when showLabels is on (empty = icon only). */
   detailLabel?: string;
@@ -60,7 +60,7 @@ let {
       class="btn"
       href="{base}/{fontSlug(font.family)}"
       aria-label="View {font.family} details">
-      <Icon name="maximize" size={size} />
+      <Icon name="info" size={size} />
       {#if showLabels && detailLabel}<span class={labelClass}
           >{detailLabel}</span
         >{/if}

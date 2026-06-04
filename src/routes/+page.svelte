@@ -8,6 +8,7 @@ import {
   FontLinks,
   CategoryFilter,
   Controls,
+  ControlsSheet,
   AppFrame,
   FontPreview,
   FontDuel,
@@ -62,6 +63,9 @@ let cardRenderToken = 0;
 let canShare = $state(false);
 let sharing = $state(false);
 let showBracket = $state(false);
+// Mobile specimen-settings sheet (Show Name / Ligatures / scheme / size). On
+// desktop those controls live inline in the sub-header instead.
+let controlsOpen = $state(false);
 
 // Active two-player matchup vs. the crowned champion — derived views over the
 // raw bracket so the template stays null-safe.
@@ -332,6 +336,40 @@ $effect(() => {
     cardRenderToken++;
   }
 });
+
+// Desktop sidebar bracket: the full tree (rounds laid out as side-by-side
+// columns) is far wider than the sidebar, which used to force a horizontal
+// scrollbar. Scale the whole tree down to fit the available width — a glanceable
+// minimap, never a scroll. Re-fits on width changes (ResizeObserver) and when
+// the bracket changes shape (a pick advances a round, or names toggle).
+let bracketFitEl = $state<HTMLDivElement>();
+$effect(() => {
+  const host = bracketFitEl;
+  if (!host) return;
+  // Reactive deps: refit when the tree grows or the badge labels change width.
+  void game?.rounds.length;
+  void picksMade;
+  void showName.value;
+
+  const fit = () => {
+    const inner = host.querySelector('.font-brackets');
+    if (!(inner instanceof HTMLElement)) return;
+    // scrollWidth/Height are layout-based, so they report the natural (untransformed)
+    // size even while a scale() is applied — safe to measure without resetting.
+    const avail = host.clientWidth;
+    const natural = inner.scrollWidth;
+    const scale = natural > avail && avail > 0 ? avail / natural : 1;
+    inner.style.transformOrigin = 'top left';
+    inner.style.transform = scale < 1 ? `scale(${scale})` : '';
+    // transform is visual only, so collapse the leftover box to the scaled height.
+    host.style.height = `${inner.scrollHeight * scale}px`;
+  };
+
+  fit();
+  const ro = new ResizeObserver(fit);
+  ro.observe(host);
+  return () => ro.disconnect();
+});
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -340,7 +378,7 @@ $effect(() => {
      bar. Caller guards on fullRosterSize > quickSize (hidden when Quick = Full). -->
 {#snippet modeToggle()}
   <div
-    class="btn-group preset-outlined-surface-500 flex w-full [&>*+*]:border-surface-400-600"
+    class="btn-group preset-outlined-surface-500 flex w-full"
     role="group"
     aria-label="Bracket size">
     <button
@@ -399,11 +437,7 @@ $effect(() => {
 
 <AppFrame
   headerClass={!champion && topCollapsed.value ? 'hidden lg:block' : ''}
-  pageHeaderClass={champion
-    ? 'hidden'
-    : topCollapsed.value
-      ? 'hidden lg:block'
-      : ''}>
+  pageHeaderClass={champion ? 'hidden' : 'hidden lg:block'}>
   {#snippet header()}
     <Header showMenu={false} onhome={goHome} />
   {/snippet}
@@ -411,7 +445,7 @@ $effect(() => {
   {#snippet sidebar()}
     <Sidebar>
       <div class="flex flex-col gap-2">
-        <span class="text-sm opacity-70">Filter by type</span>
+        <span class="eyebrow text-surface-700-300">Filter by type</span>
         <CategoryFilter
           categories={CATEGORIES}
           selected={selectedCategory}
@@ -419,17 +453,20 @@ $effect(() => {
       </div>
       {#if fullRosterSize > quickSize}
         <div class="flex flex-col gap-2">
-          <span class="text-sm opacity-70">Bracket size</span>
+          <span class="eyebrow text-surface-700-300">Bracket size</span>
           {@render modeToggle()}
         </div>
       {/if}
       <button class="btn preset-filled-primary-500" onclick={startGame}
         >Restart Game</button>
       {#if game?.rounds.length}
-        <!-- Bracket needs horizontal room; a static sidebar column on lg+. On
-             mobile it's reached via the toolbar's bracket button (overlay). -->
-        <div class="table-wrap hidden rounded-none p-2 lg:block">
-          {@render bracketTree()}
+        <!-- Full bracket as a glanceable minimap: the tree is wider than the
+             sidebar, so bracket-fit scales it down to the column width (no
+             horizontal scroll). On mobile it's the toolbar's bracket overlay. -->
+        <div class="hidden p-2 lg:block">
+          <div class="bracket-fit" bind:this={bracketFitEl}>
+            {@render bracketTree()}
+          </div>
         </div>
       {/if}
     </Sidebar>
@@ -448,7 +485,7 @@ $effect(() => {
              wrapping (no horizontal scroll). Sits above the toolbar so the
              toolbar's collapse control keeps a fixed spot. -->
         {#if !topCollapsed.value}
-          <div class="flex shrink-0 flex-col gap-2 pb-2">
+          <div class="landscape-hide flex shrink-0 flex-col gap-2 pb-2">
             <CategoryFilter
               categories={CATEGORIES}
               selected={selectedCategory}
@@ -465,9 +502,9 @@ $effect(() => {
              chevron points up to reveal that chrome, down to hide it. -->
         <div class="flex shrink-0 items-center gap-3 pb-2">
           <button
-            class="btn btn-sm preset-tonal-surface shrink-0"
+            class="btn btn-sm preset-tonal-surface landscape-hide shrink-0"
             onclick={() => (topCollapsed.value = !topCollapsed.value)}
-            aria-label={topCollapsed.value ? 'Show controls' : 'Hide controls'}>
+            aria-label={topCollapsed.value ? 'Show filters' : 'Hide filters'}>
             <span
               class="inline-flex transition-transform duration-200"
               style="transform: rotate({topCollapsed.value ? 180 : 0}deg);">
@@ -488,6 +525,23 @@ $effect(() => {
           </div>
           <span class="shrink-0 text-xs tabular-nums opacity-60"
             >{picksMade}/{totalPicks}</span>
+          <!-- Specimen-settings trigger, foregrounding font size (the most-fiddled
+               control): a clearly-bordered pill with the sliders icon + current
+               size, so it reads as a tappable control, not a status readout. -->
+          <button
+            class="btn btn-sm preset-outlined-surface-500 shrink-0 gap-1.5"
+            onclick={() => (controlsOpen = true)}
+            aria-haspopup="dialog"
+            aria-expanded={controlsOpen}
+            aria-label="Specimen settings, text size {fontSize.value}">
+            <Icon name="sliders" size={15} />
+            <span class="font-semibold leading-none" aria-hidden="true"
+              ><span class="text-[1.05em]">A</span><span class="text-[0.8em]"
+                >a</span
+              ></span>
+            <span class="text-xs tabular-nums opacity-80"
+              >{fontSize.value}px</span>
+          </button>
           {#if game?.rounds.length}
             <button
               class="btn-icon preset-tonal-surface shrink-0"
@@ -639,7 +693,7 @@ $effect(() => {
                  Sits on a solid surface so the outlined controls keep their
                  contrast over the decorative trophy behind them (WCAG AA). -->
             <div
-              class="relative flex flex-col gap-3 rounded-xl border border-surface-200-800 bg-surface-50-950 p-4 lg:hidden">
+              class="relative flex flex-col gap-3 rounded-lg border border-surface-200-800 bg-surface-50-950 p-4 lg:hidden">
               <div class="flex flex-wrap justify-center gap-2">
                 <button
                   class="btn preset-filled-primary-500"
@@ -703,3 +757,6 @@ $effect(() => {
     </div>
   </div>
 {/if}
+
+<!-- Mobile specimen-settings sheet (desktop shows these controls inline). -->
+<ControlsSheet bind:open={controlsOpen} />

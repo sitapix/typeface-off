@@ -97,6 +97,16 @@ function pick(i: number, event: MouseEvent) {
   gap: 0.55rem;
 }
 
+/* Landscape phones are wide but short: stacking two halves leaves each too short
+   to read. Lay them side by side so each keeps the full (remaining) height and
+   the typefaces stay legible. (Wide landscape tablets are ≥lg and use the desktop
+   side-by-side layout instead, so this only catches short viewports.) */
+@media (orientation: landscape) and (max-height: 600px) {
+  .font-duel {
+    flex-direction: row;
+  }
+}
+
 .duel-half {
   position: relative;
   flex: 1 1 0%;

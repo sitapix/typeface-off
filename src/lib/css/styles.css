@@ -1,3 +1,41 @@
+/* Editorial section label (DESIGN.md label role): small, tracked, uppercase —
+   the quiet "eyebrow" over a control group. Used for the rail's section labels. */
+/* Editorial section label (DESIGN.md label role): 0.75rem / 600, lightly tracked
+   uppercase. Colour comes from the `text-surface-700-300` ramp token on the
+   element (AA-safe in every theme + both modes) — not an opacity, which dropped
+   it under contrast. */
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Short landscape (phones held sideways): the chrome stack would otherwise eat
+   the whole viewport and push both font specimens off-screen. Drop the secondary
+   controls so the side-by-side duel gets the height; settings stay one rotation
+   away in portrait. View-only (doesn't touch the persisted collapse pref). */
+@media (orientation: landscape) and (max-height: 600px) {
+  .landscape-hide {
+    display: none !important;
+  }
+}
+
+/* Touch devices: give the compact chrome controls a 44px tap target without
+   bloating the dense desktop (pointer: fine) layout. `.btn-icon` is content-box
+   with 8px padding, so it needs border-box here or a 44px min becomes a chunky
+   60px total. */
+@media (pointer: coarse) {
+  .btn-sm {
+    min-height: 44px;
+  }
+  .btn-icon {
+    box-sizing: border-box;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
 .bracket-candidate {
   width: 142px;
   height: 21px;
@@ -71,6 +109,13 @@
 .font-brackets {
   display: flex;
   align-items: stretch;
+}
+
+/* Sidebar minimap wrapper: clips the natural-width tree (which is scaled down to
+   fit via a transform set in +page.svelte) so it never produces a scrollbar. */
+.bracket-fit {
+  width: 100%;
+  overflow: hidden;
 }
 
 .left-dot {

@@ -6,10 +6,17 @@ import {
   specimenScheme
 } from '$lib/store.svelte';
 import { SPECIMEN_SCHEMES } from '$lib/specimenSchemes';
+
+// `inSheet` = rendered inside the mobile ControlsSheet overlay, which owns the
+// surface — so drop the inline bar's border/background and stack the groups with
+// room to breathe. Default (desktop pageHeader) keeps the compact one-line bar.
+let { inSheet = false }: { inSheet?: boolean } = $props();
 </script>
 
 <div
-  class="flex flex-row flex-wrap items-center gap-x-4 gap-y-2 border-b border-surface-200-800 bg-surface-100-900 px-4 py-2">
+  class={inSheet
+    ? 'flex flex-col gap-4 px-4 pb-4 pt-2'
+    : 'flex flex-row flex-wrap items-center gap-x-4 gap-y-2 border-b border-surface-200-800 bg-surface-100-900 px-4 py-2'}>
   <label class="flex items-center space-x-2">
     <input class="checkbox" type="checkbox" bind:checked={showName.value} />
     <span>Show Name</span>
@@ -55,6 +62,7 @@ import { SPECIMEN_SCHEMES } from '$lib/specimenSchemes';
       min="10"
       max="72"
       bind:value={fontSize.value} />
+    <span class="text-sm opacity-60">px</span>
     <input
       class="min-w-32 flex-1 accent-primary-500 lg:max-w-60"
       type="range"
@@ -71,11 +79,11 @@ import { SPECIMEN_SCHEMES } from '$lib/specimenSchemes';
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 4px;
   border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: 700;
   line-height: 1;
   cursor: pointer;

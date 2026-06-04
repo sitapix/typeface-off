@@ -17,11 +17,11 @@ export function scrollToTop() {
      toggle, which becomes an ✕ while open). Desktop (lg): static in-flow column. -->
 <div
   id="app-sidebar"
-  class="absolute z-20 flex h-full w-screen flex-col border-r border-surface-200-800 bg-surface-100-900 shadow-xl transition-transform duration-200 ease-out lg:static lg:w-full lg:translate-x-0 lg:shadow-none"
+  class="absolute z-20 flex h-full w-screen flex-col bg-surface-100-900 shadow-xl transition-transform duration-200 ease-out lg:static lg:w-full lg:translate-x-0 lg:shadow-none"
   class:-translate-x-full={!menuOpen.value}>
   {#if pinned}
     <!-- Fixed at the top of the drawer; only when a drawer is actually used (mobile). -->
-    <div class="shrink-0 border-b border-surface-200-800 p-4 pb-3 lg:hidden">
+    <div class="shrink-0 p-4 pb-2 lg:hidden">
       {@render pinned()}
     </div>
   {/if}
@@ -32,8 +32,7 @@ export function scrollToTop() {
   </div>
   <!-- App-wide license note for the Wikipedia specimen text (CC BY-SA); the
        per-item credit is in SpecimenPreview. -->
-  <footer
-    class="shrink-0 border-t border-surface-200-800 px-4 py-3 text-xs text-surface-600-400">
+  <footer class="shrink-0 px-4 pb-4 pt-2 text-xs text-surface-700-300">
     Specimen text from <a
       class="underline decoration-surface-400 underline-offset-2 hover:text-primary-500"
       href="https://en.wikipedia.org/"

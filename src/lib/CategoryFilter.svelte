@@ -19,8 +19,7 @@ let {
 </script>
 
 {#if variant === 'group'}
-  <div
-    class="btn-group preset-outlined-surface-500 shrink-0 [&>*+*]:border-surface-400-600 {className}">
+  <div class="btn-group preset-outlined-surface-500 shrink-0 {className}">
     {#each categories as category (category.id)}
       <button
         class="btn btn-sm {selected === category.id
@@ -36,7 +35,7 @@ let {
       <button
         class="btn btn-sm {selected === category.id
           ? 'preset-filled-primary-500'
-          : 'preset-outlined-surface-500'}"
+          : 'preset-tonal-surface'}"
         aria-pressed={selected === category.id}
         onclick={() => onselect(category.id)}>{category.label}</button>
     {/each}
