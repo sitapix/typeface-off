@@ -55,6 +55,7 @@ Climate Crisis
 Comfortaa
 Comic Mono
 Comic Neue
+Comic Shanns Mono
 Commit Mono
 Cooper Hewitt
 Corben
@@ -127,6 +128,7 @@ Iosevka Aile
 Iosevka Curly
 Iosevka Curly Slab
 Iosevka Etoile
+Ioskeley Mono
 JetBrains Mono
 Josefin Sans
 Jost
@@ -152,6 +154,7 @@ Literata
 Lobster
 Lobster Two
 Lora
+Lotion
 Luckiest Guy
 LXGW WenKai
 Manrope
@@ -173,6 +176,7 @@ Mulish
 Nanum Gothic Coding
 Nanum Myeongjo
 Nebula Sans
+Necto Mono
 Newsreader
 Nimbus Sans L
 Norwester

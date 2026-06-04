@@ -322,6 +322,96 @@ export const localGeneratedFonts: Font[] = [
     "downloadUrl": "https://kabeech.github.io/serious-shanns/"
   },
   {
+    "family": "Lotion",
+    "category": "mono",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/Lotion-Regular.woff2"
+      },
+      {
+        "src": "/fonts/Lotion-RegularItalic.woff2",
+        "style": "italic"
+      }
+    ],
+    "designer": "Nina Belikova",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular",
+      "regularitalic"
+    ],
+    "siteUrl": "https://github.com/ninabelikova/lotion",
+    "downloadUrl": "https://github.com/ninabelikova/lotion"
+  },
+  {
+    "family": "Necto Mono",
+    "category": "mono",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/NectoMono-Regular.woff2"
+      }
+    ],
+    "designer": "Marco Condello (Collletttivo)",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://www.collletttivo.it/typefaces/necto-mono",
+    "downloadUrl": "https://www.collletttivo.it/typefaces/necto-mono"
+  },
+  {
+    "family": "Comic Mono",
+    "category": "mono",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/ComicMono.woff2"
+      }
+    ],
+    "designer": "dtinth & Shannon Miwa",
+    "license": "MIT",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://github.com/dtinth/comic-mono-font",
+    "downloadUrl": "https://github.com/dtinth/comic-mono-font"
+  },
+  {
+    "family": "Ioskeley Mono",
+    "category": "mono",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/IoskeleyMono-Regular.woff2"
+      }
+    ],
+    "designer": "Ahmed Hatem; Iosevka by Belleve Invis",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://github.com/ahatem/IoskeleyMono",
+    "downloadUrl": "https://github.com/ahatem/IoskeleyMono"
+  },
+  {
+    "family": "Comic Shanns Mono",
+    "category": "mono",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/ComicShannsMono-Regular.woff2"
+      }
+    ],
+    "designer": "Shannon Miwa & Jesús González",
+    "license": "MIT",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://github.com/jesusmgg/comic-shanns-mono",
+    "downloadUrl": "https://github.com/jesusmgg/comic-shanns-mono"
+  },
+  {
     "family": "Phlatt Grotesk",
     "category": "sans",
     "source": "local",
