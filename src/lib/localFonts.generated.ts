@@ -164,6 +164,91 @@ export const localGeneratedFonts: Font[] = [
     "downloadUrl": "https://departuremono.com"
   },
   {
+    "family": "Monocraft",
+    "category": "mono",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/Monocraft.woff2"
+      }
+    ],
+    "designer": "Idrees Hassan",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://github.com/IdreesInc/Monocraft",
+    "downloadUrl": "https://github.com/IdreesInc/Monocraft"
+  },
+  {
+    "family": "Miracode",
+    "category": "mono",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/Miracode.woff2"
+      }
+    ],
+    "designer": "Idrees Hassan",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://github.com/IdreesInc/Miracode",
+    "downloadUrl": "https://github.com/IdreesInc/Miracode"
+  },
+  {
+    "family": "Hermit",
+    "category": "mono",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/Hermit.woff2"
+      }
+    ],
+    "designer": "Pablo Caro",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://pcaro.es/p/hermit/",
+    "downloadUrl": "https://pcaro.es/p/hermit/"
+  },
+  {
+    "family": "Agave",
+    "category": "mono",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/Agave-Regular.woff2"
+      }
+    ],
+    "designer": "type agaric",
+    "license": "MIT",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://github.com/blobject/agave",
+    "downloadUrl": "https://github.com/blobject/agave"
+  },
+  {
+    "family": "Annotation Mono",
+    "category": "mono",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/AnnotationMono-Regular.woff2"
+      }
+    ],
+    "designer": "Qwerasd",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://github.com/qwerasd205/AnnotationMono",
+    "downloadUrl": "https://github.com/qwerasd205/AnnotationMono"
+  },
+  {
     "family": "Commit Mono",
     "category": "mono",
     "source": "local",
@@ -313,5 +398,39 @@ export const localGeneratedFonts: Font[] = [
     ],
     "siteUrl": "https://www.datto.com/fonts/d-din",
     "downloadUrl": "https://www.datto.com/fonts/d-din"
+  },
+  {
+    "family": "Gidole",
+    "category": "sans",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/Gidole-Regular.woff2"
+      }
+    ],
+    "designer": "Andreas Larsen",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://github.com/larsenwork/Gidole",
+    "downloadUrl": "https://github.com/larsenwork/Gidole"
+  },
+  {
+    "family": "Linux Libertine",
+    "category": "serif",
+    "source": "local",
+    "faces": [
+      {
+        "src": "/fonts/LinuxLibertine-Regular.woff2"
+      }
+    ],
+    "designer": "Philipp H. Poll",
+    "license": "OFL-1.1",
+    "variants": [
+      "regular"
+    ],
+    "siteUrl": "https://sourceforge.net/projects/linuxlibertine/",
+    "downloadUrl": "https://sourceforge.net/projects/linuxlibertine/"
   }
 ];

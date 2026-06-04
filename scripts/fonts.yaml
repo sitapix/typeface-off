@@ -30,11 +30,14 @@ google:
   - Sorts Mill Goudy
   - Tinos
   - Gentium Plus
+  - Young Serif
+  - Fanwood Text
   # mono
   - Intel One Mono
   - Martian Mono
   - Spline Sans Mono
   - B612 Mono
+  - Atkinson Hyperlegible Mono
   # display (condensed / blackletter / brush / pixel / groovy / novelty)
   - Anton
   - UnifrakturMaguntia
@@ -114,6 +117,45 @@ local:
     license: OFL-1.1
     url: https://departuremono.com
 
+  # Pixel/bitmap monospace inspired by Minecraft. Single weight; the code
+  # specimen never bolds and faux-italics comments.
+  - family: Monocraft
+    category: mono
+    files: [Monocraft.woff2]
+    designer: Idrees Hassan
+    license: OFL-1.1
+    url: https://github.com/IdreesInc/Monocraft
+
+  # Sharp coding font vectorized from Monocraft; same designer.
+  - family: Miracode
+    category: mono
+    files: [Miracode.woff2]
+    designer: Idrees Hassan
+    license: OFL-1.1
+    url: https://github.com/IdreesInc/Miracode
+
+  - family: Hermit
+    category: mono
+    files: [Hermit.woff2]
+    designer: Pablo Caro
+    license: OFL-1.1
+    url: https://pcaro.es/p/hermit/
+
+  - family: Agave
+    category: mono
+    files: [Agave-Regular.woff2]
+    designer: type agaric
+    license: MIT
+    url: https://github.com/blobject/agave
+
+  # Handwriting-style monospace (fixed pitch); Regular weight only.
+  - family: Annotation Mono
+    category: mono
+    files: [AnnotationMono-Regular.woff2]
+    designer: Qwerasd
+    license: OFL-1.1
+    url: https://github.com/qwerasd205/AnnotationMono
+
   # Self-hosted (v1.143) overrides the Fontsource catalog entry of the same
   # name. Regular only — the code specimen never bolds, and comments faux-italic.
   - family: Commit Mono
@@ -176,6 +218,22 @@ local:
     designer: Datto Inc.
     license: OFL-1.1
     url: https://www.datto.com/fonts/d-din
+
+  # Geometric sans; dual-licensed OFL/MIT (OFL recorded here).
+  - family: Gidole
+    category: sans
+    files: [Gidole-Regular.woff2]
+    designer: Andreas Larsen
+    license: OFL-1.1
+    url: https://github.com/larsenwork/Gidole
+
+  # Libertine serif; dual-licensed GPL+FE/OFL (OFL recorded here).
+  - family: Linux Libertine
+    category: serif
+    files: [LinuxLibertine-Regular.woff2]
+    designer: Philipp H. Poll
+    license: OFL-1.1
+    url: https://sourceforge.net/projects/linuxlibertine/
 
   # - family: My Serif
   #   category: serif

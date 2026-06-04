@@ -17,7 +17,8 @@ let { showMenu = true, onhome }: { showMenu?: boolean; onhome?: () => void } =
 const homeHref = `${base}/`;
 const links = [
   { href: homeHref, label: 'Game' },
-  { href: `${base}/browse`, label: 'Browse' }
+  { href: `${base}/browse`, label: 'Browse' },
+  { href: `${base}/about`, label: 'About' }
 ];
 
 // Trailing-slash-insensitive match so the base root ('' vs '/') still highlights.

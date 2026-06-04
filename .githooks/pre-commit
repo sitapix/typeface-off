@@ -1,0 +1,46 @@
+#!/bin/sh
+# Pre-commit: keep the working tree consistent and the generated catalog in sync.
+#
+#   1a. If the font config is part of this commit, refresh the Bunny/Fontsource
+#       catalog with `fonts:generate` (NEEDS NETWORK). Gated on the config files
+#       so a routine commit doesn't make a network round-trip every time.
+#   1b. Always run the network-free regenerators (self-hosted catalog + name lists).
+#   2.  Format staged files with Prettier (respects .prettierignore).
+#   3.  Re-stage anything the steps above changed, so the commit is self-consistent.
+#
+# Offline while editing the font config? The generate step will fail and block the
+# commit; either get online or `git commit --no-verify` and run `npm run fonts:all`
+# later. Correctness gates (check/test) run in pre-push to keep commits snappy.
+set -e
+cd "$(git rev-parse --show-toplevel)"
+
+staged_all=$(git diff --cached --name-only --diff-filter=ACM)
+
+# 1a. Font config touched -> regenerate the online catalog (Bunny/Fontsource/Google).
+ran_generate=0
+if printf '%s\n' "$staged_all" | grep -qE '^scripts/(fonts\.yaml|generate-fonts\.cjs|fonts-shared\.cjs)$'; then
+  echo "pre-commit: font config changed -> npm run fonts:generate (needs network)"
+  npm run --silent fonts:generate
+  ran_generate=1
+fi
+
+# 1b. Network-free regenerators. Idempotent: unchanged inputs produce no diff.
+npm run --silent fonts:local
+npm run --silent fonts:names
+
+# 2. Format staged, Prettier-handled files only.
+staged_fmt=$(printf '%s\n' "$staged_all" \
+  | grep -E '\.(ts|js|cjs|mjs|svelte|json|css|md|html|ya?ml)$' || true)
+if [ -n "$staged_fmt" ]; then
+  printf '%s\n' "$staged_fmt" | xargs npx prettier --write --ignore-unknown
+fi
+
+# 3. Re-stage generated outputs (always for the network-free ones, which the hook
+#    just rewrote in full) + the files Prettier may have touched. fonts.ts is only
+#    re-staged when we actually regenerated it, so an unrelated commit never sweeps
+#    in a stale online-catalog diff.
+git add src/lib/localFonts.generated.ts font-names.txt static/font-names.html
+[ "$ran_generate" = 1 ] && git add src/lib/fonts.ts
+[ -n "$staged_fmt" ] && printf '%s\n' "$staged_fmt" | xargs git add
+
+exit 0

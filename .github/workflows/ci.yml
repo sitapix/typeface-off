@@ -44,3 +44,33 @@ jobs:
       # Dev-only advisories never reach users, so they shouldn't block a PR.
       - name: Security audit (production deps)
         run: npm audit --omit=dev --audit-level=high
+
+  # Browser-grade validation of the self-hosted font files we ship. The vitest
+  # suite already parses them with fontkit; OTS (the sanitiser Chrome/Firefox use
+  # to accept a font) is the stricter check and catches corruption fontkit may
+  # tolerate. Separate job so the apt install runs in parallel, not in the hot path.
+  fonts:
+    name: Validate shipped fonts (OTS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install OpenType Sanitiser
+        run: sudo apt-get update && sudo apt-get install -y opentype-sanitizer
+
+      - name: Sanitise every self-hosted font
+        run: |
+          fail=0
+          shopt -s nullglob
+          files=(static/fonts/*.woff2 static/fonts/*.ttf static/fonts/*.otf)
+          if [ ${#files[@]} -eq 0 ]; then echo "no font files found under static/fonts/"; exit 1; fi
+          for f in "${files[@]}"; do
+            out="$(mktemp)"
+            if ots-sanitize "$f" "$out" >ots.log 2>&1; then
+              echo "ok   $f"
+            else
+              echo "FAIL $f"; cat ots.log; fail=1
+            fi
+            rm -f "$out"
+          done
+          exit $fail

@@ -46,24 +46,25 @@ Tenor Sans is global rank 269. Counted against other sans fonts it comes 139th, 
 
 This is on purpose. Each font competes against its own category, which keeps every bracket full. Drop the per-category cut and the popular sans fonts would swamp the display, script, and mono brackets.
 
-## The one rewrite the script makes
+## The two rewrites the script makes
 
 Google labels a font two ways, and the two can disagree.
 
 - `category` is the shape. Bebas Neue has no serifs, so Google files it under Sans Serif.
 - `classifications` is the job. Bebas Neue is built for headlines, so it also carries the "Display" label.
 
-Bebas Neue is a tall, all-caps poster face, not a body font. In the sans bracket it would sit next to Inter and Roboto, which makes for a poor comparison. So the script moves it to display.
+**Headline cuts move to display.** Bebas Neue is a tall, all-caps poster face, not a body font. In the sans bracket it would sit next to Inter and Roboto, which makes for a poor comparison. So the script moves it. The rule: a font that ships a single weight and carries the "Display" label moves to display, whatever its shape. That catches the headline cuts (Bebas Neue, Archivo Black, Anton) and leaves the full families alone. Saira, Titillium Web, and Playfair Display carry the "Display" label too, but they ship a full weight range, so they stay where their shape puts them.
 
-The rule: a font that ships a single weight and carries the "Display" label moves to display, whatever its shape. That catches the headline cuts (Bebas Neue, Archivo Black, Anton) and leaves the full families alone. Saira, Titillium Web, and Playfair Display carry the "Display" label too, but they ship a full weight range, so they stay where their shape puts them.
+**Mislabeled monospace fonts move to mono.** Google sometimes files a monospace face by its letter shapes instead of its spacing. Atkinson Hyperlegible Mono and Noto Sans Mono are both tagged Sans Serif even though they are monospaced. The rule: a family whose name ends in the word "Mono" but is tagged Sans Serif or Serif moves to mono. That keeps the trailing "Mono" as the signal, so monoline display faces are not swept in.
 
 Each run prints what it moved:
 
 ```
 Reclassified to display (single-weight Display-tagged headline cuts, 3): Archivo Black (Sans Serif), Bebas Neue (Sans Serif), DM Serif Display (Serif)
+Reclassified to mono (Google mislabeled "Mono" families, 2): Noto Sans Mono (Sans Serif), Atkinson Hyperlegible Mono (Sans Serif, hand-added)
 ```
 
-The rule lives in one function, `googleBucket()`, in `scripts/fonts-shared.cjs`. Change it there if you want different fonts to move.
+Both rules live in one function, `googleBucket()`, in `scripts/fonts-shared.cjs`. Change it there if you want different fonts to move.
 
 ## Two extras the script folds in
 
