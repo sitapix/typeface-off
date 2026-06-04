@@ -37,11 +37,13 @@ async function ensureFontsLoaded(el: HTMLElement): Promise<void> {
  *  so height is pinned to the same value. */
 const CARD_EXPORT_WIDTH = 490;
 /** snapdom render scale. We render large (supersample) and shrink to
- *  CARD_OUTPUT_WIDTH so glyph edges come out smooth, not aliased. */
-const CARD_SUPERSAMPLE = 4;
-/** Final saved square size (px). 1080 is the standard social square; the 4×
- *  capture (2304²) downsamples into it cleanly. */
-const CARD_OUTPUT_WIDTH = 1080;
+ *  CARD_OUTPUT_WIDTH so glyph edges come out smooth, not aliased. 490 × 5 = 2450,
+ *  which stays above the output (no upscaling) and under mobile canvas limits. */
+const CARD_SUPERSAMPLE = 5;
+/** Final saved square size (px). 2160 (2× the old 1080 social square) keeps the
+ *  champion name crisp when the poster is zoomed, displayed retina, or printed.
+ *  As WebP the near-black ground still compresses it to well under 100 KB. */
+const CARD_OUTPUT_WIDTH = 2160;
 
 async function elementToCanvas(el: HTMLElement): Promise<HTMLCanvasElement> {
   const { snapdom } = await import('@zumer/snapdom');
@@ -92,8 +94,12 @@ async function elementToCanvas(el: HTMLElement): Promise<HTMLCanvasElement> {
 
 // One encoding for every export path (preview, Save, Share) so the on-screen
 // image is exactly the saved/shared file. Change it here, not per call site.
-const EXPORT_TYPE = 'image/jpeg';
-const EXPORT_QUALITY = 0.95;
+// WebP, not JPEG: the card is white text on a near-black ground, JPEG's worst
+// case — it rings/halos those max-contrast edges no matter the quality. WebP
+// keeps the edges clean and still compresses the film grain to a few hundred KB.
+// Browsers without WebP encode (old Safari) fall back to PNG automatically.
+const EXPORT_TYPE = 'image/webp';
+const EXPORT_QUALITY = 0.94;
 
 function canvasToBlob(
   canvas: HTMLCanvasElement,
@@ -126,7 +132,7 @@ export function canShareFiles(): boolean {
     return false;
   try {
     return navigator.canShare({
-      files: [new File([], 'x.jpg', { type: 'image/jpeg' })]
+      files: [new File([], 'x.webp', { type: EXPORT_TYPE })]
     });
   } catch {
     return false;

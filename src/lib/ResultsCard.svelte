@@ -127,7 +127,7 @@ function runnerSize(family: string): string {
 <div
   bind:this={cardEl}
   class="results-card relative mx-auto flex aspect-square w-full flex-col overflow-hidden p-[8.16cqw] text-left text-white shadow-[0_18px_50px_-12px_rgba(0,0,0,0.45)]"
-  style="background-color:#000000; font-family:'Poppins', system-ui, -apple-system, sans-serif;">
+  style="background-color:#000000; font-family:'Poppins', system-ui, -apple-system, sans-serif; font-synthesis: none;">
   <!-- film grain: specular-lit fractal noise — a soft periwinkle sheen where
        the turbulence peaks, transparent elsewhere (feSpecularLighting's alpha is
        max(r,g,b)), so a fine premium tooth reads over the pitch-black ground.

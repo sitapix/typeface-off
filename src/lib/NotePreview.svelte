@@ -129,4 +129,11 @@ const scheme = $derived(schemeAt(specimenScheme.value));
   content: attr(data-placeholder);
   opacity: 0.4;
 }
+/* Headings render bold at display size, but most fonts load only their regular
+   weight, so the browser fakes the bold and it smears. Disable synthesis: real
+   bold when a face is loaded, crisp regular otherwise. (Mirrors the Game specimen.) */
+.tester-heading,
+h1 {
+  font-synthesis: none;
+}
 </style>
