@@ -190,6 +190,47 @@ local:
     license: MIT
     url: https://kabeech.github.io/serious-shanns/
 
+  # Cute coding mono with matching italics. Ships Regular + its signature
+  # italic — the code specimen renders comments in real italic and never bolds.
+  - family: Lotion
+    category: mono
+    files: [Lotion-Regular.woff2, Lotion-RegularItalic.woff2]
+    designer: Nina Belikova
+    license: OFL-1.1
+    url: https://github.com/ninabelikova/lotion
+
+  # Collletttivo's first monospace: low contrast, slanted terminals. Regular only.
+  - family: Necto Mono
+    category: mono
+    files: [NectoMono-Regular.woff2]
+    designer: Marco Condello (Collletttivo)
+    license: OFL-1.1
+    url: https://www.collletttivo.it/typefaces/necto-mono
+
+  # Comic Sans-style coding mono; a monospaced fork of Comic Shanns v1.
+  - family: Comic Mono
+    category: mono
+    files: [ComicMono.woff2]
+    designer: dtinth & Shannon Miwa
+    license: MIT
+    url: https://github.com/dtinth/comic-mono-font
+
+  # Berkeley Mono-styled custom build of Iosevka (one full-glyph woff2).
+  - family: Ioskeley Mono
+    category: mono
+    files: [IoskeleyMono-Regular.woff2]
+    designer: Ahmed Hatem; Iosevka by Belleve Invis
+    license: OFL-1.1
+    url: https://github.com/ahatem/IoskeleyMono
+
+  # Comic Shanns v2, re-metricked to true monospace with extra glyphs. Regular only.
+  - family: Comic Shanns Mono
+    category: mono
+    files: [ComicShannsMono-Regular.woff2]
+    designer: Shannon Miwa & Jesús González
+    license: MIT
+    url: https://github.com/jesusmgg/comic-shanns-mono
+
   - family: Phlatt Grotesk
     category: sans
     files: [PhlattGrotesk-Regular.woff2]
