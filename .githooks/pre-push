@@ -1,0 +1,11 @@
+#!/bin/sh
+# Pre-push: the correctness gates, mirroring the CI quality job (minus the slow
+# build + audit, which CI still runs). Runs once per push, not per commit, so it
+# can afford the type-check and full test suite without making commits painful.
+#
+# Bypass in a genuine emergency with:  git push --no-verify
+set -e
+cd "$(git rev-parse --show-toplevel)"
+
+npm run check   # svelte-check: the reliable type gate
+npm test        # vitest: catalog integrity, licensing, font-file validity

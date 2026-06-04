@@ -1,4 +1,7 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { create } from 'fontkit';
 import generatedFonts from './fonts';
 import { localFonts } from './localFonts';
 import { localGeneratedFonts } from './localFonts.generated';
@@ -51,6 +54,50 @@ describe('generated fonts.ts catalog', () => {
       seen.add(key);
     }
     expect(dupes).toEqual([]);
+  });
+});
+
+describe('self-hosted font files are valid', () => {
+  // We ship these files in the repo, so a corrupt, empty, or wrong file would
+  // render as a silent system fallback. Parse each with fontkit (the engine
+  // browser-grade tooling builds on) and confirm it has glyphs. We deliberately
+  // do NOT compare the embedded name to the catalog `family`: that family is the
+  // CSS name we choose, and a font's internal name often differs ("Space Grotesk
+  // Light", "NimbusSanL"). The `src` path is the real binding.
+  const faces = [...localGeneratedFonts, ...localFonts].flatMap((f) =>
+    (f.faces ?? []).map((face) => face.src)
+  );
+
+  it.each(faces)('%s parses and has glyphs', (src) => {
+    const file = join(process.cwd(), 'static', src); // src is root-relative: /fonts/X
+    const font = create(readFileSync(file));
+    // We ship single fonts, not collections (a collection has no numGlyphs).
+    if (!('numGlyphs' in font))
+      throw new Error(`${src} is a font collection, expected a single font`);
+    expect(font.numGlyphs).toBeGreaterThan(0);
+  });
+});
+
+describe('every font is licensed and credited', () => {
+  // We redistribute (local) or hot-link (bunny/fontsource) these fonts, so each
+  // must ship a license and a designer credit. Covers all three sources at once:
+  // bunny/fontsource come from the generator (Google metadata / Fontsource npm
+  // metadata.json, with DESIGNER_OVERRIDES as the escape hatch), local is
+  // hand-typed in fonts.yaml. A blank field here means a step dropped attribution.
+  const ALL = [...generatedFonts, ...localGeneratedFonts, ...localFonts];
+
+  it('declares a non-empty license for every font', () => {
+    const missing = ALL.filter((f) => !f.license?.trim()).map(
+      (f) => `${f.family} (${f.source})`
+    );
+    expect(missing, 'fonts missing a license').toEqual([]);
+  });
+
+  it('declares a non-empty designer for every font', () => {
+    const missing = ALL.filter((f) => !f.designer?.trim()).map(
+      (f) => `${f.family} (${f.source})`
+    );
+    expect(missing, 'fonts missing a designer').toEqual([]);
   });
 });
 

@@ -17,3 +17,6 @@ yarn.lock
 # the next `npm run fonts:*`, so leave their formatting to the generators.
 src/lib/fonts.ts
 src/lib/localFonts.generated.ts
+
+# Generated reference list (scripts/list-font-names.cjs writes it verbatim).
+static/font-names.html

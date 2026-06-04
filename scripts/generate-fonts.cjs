@@ -14,8 +14,17 @@ const {
   CATEGORIES,
   bunnyId,
   loadFontsConfig,
-  googleBucket
+  googleBucket,
+  isGoogleMonoCut
 } = require('./fonts-shared.cjs');
+
+// Designer corrections, keyed by family. Bunny (Google) and Fontsource each carry
+// their own designer metadata, but some of it is a packager handle, a commissioning
+// institution, or just wrong. Anything listed here wins over the upstream value at
+// emit time — the one place to fix an attribution so a regen can't undo it.
+const DESIGNER_OVERRIDES = {
+  'Uncut Sans': 'uncut.wtf'
+};
 
 // How many of each category to take from Google (by popularity).
 const GTAKE = { sans: 44, serif: 32, display: 32, script: 24, mono: 24 };
@@ -67,6 +76,46 @@ function fsFaces(f) {
   if (style === 'italic') face.style = 'italic';
   return [face];
 }
+
+// The Fontsource API has no author field; its npm metadata.json does, in
+// license.attribution. Fetch it (jsDelivr first, unpkg fallback).
+async function fsAttribution(id) {
+  const urls = [
+    `https://cdn.jsdelivr.net/npm/@fontsource/${id}/metadata.json`,
+    `https://unpkg.com/@fontsource/${id}/metadata.json`
+  ];
+  for (const u of urls) {
+    try {
+      const r = await fetch(u);
+      if (!r.ok) continue;
+      const m = await r.json();
+      if (m.license && m.license.attribution) return m.license.attribution;
+    } catch {
+      /* try next mirror */
+    }
+  }
+  return null;
+}
+
+// Attribution string → clean designer credit: drop "Copyright YYYY", emails,
+// and (url) notes; keep the name(s) and abbreviation periods.
+function cleanDesigner(attr) {
+  if (!attr) return undefined;
+  let s = String(attr).trim();
+  s = s.replace(
+    /copyright\s*(\(c\)|©)?\s*\d{4}(\s*[-–]\s*\d{4})?\s*,?\s*/gi,
+    ''
+  );
+  s = s.replace(/^(\(c\)|©)\s*/i, '');
+  s = s.replace(/\s*<[^>]*>/g, '');
+  s = s.replace(/\s*\([^)]*\)/g, '');
+  s = s.replace(/\s*\S+@\S+/g, '');
+  s = s.replace(/\\+/g, ' ');
+  s = s.replace(/\s+/g, ' ').trim();
+  s = s.replace(/[\s,;–-]+$/, '').trim();
+  return s || undefined;
+}
+
 // Skip non-text / brand / CJK fonts that would bloat or break the stylesheet.
 function excluded(family) {
   if (/^Google Sans/.test(family)) return true;
@@ -100,6 +149,11 @@ function gVariants(f) {
   const gBuckets = Object.fromEntries(CATEGORIES.map((c) => [c, []]));
   for (const f of gfList) {
     const b = googleBucket(f);
+    // Drop "Symbols"-classified faces (barcode/icon fonts like Libre Barcode 39):
+    // Google ranks them popular from programmatic use, but they're useless in a
+    // typeface duel. Filtering before the top-N cut lets a real face take the slot.
+    // excluded() only sees the name; this catches the metadata signal it misses.
+    if ((f.classifications || []).includes('Symbols')) continue;
     if (b && !excluded(f.family)) gBuckets[b].push(f);
   }
   for (const b of Object.keys(gBuckets))
@@ -107,6 +161,8 @@ function gVariants(f) {
 
   // Names googleBucket() moved sans/serif → display, for the run report below.
   const reclassified = [];
+  // Names googleBucket() moved sans/serif → mono.
+  const reclassifiedMono = [];
   const seeds = [];
   const seen = new Set();
   let bunnyAdded = 0;
@@ -131,6 +187,8 @@ function gVariants(f) {
         (f.category === 'Sans Serif' || f.category === 'Serif')
       )
         reclassified.push(`${f.family} (${f.category})`);
+      if (b === 'mono' && isGoogleMonoCut(f) && f.category !== 'Monospace')
+        reclassifiedMono.push(`${f.family} (${f.category})`);
     }
   }
 
@@ -199,6 +257,12 @@ function gVariants(f) {
         (meta.category === 'Sans Serif' || meta.category === 'Serif')
       )
         reclassified.push(`${meta.family} (${meta.category}, hand-added)`);
+      if (
+        cat === 'mono' &&
+        isGoogleMonoCut(meta) &&
+        meta.category !== 'Monospace'
+      )
+        reclassifiedMono.push(`${meta.family} (${meta.category}, hand-added)`);
     }
   }
 
@@ -208,6 +272,7 @@ function gVariants(f) {
   ).json();
   const fsCount = Object.fromEntries(CATEGORIES.map((c) => [c, 0]));
   let fsAdded = 0;
+  const fsSeeds = [];
   for (const f of fsList) {
     const b = fsBucket(f.category);
     if (!b || excluded(f.family) || seen.has(f.family.toLowerCase())) continue;
@@ -216,7 +281,7 @@ function gVariants(f) {
     for (const w of f.weights || [400])
       variants.push(w === 400 ? 'regular' : String(w));
     if ((f.styles || []).includes('italic')) variants.push('italic');
-    seeds.push({
+    const seed = {
       family: f.family,
       category: b,
       source: 'fontsource',
@@ -224,11 +289,27 @@ function gVariants(f) {
       faces: fsFaces(f),
       license: f.license || undefined,
       variants: variants.length ? variants : ['regular']
-    });
+    };
+    seeds.push(seed);
+    fsSeeds.push(seed);
     seen.add(f.family.toLowerCase());
     fsCount[b]++;
     fsAdded++;
   }
+
+  // Backfill each Fontsource designer from its npm metadata.json, in parallel.
+  const fsNoDesigner = [];
+  const fsQueue = fsSeeds.slice();
+  await Promise.all(
+    Array.from({ length: 8 }, async () => {
+      let s;
+      while ((s = fsQueue.shift())) {
+        const designer = cleanDesigner(await fsAttribution(s.id));
+        if (designer) s.designer = designer;
+        else fsNoDesigner.push(s.family);
+      }
+    })
+  );
 
   // ---- emit src/lib/fonts.ts ----
   const seedLines = seeds
@@ -236,8 +317,9 @@ function gVariants(f) {
       const idPart =
         s.source === 'fontsource' ? `, id: ${JSON.stringify(s.id)}` : '';
       const facesPart = s.faces ? `, faces: ${JSON.stringify(s.faces)}` : '';
-      const designerPart = s.designer
-        ? `, designer: ${JSON.stringify(s.designer)}`
+      const designer = DESIGNER_OVERRIDES[s.family] ?? s.designer;
+      const designerPart = designer
+        ? `, designer: ${JSON.stringify(designer)}`
         : '';
       const licensePart = s.license
         ? `, license: ${JSON.stringify(s.license)}`
@@ -342,5 +424,15 @@ export default fonts;
     console.log(
       `Reclassified to display (single-weight Display-tagged headline cuts, ` +
         `${reclassified.length}): ${reclassified.join(', ')}`
+    );
+  if (reclassifiedMono.length)
+    console.log(
+      `Reclassified to mono (Google mislabeled "Mono" families, ` +
+        `${reclassifiedMono.length}): ${reclassifiedMono.join(', ')}`
+    );
+  if (fsNoDesigner.length)
+    console.log(
+      `Fontsource fonts with NO designer (no attribution found, ` +
+        `${fsNoDesigner.length}): ${fsNoDesigner.join(', ')}`
     );
 })();

@@ -39,11 +39,24 @@ function isGoogleHeadlineCut(meta) {
   return weights.length === 1;
 }
 
-// Which bucket a Google family lands in (null if unsupported). Single-weight
-// Display-tagged sans/serif move to `display` so headline cuts don't crowd the
-// text brackets; multi-weight Display families stay. Why: docs/how-the-google-fonts-get-in.md.
+// A monospace family Google mislabeled as Sans Serif/Serif (e.g. Atkinson
+// Hyperlegible Mono). The trailing "Mono" word is the signal; kept narrow so
+// monoline display faces aren't swept in.
+function isGoogleMonoCut(meta) {
+  return /\bMono$/.test(meta.family || '');
+}
+
+// Which bucket a Google family lands in (null if unsupported). A mislabeled
+// "Mono" sans/serif moves to `mono`; a single-weight Display-tagged sans/serif
+// moves to `display` so headline cuts don't crowd the text brackets; multi-weight
+// Display families stay. Why: docs/how-the-google-fonts-get-in.md.
 function googleBucket(meta) {
   const anatomical = ANATOMICAL_CATEGORY[meta.category] || null;
+  if (
+    (anatomical === 'sans' || anatomical === 'serif') &&
+    isGoogleMonoCut(meta)
+  )
+    return 'mono';
   if (
     (anatomical === 'sans' || anatomical === 'serif') &&
     isGoogleHeadlineCut(meta)
@@ -58,5 +71,6 @@ module.exports = {
   bunnyId,
   loadFontsConfig,
   googleBucket,
-  isGoogleHeadlineCut
+  isGoogleHeadlineCut,
+  isGoogleMonoCut
 };
