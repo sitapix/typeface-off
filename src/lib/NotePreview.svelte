@@ -45,11 +45,11 @@ const scheme = $derived(schemeAt(specimenScheme.value));
 
   <!-- article body (rendered in the specimen font) -->
   <article
-    class="article-body flex-1 overflow-auto px-6 py-5"
+    class="article-body flex-1 overflow-auto px-6 py-5 text-pretty"
     style="font-family: '{fontFamily}', sans-serif; font-size: {fontSize}px; line-height: 1.6;">
     {#if editable}
       <div
-        class="tester-heading cursor-text rounded font-bold outline-none"
+        class="tester-heading cursor-text rounded font-bold text-balance outline-none"
         style="font-size: {fontSize * 1.9}px; line-height: 1.2;"
         contenteditable="plaintext-only"
         role="textbox"
@@ -61,7 +61,7 @@ const scheme = $derived(schemeAt(specimenScheme.value));
       </div>
     {:else}
       <h1
-        class="font-bold"
+        class="font-bold text-balance"
         style="font-size: {fontSize * 1.9}px; line-height: 1.2;">
         {text || 'Kola nut'}
       </h1>

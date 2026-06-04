@@ -33,11 +33,6 @@ let {
     <path d="M14 4h6v6" />
     <path d="M10 14 20 4" />
     <path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6" />
-  {:else if name === 'maximize'}
-    <polyline points="15 3 21 3 21 9" />
-    <polyline points="9 21 3 21 3 15" />
-    <line x1="21" y1="3" x2="14" y2="10" />
-    <line x1="3" y1="21" x2="10" y2="14" />
   {:else if name === 'compare'}
     <rect x="3" y="4" width="7" height="16" rx="1" />
     <rect x="14" y="4" width="7" height="16" rx="1" />
@@ -63,10 +58,22 @@ let {
     <line x1="6" y1="6" x2="18" y2="18" />
   {:else if name === 'chevron'}
     <path d="m6 9 6 6 6-6" />
-  {:else if name === 'check'}
-    <path d="M20 6 9 17l-5-5" />
   {:else if name === 'bracket'}
     <path d="M5 7h4v5h6" />
     <path d="M5 17h4v-5" />
+  {:else if name === 'info'}
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="11" x2="12" y2="16" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  {:else if name === 'sliders'}
+    <line x1="4" y1="21" x2="4" y2="14" />
+    <line x1="4" y1="10" x2="4" y2="3" />
+    <line x1="12" y1="21" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12" y2="3" />
+    <line x1="20" y1="21" x2="20" y2="16" />
+    <line x1="20" y1="12" x2="20" y2="3" />
+    <line x1="1" y1="14" x2="7" y2="14" />
+    <line x1="9" y1="8" x2="15" y2="8" />
+    <line x1="17" y1="16" x2="23" y2="16" />
   {/if}
 </svg>

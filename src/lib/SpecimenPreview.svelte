@@ -40,13 +40,12 @@ const fallback = $derived(
       : 'sans-serif'
 );
 
-// Compact caps the passage (~7 lines) so a long lead can't overflow the
-// unscrollable half-panel; desktop shows it whole.
+// Compact (mobile duel half) lets the lead fill the available height and clips
+// what doesn't fit — so it adapts to the half's real height and the font's width
+// instead of a fixed line cap that left dead space (or cut a wide font short).
+// Desktop shows the whole passage and scrolls.
 const extractStyle = $derived(
-  `font-size: ${fontSize * (compact ? 1.0 : 1.05)}px; line-height: 1.45;` +
-    (compact
-      ? ` max-height: ${Math.round(fontSize * 1.45 * 7)}px; overflow: hidden;`
-      : '')
+  `font-size: ${fontSize * (compact ? 1.0 : 1.05)}px; line-height: 1.45;`
 );
 </script>
 
@@ -54,16 +53,22 @@ const extractStyle = $derived(
   class="specimen-preview flex h-full w-full flex-col overflow-hidden rounded-lg shadow-lg {className}"
   style="--ground:{scheme.bg}; --ink:{scheme.fg}; --link:{scheme.link};">
   <div
-    class="specimen-body flex-1 px-6 py-5 {compact ? '' : 'overflow-auto'}"
+    class="specimen-body flex-1 px-6 py-5 {compact
+      ? 'flex min-h-0 flex-col overflow-hidden'
+      : 'overflow-auto'}"
     style="font-family: '{fontFamily}', {fallback}; font-size: {fontSize}px;">
     <!-- term as hero word → verbatim Wikipedia lead (rich HTML) -->
     <div
-      class="specimen-word font-bold"
+      class="specimen-word font-bold text-balance shrink-0"
       style="font-size: {fontSize *
         (compact ? 2.2 : 2.6)}px; line-height: 1.04;">
       {specimen.word}
     </div>
-    <div class="specimen-extract mt-3" style={extractStyle}>
+    <div
+      class="specimen-extract mt-3 text-pretty {compact
+        ? 'min-h-0 flex-1 overflow-hidden'
+        : ''}"
+      style={extractStyle}>
       {@html specimen.html}
     </div>
 

@@ -4,6 +4,7 @@ export { default as Icon } from './Icon.svelte';
 export { default as ThemeSwitch } from './ThemeSwitch.svelte';
 export { default as ThemePicker } from './ThemePicker.svelte';
 export { default as Controls } from './Controls.svelte';
+export { default as ControlsSheet } from './ControlsSheet.svelte';
 export { default as SearchBar } from './SearchBar.svelte';
 export { default as FontHeader } from './FontHeader.svelte';
 export { default as FontTable } from './FontTable.svelte';
