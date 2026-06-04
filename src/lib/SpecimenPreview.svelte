@@ -103,6 +103,13 @@ const extractStyle = $derived(
   color: var(--ink);
   border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
 }
+/* The hero word renders at display size with `font-bold`, but most catalog fonts
+   load only their regular weight — so the browser fakes the bold and it looks
+   smeared/pixelated. Turn synthesis off: a real bold face is used when loaded,
+   otherwise the word shows the crisp regular weight. */
+.specimen-word {
+  font-synthesis: none;
+}
 .specimen-extract {
   opacity: 0.9;
 }

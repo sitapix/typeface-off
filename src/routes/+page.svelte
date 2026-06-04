@@ -297,7 +297,7 @@ function scrollToBracket() {
 }
 
 function resultsFilename() {
-  return `typeface-off-top-${selectedCategory}.jpg`;
+  return `typeface-off-top-${selectedCategory}.webp`;
 }
 
 async function saveImage() {
