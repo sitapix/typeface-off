@@ -52,7 +52,10 @@ function handleHomeNav(event: MouseEvent) {
       ><Logo class="text-xl sm:text-3xl" /></a>
   </div>
 
-  <nav class="flex items-center gap-1 sm:gap-2">
+  <!-- Desktop primary nav. On mobile these live in the bottom tab bar
+       (BottomNav), keeping the top strip uncrowded so the appearance controls
+       never clip off the right edge. -->
+  <nav class="hidden items-center gap-1 sm:gap-2 lg:flex">
     {#each links as link (link.href)}
       <a
         href={link.href}
@@ -72,7 +75,7 @@ function handleHomeNav(event: MouseEvent) {
     <a
       href="https://github.com/sitapix/typeface-off"
       target="_blank"
-      rel="noopener"
+      rel="noopener noreferrer"
       aria-label="TypefaceOff on GitHub"
       title="View source on GitHub"
       class="btn-icon preset-tonal-surface hidden md:inline-flex">

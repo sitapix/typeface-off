@@ -1,9 +1,9 @@
-/* Editorial section label (DESIGN.md label role): small, tracked, uppercase —
-   the quiet "eyebrow" over a control group. Used for the rail's section labels. */
 /* Editorial section label (DESIGN.md label role): 0.75rem / 600, lightly tracked
-   uppercase. Colour comes from the `text-surface-700-300` ramp token on the
-   element (AA-safe in every theme + both modes) — not an opacity, which dropped
-   it under contrast. */
+   uppercase, the quiet "eyebrow" over a control group. Colour is applied per
+   element via the `text-surface-800-200` ramp token (not baked in here, and not
+   an opacity, which dropped under contrast). That step is the project's muted
+   text token: it clears WCAG AA (4.5:1) on the rail surfaces across all 21
+   themes and both modes, where the lighter -700-300 / -600-400 steps do not. */
 .eyebrow {
   font-size: 0.75rem;
   font-weight: 600;
@@ -26,13 +26,34 @@
    with 8px padding, so it needs border-box here or a 44px min becomes a chunky
    60px total. */
 @media (pointer: coarse) {
-  .btn-sm {
+  .btn-sm,
+  .btn {
     min-height: 44px;
+  }
+  /* Icon-only .btn inside a btn-group (e.g. FontLinks) need width too */
+  .btn-group .btn {
+    min-width: 44px;
   }
   .btn-icon {
     box-sizing: border-box;
     min-width: 44px;
     min-height: 44px;
+  }
+}
+
+/* Global motion guard (DESIGN.md: accessible play → honour reduced-motion). One
+   site-wide rule instead of a per-component @media block in every animated file:
+   it covers every specimen, the duel, the sheet, sliders, the resize handle, and
+   the bracket transitions below. Uses 0.01ms rather than `none` so transitionend/
+   animationend listeners still fire (nothing waiting on them can hang). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

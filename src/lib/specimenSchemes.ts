@@ -8,7 +8,7 @@
  * Theme-independent: the app's 12 Skeleton themes recolour the chrome, these
  * recolour only the specimen. Mono fonts use CodePreview and ignore these.
  * Every pair clears WCAG AA for normal text and links (the tightest, blue on
- * black, is ~4.8:1). Order is intentional — the swatch picker renders it as-is.
+ * black, is ~5.1:1). Order is intentional — the swatch picker renders it as-is.
  */
 export interface SpecimenScheme {
   /** Stable id — handy for {#each} keys (storage persists the index, not this). */
@@ -78,7 +78,7 @@ export const SPECIMEN_SCHEMES: readonly SpecimenScheme[] = [
   {
     id: 'azure',
     label: 'Blue on black',
-    fg: '#0070ff',
+    fg: '#0078ff',
     bg: '#000000',
     link: '#fbbf24'
   },

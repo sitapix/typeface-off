@@ -29,7 +29,6 @@ Bagnard
 Bagnard Sans
 Bangers
 Barlow
-Barlow Condensed
 Bebas Neue
 Berkshire Swash
 Bitter
@@ -98,6 +97,7 @@ Fugaz One
 Fusion Kai G
 Fusion Kai J
 Fusion Kai T
+Gabarito
 Geist Mono
 Geist Sans
 Genjyuu Gothic
@@ -142,7 +142,6 @@ Kaushan Script
 Lato
 League Mono
 League Spartan
-Lekton
 Lextrall
 Libre Baskerville
 Libre Caslon Condensed
@@ -173,6 +172,7 @@ Monocraft
 Mononoki
 Montserrat
 Mulish
+Nanum Gothic
 Nanum Gothic Coding
 Nanum Myeongjo
 Nebula Sans
@@ -202,7 +202,6 @@ Overused Grotesk
 Pacifico
 Passion One
 Patrick Hand
-Patua One
 Paytone One
 Peace Sans
 Permanent Marker
@@ -226,6 +225,7 @@ Public Sans
 Quicksand
 Raleway
 Rampart One
+Red Hat Mono
 Redaction
 Redaction 10
 Redaction 20

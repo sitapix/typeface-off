@@ -28,7 +28,7 @@ let { fonts }: { fonts: Font[] } = $props();
           <td class="max-w-[9rem] !whitespace-nowrap p-0">
             <button
               type="button"
-              use:lazyFont={font.family}
+              {@attach lazyFont(font.family)}
               class="block w-full cursor-pointer truncate px-4 py-2 text-left"
               aria-pressed={fontFamily.value === font.family}
               onclick={() => (fontFamily.value = font.family)}

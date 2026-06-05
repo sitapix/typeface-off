@@ -42,7 +42,7 @@ let {
     class="btn"
     href={font.siteUrl}
     target="_blank"
-    rel="noopener"
+    rel="noopener noreferrer"
     aria-label="Visit {font.family} website">
     <Icon name="external" size={size} />
     {#if showLabels}<span class={labelClass}

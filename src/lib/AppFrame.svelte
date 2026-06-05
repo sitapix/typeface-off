@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { Snippet } from 'svelte';
 import ResizeHandle from './ResizeHandle.svelte';
+import BottomNav from './BottomNav.svelte';
 import { sidebarWidth } from '$lib/store.svelte';
 
 // Layout shell replacing Skeleton v2's <AppShell> (removed in v3/v4):
@@ -12,7 +13,8 @@ let {
   pageHeader,
   children,
   headerClass = '',
-  pageHeaderClass = ''
+  pageHeaderClass = '',
+  onhome
 }: {
   header?: Snippet;
   sidebar?: Snippet;
@@ -21,6 +23,9 @@ let {
   /** Extra classes for the header/page-header wrappers (e.g. to collapse them). */
   headerClass?: string;
   pageHeaderClass?: string;
+  /** Forwarded to the mobile bottom nav so a Game tap on the home route can act
+   *  (e.g. restart a finished game) instead of re-navigating. */
+  onhome?: () => void;
 } = $props();
 </script>
 
@@ -57,6 +62,11 @@ let {
       </main>
     </div>
   </div>
+
+  <!-- Mobile primary nav. In-layout (shrink-0) rather than fixed, so it reserves
+       its own height and never overlaps the full-height game duel or the tall
+       results screen. lg:hidden — desktop navigates from the header. -->
+  <BottomNav onhome={onhome} />
 </div>
 
 <style>

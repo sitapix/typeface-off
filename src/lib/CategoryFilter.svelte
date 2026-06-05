@@ -1,43 +1,40 @@
 <script lang="ts" generics="T extends string">
-// Category selector shared by the Game (chips + segmented group) and Browse
-// (chips). `categories` carries its own id/label so the same component serves
-// the 5-category Game list and the 6-option Browse list (with 'all').
+import { SegmentedControl } from '@skeletonlabs/skeleton-svelte';
+
+// Single-select category picker, rendered as a Skeleton SegmentedControl so it
+// reads as one "pick exactly one type" control. Uses the same btn-group styling
+// as +page.svelte's bracket-size toggle (modeToggle), so the two pickers look
+// like siblings. Generic over the id type: serves the Game's 5 real categories
+// and Browse's 6 (with 'all'). Labels are short and set at the DESIGN label size
+// (text-xs) with tight padding so all 5-6 segments stay legible — never
+// truncated — even in the ~318px sidebar rail.
 let {
   categories,
   selected,
   onselect,
-  variant = 'chips',
   class: className = ''
 }: {
   categories: readonly { id: T; label: string }[];
   selected: T;
   onselect: (id: T) => void;
-  /** 'chips' = wrapped outlined buttons; 'group' = segmented btn-group. */
-  variant?: 'chips' | 'group';
   class?: string;
 } = $props();
 </script>
 
-{#if variant === 'group'}
-  <div class="btn-group preset-outlined-surface-500 shrink-0 {className}">
-    {#each categories as category (category.id)}
-      <button
-        class="btn btn-sm {selected === category.id
-          ? 'preset-filled-primary-500'
-          : ''}"
-        aria-pressed={selected === category.id}
-        onclick={() => onselect(category.id)}>{category.label}</button>
-    {/each}
-  </div>
-{:else}
-  <div class="flex flex-wrap gap-1 {className}">
-    {#each categories as category (category.id)}
-      <button
-        class="btn btn-sm {selected === category.id
-          ? 'preset-filled-primary-500'
-          : 'preset-tonal-surface'}"
-        aria-pressed={selected === category.id}
-        onclick={() => onselect(category.id)}>{category.label}</button>
-    {/each}
-  </div>
-{/if}
+<SegmentedControl
+  value={selected}
+  onValueChange={(d) => {
+    // Never allow an empty selection — a bracket/filter always has a category.
+    if (d.value) onselect(d.value as T);
+  }}
+  aria-label="Filter by type"
+  class="btn-group preset-outlined-surface-500 flex w-full {className}">
+  {#each categories as category (category.id)}
+    <SegmentedControl.Item
+      value={category.id}
+      class="btn btn-sm min-w-0 flex-1 cursor-pointer px-1 text-xs font-semibold data-[state=checked]:preset-filled-primary-500">
+      <SegmentedControl.ItemText>{category.label}</SegmentedControl.ItemText>
+      <SegmentedControl.ItemHiddenInput />
+    </SegmentedControl.Item>
+  {/each}
+</SegmentedControl>

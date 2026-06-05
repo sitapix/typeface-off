@@ -435,12 +435,28 @@ export const localGeneratedFonts: Font[] = [
     "faces": [
       {
         "src": "/fonts/FixelText-Regular.woff2"
+      },
+      {
+        "src": "/fonts/FixelText-Bold.woff2",
+        "weight": "700"
+      },
+      {
+        "src": "/fonts/FixelText-Italic.woff2",
+        "style": "italic"
+      },
+      {
+        "src": "/fonts/FixelText-BoldItalic.woff2",
+        "weight": "700",
+        "style": "italic"
       }
     ],
     "designer": "Alfabravo & MacPaw",
     "license": "OFL-1.1",
     "variants": [
-      "regular"
+      "regular",
+      "700",
+      "regularitalic",
+      "700italic"
     ],
     "siteUrl": "https://github.com/macpaw/Fixel",
     "downloadUrl": "https://github.com/macpaw/Fixel"
@@ -452,12 +468,28 @@ export const localGeneratedFonts: Font[] = [
     "faces": [
       {
         "src": "/fonts/OverusedGrotesk-Regular.woff2"
+      },
+      {
+        "src": "/fonts/OverusedGrotesk-Bold.woff2",
+        "weight": "700"
+      },
+      {
+        "src": "/fonts/OverusedGrotesk-Italic.woff2",
+        "style": "italic"
+      },
+      {
+        "src": "/fonts/OverusedGrotesk-BoldItalic.woff2",
+        "weight": "700",
+        "style": "italic"
       }
     ],
     "designer": "RandomMaerks",
     "license": "OFL-1.1",
     "variants": [
-      "regular"
+      "regular",
+      "700",
+      "regularitalic",
+      "700italic"
     ],
     "siteUrl": "https://github.com/RandomMaerks/Overused-Grotesk",
     "downloadUrl": "https://github.com/RandomMaerks/Overused-Grotesk"
@@ -513,12 +545,28 @@ export const localGeneratedFonts: Font[] = [
     "faces": [
       {
         "src": "/fonts/LinuxLibertine-Regular.woff2"
+      },
+      {
+        "src": "/fonts/LinuxLibertine-Bold.woff2",
+        "weight": "700"
+      },
+      {
+        "src": "/fonts/LinuxLibertine-Italic.woff2",
+        "style": "italic"
+      },
+      {
+        "src": "/fonts/LinuxLibertine-BoldItalic.woff2",
+        "weight": "700",
+        "style": "italic"
       }
     ],
     "designer": "Philipp H. Poll",
     "license": "OFL-1.1",
     "variants": [
-      "regular"
+      "regular",
+      "700",
+      "regularitalic",
+      "700italic"
     ],
     "siteUrl": "https://sourceforge.net/projects/linuxlibertine/",
     "downloadUrl": "https://sourceforge.net/projects/linuxlibertine/"

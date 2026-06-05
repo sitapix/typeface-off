@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { Font } from '$lib/fonts';
 import FontPreview from './FontPreview.svelte';
+import { editMode } from '$lib/store.svelte';
 
 // Mobile/tablet head-to-head: both fonts fill the screen (top vs bottom), tap
 // the half you prefer to pick it. No scrolling, one tap, both visible at once.
@@ -35,6 +36,9 @@ $effect(() => {
 const pairKey = $derived(players.map((p) => p.family).join('|'));
 
 function pick(i: number, event: MouseEvent) {
+  // In edit mode the half is for typing, not picking — turn Edit off to resume
+  // tapping (the in-game banner says so). Guards against a tap-to-type firing a pick.
+  if (editMode.value) return;
   if (picking !== null) return;
   picking = i;
   try {
@@ -48,7 +52,10 @@ function pick(i: number, event: MouseEvent) {
 }
 </script>
 
-<div class="font-duel" style="touch-action: manipulation;">
+<div
+  class="font-duel"
+  class:editing={editMode.value}
+  style="touch-action: manipulation;">
   {#key pairKey}
     {#each players as font, i (font.family)}
       <button
@@ -57,7 +64,7 @@ function pick(i: number, event: MouseEvent) {
         class:picking={picking === i}
         class:dimmed={picking !== null && picking !== i}
         onclick={(e) => pick(i, e)}
-        aria-label={showName ? `Choose ${font.family}` : 'Choose this font'}>
+        aria-label={i === 0 ? 'Choose first font' : 'Choose second font'}>
         <FontPreview
           class="duel-specimen"
           family={font.family}
@@ -146,10 +153,24 @@ function pick(i: number, event: MouseEvent) {
   transform: scale(0.95);
 }
 
-/* specimen fills the half and is display-only; the half captures the tap */
+/* specimen fills the half */
 .duel-half :global(.duel-specimen) {
   height: 100%;
+}
+/* When picking, the specimen is display-only so the whole half is the tap target.
+   In edit mode it must receive input, so let pointer events through and stand the
+   half down (no pick, no chip, no press cue — turn Edit off to tap again). */
+.font-duel:not(.editing) .duel-half :global(.duel-specimen) {
   pointer-events: none;
+}
+.font-duel.editing .duel-cta {
+  display: none;
+}
+.font-duel.editing .duel-half {
+  cursor: default;
+}
+.font-duel.editing .duel-half:active {
+  transform: none;
 }
 
 /* compact cue tucked into the window title-bar, right of the URL — out of the
@@ -202,14 +223,6 @@ function pick(i: number, event: MouseEvent) {
   }
   100% {
     transform: scale(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .duel-half,
-  .duel-half.picking {
-    animation: none !important;
-    transition: none !important;
   }
 }
 </style>
