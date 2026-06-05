@@ -85,11 +85,11 @@ const categoryNames = CATEGORIES.map((c) => c.label.toLowerCase()).join(', ');
       <a
         href="{base}/font-names.html"
         target="_blank"
-        rel="noopener"
+        rel="noopener noreferrer"
         class="group mt-4 flex items-center justify-between gap-4 rounded-lg border border-surface-200-800 bg-surface-100-900 px-4 py-3 transition-colors hover:border-primary-500">
         <span>
           <span class="font-semibold">Open the font list</span>
-          <span class="block text-sm text-surface-700-300"
+          <span class="block text-sm text-surface-800-200"
             >All {familyCount} families, one per line</span>
         </span>
         <span

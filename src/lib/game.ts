@@ -28,10 +28,14 @@ export interface Tournament {
   getNextMatchup(): Matchup | undefined;
 }
 
+let _confetti: ReturnType<typeof confetti.create> | null = null;
+
 export function createConfetti(
   size: 'big' | 'small' = 'big',
   position = { x: 0.5, y: 0.5 }
 ) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
   const options: confetti.Options = {
     particleCount: 400,
     spread: 200,
@@ -47,7 +51,9 @@ export function createConfetti(
   const canvas = document.getElementById('canvas') as HTMLCanvasElement | null;
   if (!canvas) return;
 
-  confetti.create(canvas, { resize: true, useWorker: true })(options);
+  if (!_confetti)
+    _confetti = confetti.create(canvas, { resize: true, useWorker: true });
+  _confetti(options);
 }
 
 export function createGame(

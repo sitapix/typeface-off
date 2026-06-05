@@ -1,8 +1,6 @@
 <script lang="ts">
 import Icon from './Icon.svelte';
-import { persisted } from './persisted.svelte';
-
-const mode = persisted<'light' | 'dark'>('color-scheme', 'light');
+import { colorScheme as mode } from './store.svelte';
 
 function apply(m: 'light' | 'dark') {
   const root = document.documentElement;
@@ -10,7 +8,9 @@ function apply(m: 'light' | 'dark') {
   root.style.colorScheme = m;
 }
 
-// Runs only on the client; keeps <html> in sync with the stored mode.
+// Runs only on the client; keeps <html> in sync with the shared mode store.
+// This header switch is always mounted (display:none when hidden, still mounted),
+// so it remains the single applier even when the mobile sheet drives the value.
 $effect(() => {
   apply(mode.value);
 });

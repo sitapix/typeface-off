@@ -112,9 +112,4 @@ function onkeydown(e: KeyboardEvent) {
 .resize-handle:focus-visible {
   outline: none;
 }
-@media (prefers-reduced-motion: reduce) {
-  .resize-handle::after {
-    transition: none;
-  }
-}
 </style>

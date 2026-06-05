@@ -8,7 +8,7 @@ afterEach(() => {
   globalThis.IntersectionObserver = orig;
 });
 
-describe('lazyFont action', () => {
+describe('lazyFont attachment', () => {
   it('does not apply the font until the element intersects, then applies it', () => {
     let cb: (entries: { isIntersecting: boolean }[]) => void = () => {};
     globalThis.IntersectionObserver = class {
@@ -20,7 +20,7 @@ describe('lazyFont action', () => {
     } as any;
 
     const node = fakeNode();
-    lazyFont(node, 'Inter');
+    lazyFont('Inter')(node);
     expect(node.style.fontFamily).toBeFalsy(); // not on screen yet
 
     cb([{ isIntersecting: true }]); // scrolled into view
@@ -30,11 +30,13 @@ describe('lazyFont action', () => {
   it('applies immediately when IntersectionObserver is unavailable', () => {
     globalThis.IntersectionObserver = undefined as any;
     const node = fakeNode();
-    lazyFont(node, 'Roboto Mono');
+    lazyFont('Roboto Mono')(node);
     expect(node.style.fontFamily).toBe("'Roboto Mono', sans-serif");
   });
 
-  it('update() swaps the family once it is already visible', () => {
+  it('re-running with a new family swaps it once visible', () => {
+    // The attachment re-runs (teardown + re-attach) when `family` changes; a
+    // fresh observer fires intersection and applies the new family.
     let cb: (entries: { isIntersecting: boolean }[]) => void = () => {};
     globalThis.IntersectionObserver = class {
       constructor(c: any) {
@@ -45,14 +47,16 @@ describe('lazyFont action', () => {
     } as any;
 
     const node = fakeNode();
-    const handle = lazyFont(node, 'Lora');
+    lazyFont('Lora')(node);
     cb([{ isIntersecting: true }]);
     expect(node.style.fontFamily).toBe("'Lora', sans-serif");
-    handle.update('Bitter');
+
+    lazyFont('Bitter')(node);
+    cb([{ isIntersecting: true }]);
     expect(node.style.fontFamily).toBe("'Bitter', sans-serif");
   });
 
-  it('disconnects the observer on destroy', () => {
+  it('disconnects the observer on teardown', () => {
     const disconnect = vi.fn();
     globalThis.IntersectionObserver = class {
       observe() {}
@@ -61,7 +65,8 @@ describe('lazyFont action', () => {
       }
     } as any;
     const node = fakeNode();
-    lazyFont(node, 'X').destroy();
+    const cleanup = lazyFont('X')(node);
+    cleanup?.();
     expect(disconnect).toHaveBeenCalled();
   });
 });

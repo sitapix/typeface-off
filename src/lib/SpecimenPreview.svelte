@@ -1,12 +1,17 @@
 <script lang="ts">
-// Type-specimen for the Game duel: the term as a hero word over its Wikipedia
-// lead (from specimenContent.ts), then the shared charset rows, on the active
-// specimen scheme. Display-only so the whole duel half is one tap target.
+// Type-specimen for the Game duel (read-only). Either your own copy — the shared
+// `previewText` (SSOT), rendered across styles in this font — or, until you've
+// written any, the curated term-as-hero-word over its Wikipedia lead (from
+// specimenContent.ts) with the shared charset rows. Editing happens in the
+// in-place SpecimenEditor that replaces the duel in edit mode, not here.
 // `compact` is the stacked mobile duel: each font gets half the screen, so it
-// caps the extract height and drops the charset rows (the specimen can't scroll).
-// Mono uses CodePreview; Browse/detail use NotePreview.
+// caps the height and drops the charset rows. Mono uses CodePreview.
 import type { FontCategory } from '$lib/fonts';
-import { specimenScheme } from '$lib/store.svelte';
+import {
+  specimenScheme,
+  previewText,
+  isCustomPreview
+} from '$lib/store.svelte';
 import { schemeAt } from '$lib/specimenSchemes';
 import { specimenFor, CHARSET } from '$lib/specimenContent';
 
@@ -31,6 +36,10 @@ let {
 const scheme = $derived(schemeAt(specimenScheme.value));
 const specimen = $derived(specimenFor(category, seed));
 
+// Once you've written your own copy it becomes the shared SSOT shown in every
+// specimen for the rest of the game; until then, the curated specimen shows.
+const hasCustom = $derived(isCustomPreview(previewText.value));
+
 // Category-appropriate fallback so the pre-load flash isn't jarring.
 const fallback = $derived(
   category === 'serif'
@@ -52,53 +61,90 @@ const extractStyle = $derived(
 <div
   class="specimen-preview flex h-full w-full flex-col overflow-hidden rounded-lg shadow-lg {className}"
   style="--ground:{scheme.bg}; --ink:{scheme.fg}; --link:{scheme.link};">
-  <div
-    class="specimen-body flex-1 px-6 py-5 {compact
-      ? 'flex min-h-0 flex-col overflow-hidden'
-      : 'overflow-auto'}"
-    style="font-family: '{fontFamily}', {fallback}; font-size: {fontSize}px;">
-    <!-- term as hero word → verbatim Wikipedia lead (rich HTML) -->
+  {#if hasCustom}
+    <!-- your own copy (the SSOT), rendered across styles (heading/body/bold/
+         italic) in this font — the same content on both duel halves. -->
     <div
-      class="specimen-word font-bold text-balance shrink-0"
-      style="font-size: {fontSize *
-        (compact ? 2.2 : 2.6)}px; line-height: 1.04;">
-      {specimen.word}
-    </div>
-    <div
-      class="specimen-extract mt-3 text-pretty {compact
-        ? 'min-h-0 flex-1 overflow-hidden'
-        : ''}"
-      style={extractStyle}>
-      {@html specimen.html}
-    </div>
-
-    {#if !compact}
-      <hr class="specimen-rule my-5" />
-
-      <!-- charset: identical for every face (the fair-completeness guarantee) -->
+      class="specimen-body flex-1 px-6 py-5 {compact
+        ? 'flex min-h-0 flex-col overflow-hidden'
+        : 'overflow-auto'}"
+      style="font-family: '{fontFamily}', {fallback}; font-size: {fontSize}px;">
       <div
-        class="specimen-charset"
-        style="font-size: {fontSize * 0.95}px; line-height: 1.5;">
-        <div class="charset-row">{CHARSET.lower}</div>
-        <div class="charset-row">{CHARSET.upper}</div>
-        <div
-          class="charset-row opacity-70"
-          style="font-size: {fontSize * 0.9}px;">
-          {CHARSET.figures}
-        </div>
+        class="specimen-custom text-pretty {compact
+          ? 'min-h-0 flex-1 overflow-hidden'
+          : ''}"
+        class:compact={compact}
+        style="line-height: 1.4;">
+        {@html previewText.value}
       </div>
-    {/if}
-  </div>
 
-  <!-- Per-item Wikipedia credit (CC BY-SA). Neutral UI font; bottom-left, clear
+      {#if !compact}
+        <hr class="specimen-rule my-5" />
+
+        <!-- charset: identical for every face (the fair-completeness guarantee) -->
+        <div
+          class="specimen-charset"
+          style="font-size: {fontSize * 0.95}px; line-height: 1.5;">
+          <div class="charset-row">{CHARSET.lower}</div>
+          <div class="charset-row">{CHARSET.upper}</div>
+          <div
+            class="charset-row opacity-70"
+            style="font-size: {fontSize * 0.9}px;">
+            {CHARSET.figures}
+          </div>
+        </div>
+      {/if}
+    </div>
+  {:else}
+    <div
+      class="specimen-body flex-1 px-6 py-5 {compact
+        ? 'flex min-h-0 flex-col overflow-hidden'
+        : 'overflow-auto'}"
+      style="font-family: '{fontFamily}', {fallback}; font-size: {fontSize}px;">
+      <!-- term as hero word → verbatim Wikipedia lead (rich HTML) -->
+      <div
+        class="specimen-word font-bold text-balance shrink-0"
+        style="font-size: {fontSize *
+          (compact ? 2.2 : 2.6)}px; line-height: 1.04;">
+        {specimen.word}
+      </div>
+      <div
+        class="specimen-extract mt-3 text-pretty {compact
+          ? 'min-h-0 flex-1 overflow-hidden'
+          : ''}"
+        style={extractStyle}>
+        {@html specimen.html}
+      </div>
+
+      {#if !compact}
+        <hr class="specimen-rule my-5" />
+
+        <!-- charset: identical for every face (the fair-completeness guarantee) -->
+        <div
+          class="specimen-charset"
+          style="font-size: {fontSize * 0.95}px; line-height: 1.5;">
+          <div class="charset-row">{CHARSET.lower}</div>
+          <div class="charset-row">{CHARSET.upper}</div>
+          <div
+            class="charset-row opacity-70"
+            style="font-size: {fontSize * 0.9}px;">
+            {CHARSET.figures}
+          </div>
+        </div>
+      {/if}
+    </div>
+
+    <!-- Per-item Wikipedia credit (CC BY-SA). Neutral UI font; bottom-left, clear
        of the duel chip and Choose button. -->
-  <div class="specimen-source">Wikipedia · {specimen.word}</div>
+    <div class="specimen-source">Wikipedia · {specimen.word}</div>
+  {/if}
 </div>
 
 <style>
 /* Scheme colours (--ground/--ink/--link) set inline; border/divider mix from
    the ink so they read on any ground. */
 .specimen-preview {
+  position: relative;
   background: var(--ground);
   color: var(--ink);
   border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
@@ -142,6 +188,37 @@ const extractStyle = $derived(
   font-weight: 700;
 }
 :global(.specimen-extract em) {
+  font-style: italic;
+}
+/* Rendered custom copy ({@html} — Tiptap HTML from the SSOT). Headings echo the
+   curated hero scale so a face is still judged at display + body sizes; real bold
+   is used when the cut is loaded, otherwise a crisp regular (no smeared faux). */
+.specimen-custom :global(h1) {
+  font-weight: 700;
+  font-size: 2.4em;
+  line-height: 1.06;
+}
+.specimen-custom :global(h2) {
+  font-weight: 700;
+  font-size: 1.5em;
+  line-height: 1.15;
+  margin-top: 0.4em;
+}
+.specimen-custom.compact :global(h1) {
+  font-size: 2em;
+}
+.specimen-custom :global(p) {
+  margin: 0;
+}
+.specimen-custom :global(h1 + p),
+.specimen-custom :global(h2 + p),
+.specimen-custom :global(p + p) {
+  margin-top: 0.5em;
+}
+.specimen-custom :global(strong) {
+  font-weight: 700;
+}
+.specimen-custom :global(em) {
   font-style: italic;
 }
 .specimen-rule {

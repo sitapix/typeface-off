@@ -10,16 +10,12 @@ let {
   font,
   fontSize = 20,
   ligatures = true,
-  previewClass = 'overflow-hidden rounded-lg',
-  editable = false,
-  text = ''
+  previewClass = 'overflow-hidden rounded-lg'
 }: {
   font?: Font;
   fontSize?: number;
   ligatures?: boolean;
   previewClass?: string;
-  editable?: boolean;
-  text?: string;
 } = $props();
 </script>
 
@@ -29,6 +25,4 @@ let {
   fontSize={fontSize}
   family={font?.family}
   category={font?.category}
-  ligatures={ligatures}
-  editable={editable}
-  text={text} />
+  ligatures={ligatures} />

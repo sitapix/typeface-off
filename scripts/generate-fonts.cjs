@@ -47,34 +47,57 @@ function fsBucket(cat) {
   return null;
 }
 
-// Build one @font-face `src` (static jsDelivr woff2) for a Fontsource font, so we
-// can inline @font-face instead of fetching a stylesheet per font. Variable fonts
-// use the :vf weight-axis file (covers all weights); static fonts use the 400
-// file (or the nearest available weight).
+// Build the @font-face `src` list (static jsDelivr woff2) for a Fontsource font,
+// so we can inline @font-face instead of fetching a stylesheet per font.
+//
+// Text fonts emit the duel's bold + italic cuts too (regular + 700 × normal +
+// italic, whichever the font actually publishes) so the type-tester renders real
+// <strong>/<em>/headings instead of faux. Mono keeps a single regular face (the
+// code editor uses neither bold nor italic). Variable fonts use the :vf weight-
+// axis file (one per style covers the whole range); static fonts list discrete
+// cuts. Only cuts present in f.weights/f.styles are emitted.
 function fsFaces(f) {
   const sub = f.defSubset || 'latin';
   const ws = f.weights && f.weights.length ? f.weights : [400];
-  // Most fonts have 'normal'; some (e.g. Syne Italic) are italic-only.
-  const style = (f.styles || ['normal']).includes('normal')
-    ? 'normal'
-    : 'italic';
-  let face;
-  if (f.variable) {
-    const min = Math.min(...ws);
-    const max = Math.max(...ws);
-    face = {
-      src: `https://cdn.jsdelivr.net/fontsource/fonts/${f.id}:vf@latest/${sub}-wght-${style}.woff2`,
-      weight: min === max ? String(min) : `${min} ${max}`
-    };
-  } else {
-    const w = ws.includes(400) ? 400 : ws[0];
-    face = {
-      src: `https://cdn.jsdelivr.net/fontsource/fonts/${f.id}@latest/${sub}-${w}-${style}.woff2`,
-      weight: String(w)
-    };
+  const styles = f.styles && f.styles.length ? f.styles : ['normal'];
+  const isMono = fsBucket(f.category) === 'mono';
+
+  // Regular weight (400, or nearest), plus 700 for text fonts that have it.
+  const reg = ws.includes(400) ? 400 : ws[0];
+  const weights =
+    !isMono && ws.includes(700) && 700 !== reg ? [reg, 700] : [reg];
+  // 'normal' unless the font is italic-only (e.g. Syne Italic); add 'italic' for
+  // text fonts that publish it.
+  const baseStyle = styles.includes('normal') ? 'normal' : 'italic';
+  const emitStyles =
+    !isMono && styles.includes('italic') && baseStyle !== 'italic'
+      ? [baseStyle, 'italic']
+      : [baseStyle];
+
+  const faces = [];
+  for (const st of emitStyles) {
+    if (f.variable) {
+      // One vf file per style spans the whole weight range.
+      const min = Math.min(...ws);
+      const max = Math.max(...ws);
+      const face = {
+        src: `https://cdn.jsdelivr.net/fontsource/fonts/${f.id}:vf@latest/${sub}-wght-${st}.woff2`,
+        weight: min === max ? String(min) : `${min} ${max}`
+      };
+      if (st === 'italic') face.style = 'italic';
+      faces.push(face);
+    } else {
+      for (const w of weights) {
+        const face = {
+          src: `https://cdn.jsdelivr.net/fontsource/fonts/${f.id}@latest/${sub}-${w}-${st}.woff2`,
+          weight: String(w)
+        };
+        if (st === 'italic') face.style = 'italic';
+        faces.push(face);
+      }
+    }
   }
-  if (style === 'italic') face.style = 'italic';
-  return [face];
+  return faces;
 }
 
 // The Fontsource API has no author field; its npm metadata.json does, in
